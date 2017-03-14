@@ -184,6 +184,7 @@ prun.add_argument('--optCmtConfig',            metavar='', type=str, required=Fa
 prun.add_argument('--optGridDisableAutoRetry', metavar='', type=int, required=False, default=None)
 prun.add_argument('--optOfficial',             metavar='', type=int, required=False, default=None)
 prun.add_argument('--optVoms',                 metavar='', type=int, required=False, default=None)
+prun.add_argument('--singleTask',              action='store_true', required=False)
 # the following is not technically supported by Job.h but it is a valid option for prun, emailed pathelp about it
 prun.add_argument('--optGridOutputSampleName', metavar='', type=str, required=False, help='Define output grid sample name', default='user.%nickname%.%in:name[4]%.%in:name[5]%.%in:name[6]%.%in:name[7]%_xAH')
 
@@ -192,6 +193,19 @@ condor.add_argument('--optCondorConf', metavar='', type=str, required=False, def
 
 # define arguments for lsf driver
 lsf.add_argument('--optResetShell', metavar='', type=bool, required=False, default=False, help='the option to reset the shell on the worker nodes')
+
+# useful functions
+
+def parse_filelist(fname):
+  # Turn contents of fname into a list, skipping empty lines and comments
+  outList=[]
+  with open(fname, 'r') as f:
+    for line in f:
+      if line.startswith('#') : continue
+      if not line.strip()     : continue
+      line = line.strip()
+      outList.append(line)
+  return outList
 
 # start the script
 if __name__ == "__main__":
@@ -314,30 +328,33 @@ if __name__ == "__main__":
 
     for fname in args.input_filename:
       if args.use_inputFileList:
-        if (args.use_scanDQ2 or use_scanEOS or args.use_scanXRD or args.use_scanRucio):
-          with open(fname, 'r') as f:
-            for line in f:
-              if line.startswith('#') : continue
-              if not line.strip()     : continue
-              line = line.strip()
-              if args.use_scanDQ2:
-                ROOT.SH.scanDQ2(sh_all, line)
-              elif args.use_scanRucio:
-                ROOT.SH.scanRucio(sh_all, line)
-              elif use_scanEOS:
-                base = os.path.basename(line)
-                eosDataSet = os.path.dirname(line)
-                ROOT.SH.ScanDir().sampleDepth(0).samplePattern(eosDataSet).scanEOS(sh_all,base)
-              elif args.use_scanXRD:
-                # assume format like root://someserver//path/to/files/*pattern*.root
-                server, path = line.replace('root://', '').split('//')
-                sh_list = ROOT.SH.DiskListXRD(server, path, True)
-                ROOT.SH.ScanDir().scan(sh_all, sh_list)
-              else:
-                raise Exception("What just happened?")
+        # Sample name
+        sname='.'.join(os.path.basename(fname).split('.')[:-1]) # input filelist name without extension
+        if (args.use_scanDQ2 or use_scanEOS or args.use_scanXRD or (args.use_scanRucio and not args.singleTask)):
+          for line in parse_filelist(fname):
+            if args.use_scanDQ2:
+              ROOT.SH.scanDQ2(sh_all, line)
+            elif args.use_scanRucio:
+              ROOT.SH.scanRucio(sh_all, line)
+            elif use_scanEOS:
+              base = os.path.basename(line)
+              eosDataSet = os.path.dirname(line)
+              ROOT.SH.ScanDir().sampleDepth(0).samplePattern(eosDataSet).scanEOS(sh_all,base)
+            elif args.use_scanXRD:
+              # assume format like root://someserver//path/to/files/*pattern*.root
+              server, path = line.replace('root://', '').split('//')
+              sh_list = ROOT.SH.DiskListXRD(server, path, True)
+              ROOT.SH.ScanDir().scan(sh_all, sh_list)
+            else:
+              raise Exception("What just happened?")
+        elif args.use_scanRucio and args.singleTask:
+          inputDSlist=','.join(parse_filelist(fname))
+          sample=ROOT.SH.SampleGrid(sname)
+          sample.meta().setString(ROOT.SH.MetaFields.gridName,   inputDSlist);
+          sample.meta().setString(ROOT.SH.MetaFields.gridFilter, ROOT.SH.MetaFields.gridFilter_default);
+          sh_all.add(sample)
+          print('ADD SAMPLE',sname,inputDSlist)
         else:
-          # Sample name
-          sname='.'.join(os.path.basename(fname).split('.')[:-1]) # input filelist name without extension
           # Read settings
           fcname=os.path.dirname(fname)+'/'+sname+'.config' # replace .txt with .config
           config={}
@@ -543,7 +560,7 @@ if __name__ == "__main__":
       driver = ROOT.EL.PrunDriver()
       for opt, t in map(lambda x: (x.dest, x.type), prun._actions):
         if getattr(args, opt) is None: continue  # skip if not set
-        if opt in ['help', 'optGridOutputSampleName', 'optBatchWait']: continue  # skip some options
+        if opt in ['help', 'optGridOutputSampleName', 'optBatchWait', 'singleTask']: continue  # skip some options
         if t in [float]:
           setter = 'setDouble'
         elif t in [int]:
