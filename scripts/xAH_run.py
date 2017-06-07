@@ -158,6 +158,12 @@ lsf = drivers_parser.add_parser('lsf',
                                 formatter_class=lambda prog: CustomFormatter(prog, max_help_position=30),
                                 parents=[drivers_common])
 
+gridengine = drivers_parser.add_parser('gridengine',
+                                       help='Flock your jobs to Grid Engine',
+                                       usage=baseUsageStr.format('gridengine'),
+                                       formatter_class=lambda prog: CustomFormatter(prog, max_help_position=30),
+                                       parents=[drivers_common])
+
 # define arguments for prooflite driver
 prooflite.add_argument('--optPerfTree',          metavar='', type=int, required=False, default=None, help='the option to turn on the performance tree in PROOF.  if this is set to 1, it will write out the tree')
 prooflite.add_argument('--optBackgroundProcess', metavar='', type=int, required=False, default=None, help='the option to do processing in a background process in PROOF')
@@ -194,6 +200,9 @@ condor.add_argument('--optCondorConf', metavar='', type=str, required=False, def
 # define arguments for lsf driver
 lsf.add_argument('--optResetShell', metavar='', type=bool, required=False, default=False, help='the option to reset the shell on the worker nodes')
 
+# define arguments for SoGridEngine driver
+gridengine.add_argument('--shellInit', metavar='', type=str, required=False, default='', help='extra code to execute on the worder nodes')
+
 # start the script
 if __name__ == "__main__":
   SCRIPT_START_TIME = datetime.datetime.now()
@@ -228,7 +237,7 @@ if __name__ == "__main__":
         raise OSError('Output directory {0:s} already exists. Either re-run with -f/--force, choose a different --submitDir, or rm -rf it yourself. Just deal with it, dang it.'.format(args.submit_dir))
 
     # they will need it to get it working
-    needXRD = (args.use_scanDQ2)|(args.use_scanRucio)|(args.driver in ['prun', 'condor','lsf'])
+    needXRD = (args.use_scanDQ2)|(args.use_scanRucio)|(args.driver in ['prun','condor','lsf','gridengine'])
     if needXRD:
       if os.getenv('XRDSYS') is None and os.getenv('RUCIO_HOME') is None:
         raise EnvironmentError('xrootd client is not setup. Run localSetupFAX or equivalent.')
@@ -261,6 +270,9 @@ if __name__ == "__main__":
     elif args.driver == 'lsf':
       if getattr(ROOT.EL, 'LSFDriver') is None:
         raise KeyError('Cannot load the LSF driver from EventLoop. Did you not compile it?')
+    elif args.driver == 'gridengine':
+      if getattr(ROOT.EL, 'SoGEDriver') is None:
+        raise KeyError('Cannot load the SoGridEngine driver from EventLoop. Did you not compile it?')
 
     # create a new sample handler to describe the data files we use
     xAH_logger.info("creating new sample handler")
@@ -468,7 +480,6 @@ if __name__ == "__main__":
     driver = None
     if (args.driver == "direct"):
       driver = ROOT.EL.DirectDriver()
-
     elif (args.driver == "prooflite"):
       driver = ROOT.EL.ProofDriver()
       for opt, t in map(lambda x: (x.dest, x.type), prooflite._actions):
@@ -535,9 +546,25 @@ if __name__ == "__main__":
           setter = 'setString'
         getattr(driver.options(), setter)(getattr(ROOT.EL.Job, opt), getattr(args, opt))
         xAH_logger.info("\t - driver.options().{0:s}({1:s}, {2})".format(setter, getattr(ROOT.EL.Job, opt), getattr(args, opt)))
+    elif (args.driver == "gridengine"):
+      driver = ROOT.EL.SoGEDriver()
+      driver.shellInit=args.shellInit
+      for opt, t in map(lambda x: (x.dest, x.type), gridengine._actions):
+        if getattr(args, opt) is None: continue  # skip if not set
+        if opt in ['help', 'optBatchWait', 'shellInit']: continue  # skip some options
+        if t in [float]:
+          setter = 'setDouble'
+        elif t in [int]:
+          setter = 'setInteger'
+        elif t in [bool]:
+          setter = 'setBool'
+        else:
+          setter = 'setString'
+        getattr(driver.options(), setter)(getattr(ROOT.EL.Job, opt), getattr(args, opt))
+        xAH_logger.info("\t - driver.options().{0:s}({1:s}, {2})".format(setter, getattr(ROOT.EL.Job, opt), getattr(args, opt)))
 
     xAH_logger.info("\tsubmit job")
-    if args.driver in ["prun","lsf", "condor"] and not args.optBatchWait:
+    if args.driver in ["prun","lsf","condor","gridengine"] and not args.optBatchWait:
       driver.submitOnly(job, args.submit_dir)
     else:
       driver.submit(job, args.submit_dir)
