@@ -42,6 +42,10 @@
 /* Tree */
 #include <xAODAnaHelpers/TreeAlgo.h>
 
+/* Particle */
+#include <xAODAnaHelpers/Particle.h>
+#include <xAODAnaHelpers/Jet.h>
+
 /* Mini xAOD */
 #include <xAODAnaHelpers/MinixAOD.h>
 
@@ -93,6 +97,9 @@
 #pragma link C++ class ClusterHistsAlgo+;
 
 #pragma link C++ class TreeAlgo+;
+
+#pragma link C++ class Particle+;
+#pragma link C++ class Jet+;
 
 #pragma link C++ class MinixAOD+;
 

@@ -16,22 +16,23 @@
 #ifndef xAODAnaHelpers_HelpTreeBase_H
 #define xAODAnaHelpers_HelpTreeBase_H
 
-
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODTrigger/JetRoIContainer.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
+#include <xAODRootAccess/TEvent.h>
+#include <xAODRootAccess/TStore.h>
+#include <xAODEventInfo/EventInfo.h>
+#include <xAODEgamma/ElectronContainer.h>
+#include <xAODEgamma/PhotonContainer.h>
+#include <xAODMuon/MuonContainer.h>
+#include <xAODJet/JetContainer.h>
+#include <xAODTrigger/JetRoIContainer.h>
+#include <xAODTruth/TruthParticleContainer.h>
+#include <xAODTau/TauJetContainer.h>
+#include <xAODMissingET/MissingETContainer.h>
+#include <xAODTracking/TrackParticleContainer.h>
 
 #include "xAODAnaHelpers/HelperClasses.h"
 #include "xAODAnaHelpers/EventInfo.h"
 #include "xAODAnaHelpers/MetContainer.h"
-#include "xAODAnaHelpers/JetContainer.h"
+#include "xAODAnaHelpers/JetHelpTree.h"
 #include "xAODAnaHelpers/ElectronContainer.h"
 #include "xAODAnaHelpers/PhotonContainer.h"
 #include "xAODAnaHelpers/FatJetContainer.h"
@@ -39,8 +40,6 @@
 #include "xAODAnaHelpers/TrackContainer.h"
 #include "xAODAnaHelpers/MuonContainer.h"
 #include "xAODAnaHelpers/TauContainer.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
 
 
 #include <map>
@@ -207,11 +206,6 @@ public:
     return;
   };
 
-  virtual void AddJetsUser(const std::string detailStr = "", const std::string jetName = "jet")       {
-    if(m_debug) Info("AddJetsUser","Empty function called from HelpTreeBase %s %s",detailStr.c_str(), jetName.c_str());
-    return;
-  };
-
   virtual void AddTruthUser(const std::string truthName, const std::string detailStr = "")       {
     if(m_debug) Info("AddTruthUser","Empty function called from HelpTreeBase %s %s",truthName.c_str(), detailStr.c_str());
     return;
@@ -256,7 +250,6 @@ public:
   virtual void ClearPhotonsUser     (const std::string /*photonName = "ph"*/) { return; };
   virtual void ClearTruthUser       (const std::string /*truthName*/) 	    { return; };
   virtual void ClearTracksUser       (const std::string /*trackName*/)       { return; };
-  virtual void ClearJetsUser        (const std::string /*jetName = "jet"*/ ) 	    { return; };
   virtual void ClearFatJetsUser     (const std::string /*fatjetName = "fatjet"*/, const std::string /*suffix = ""*/)   { return; };
   virtual void ClearTruthFatJetsUser(const std::string /*truthFatJetName = "truth_fatjet"*/)   { return; };
   virtual void ClearTausUser        (const std::string /*tauName = "tau"*/) 	    { return; };
@@ -266,7 +259,6 @@ public:
   virtual void FillMuonsUser    ( const xAOD::Muon*,     const std::string /*muonName = "muon"*/  )             { return; };
   virtual void FillElectronsUser( const xAOD::Electron*, const std::string /*elecName = "el"*/ )     { return; };
   virtual void FillPhotonsUser  ( const xAOD::Photon*,   const std::string /*photonName = "ph"*/ )     { return; };
-  virtual void FillJetsUser     ( const xAOD::Jet*,      const std::string /*jetName = "jet"*/  )               { return; };
   virtual void FillTruthUser    ( const std::string /*truthName*/, const xAOD::TruthParticle*  )               { return; };
   virtual void FillTracksUser   ( const std::string /*trackName*/, const xAOD::TrackParticle*  )               { return; };
   /**
@@ -326,7 +318,7 @@ protected:
   //
   //  Jets
   //
-  std::map<std::string, xAH::JetContainer*> m_jets;
+  std::map<std::string, xAH::JetHelpTree*> m_jets;
 
   //
   // L1 Jets

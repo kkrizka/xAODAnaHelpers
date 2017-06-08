@@ -580,7 +580,6 @@ void HelpTreeBase::AddJets(const std::string detailStr, const std::string jetNam
 
   xAH::JetContainer* thisJet = m_jets[jetName];
   thisJet->setBranches(m_tree);
-  this->AddJetsUser(detailStr, jetName);
 
 }
 
@@ -626,8 +625,6 @@ void HelpTreeBase::FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, in
 
   thisJet->FillJet(jet_itr, pv, pvLocation);
 
-  this->FillJetsUser(jet_itr, jetName);
-
   return;
 }
 
@@ -635,8 +632,6 @@ void HelpTreeBase::ClearJets(const std::string jetName) {
 
   xAH::JetContainer* thisJet = m_jets[jetName];
   thisJet->clear();
-
-  this->ClearJetsUser(jetName);
 
 }
 

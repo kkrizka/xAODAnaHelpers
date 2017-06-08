@@ -5,12 +5,13 @@
 
 namespace xAH {
   
-  class Particle
+  class Particle : public TObject
   {
+    ClassDef(Particle, 1);
     
   public:
 
-    //Particle() {};
+    Particle() : TObject() {};
     virtual ~Particle() {}
 
     TLorentzVector p4;
