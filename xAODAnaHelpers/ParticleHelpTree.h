@@ -42,7 +42,7 @@ namespace xAH {
 
     virtual void createBranches(TTree *tree)
     {
-      tree->Branch(branchName(),&m_particles);
+      tree->Branch(branchName().c_str(),&m_particles);
 
       setBranchStatus(tree, "*",    false);
       if(m_infoSwitch.m_kinematic)

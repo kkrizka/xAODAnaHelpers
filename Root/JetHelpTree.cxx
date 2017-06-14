@@ -355,222 +355,196 @@ void JetHelpTree::createBranches(TTree *tree)
     }
 }
 
-void JetHelpTree::FillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvLocation )
+void JetHelpTree::fillJet( const xAOD::Jet* jet, xAH::Jet *myjet, int pvLocation )
 {
-  return FillJet(static_cast<const xAOD::IParticle*>(jet), pv, pvLocation);
-}
+  ParticleHelpTree::fillParticle(jet, myjet);
 
-void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* pv, int pvLocation ){
-  if(m_debug) cout << "In JetHelpTree::FillJet " << endl;
+  if ( m_infoSwitch.m_rapidity )
+    {
+      myjet->rapidity = jet->rapidity();
+    }
 
-  ParticleHelpTree::FillParticle(particle);
+  if ( m_infoSwitch.m_clean )
+    {
+      static SG::AuxElement::ConstAccessor<float> Timing ("Timing");
+      myjet->Timing=Timing(*jet);
 
-  const xAOD::Jet* jet=dynamic_cast<const xAOD::Jet*>(particle);
+      static SG::AuxElement::ConstAccessor<float> LArQuality ("LArQuality");
+      myjet->LArQuality=LArQuality(*jet);			      
 
-  if( m_infoSwitch.m_rapidity ){
-    m_rapidity->push_back( jet->rapidity() );
-  }
+      static SG::AuxElement::ConstAccessor<float> HECQuality ("HECQuality");
+      myjet->HECQuality=HECQuality(*jet);
 
-  if (m_infoSwitch.m_clean) {
-    static SG::AuxElement::ConstAccessor<float> jetTime ("Timing");
-    safeFill<float, float, xAOD::Jet>(jet, jetTime, m_Timing, -999);
+      static SG::AuxElement::ConstAccessor<float> NegativeE ("NegativeE");
+      myjet->NegativeE=NegativeE(*jet)/m_units;
 
-    static SG::AuxElement::ConstAccessor<float> LArQuality ("LArQuality");
-    safeFill<float, float, xAOD::Jet>(jet, LArQuality, m_LArQuality, -999);
+      static SG::AuxElement::ConstAccessor<float> AverageLArQF ("AverageLArQF");
+      myjet->AverageLArQF=AverageLArQF(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> hecq ("HECQuality");
-    safeFill<float, float, xAOD::Jet>(jet, hecq, m_HECQuality, -999);
+      static SG::AuxElement::ConstAccessor<float> BchCorrCell ("BchCorrCell");
+      myjet->BchCorrCell=BchCorrCell(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> negE ("NegativeE");
-    safeFill<float, float, xAOD::Jet>(jet, negE, m_NegativeE, -999, m_units);
+      static SG::AuxElement::ConstAccessor<float> N90Constituents ("N90Constituents");
+      myjet->N90Constituents=N90Constituents(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> avLArQF ("AverageLArQF");
-    safeFill<float, float, xAOD::Jet>(jet, avLArQF, m_AverageLArQF, -999);
+      static SG::AuxElement::ConstAccessor<float> LArBadHVEnergyFrac ("LArBadHVEnergyFrac");
+      myjet->LArBadHVEnergyFrac=LArBadHVEnergyFrac(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> bchCorrCell ("BchCorrCell");
-    safeFill<float, float, xAOD::Jet>(jet, bchCorrCell, m_BchCorrCell, -999);
+      static SG::AuxElement::ConstAccessor<int> LArBadHVNCell ("LArBadHVNCell");
+      myjet->LArBadHVNCell=LArBadHVNCell(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> N90Const ("N90Constituents");
-    safeFill<float, float, xAOD::Jet>(jet, N90Const, m_N90Constituents, -999);
+      static SG::AuxElement::ConstAccessor<float> OotFracClusters5 ("OotFracClusters5");
+      myjet->OotFracClusters5=OotFracClusters5(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> LArBadHVEFrac ("LArBadHVEnergyFrac");
-    safeFill<float, float, xAOD::Jet>(jet, LArBadHVEFrac, m_LArBadHVEnergyFrac, -999);
+      static SG::AuxElement::ConstAccessor<float> OotFracClusters10 ("OotFracClusters10");
+      myjet->OotFracClusters10=OotFracClusters10(*jet);
 
-    static SG::AuxElement::ConstAccessor<int> LArBadHVNCell ("LArBadHVNCell");
-    safeFill<int, int, xAOD::Jet>(jet, LArBadHVNCell, m_LArBadHVNCell, -999);
+      static SG::AuxElement::ConstAccessor<float> LeadingClusterPt ("LeadingClusterPt");
+      myjet->LeadingClusterPt=LeadingClusterPt(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> OotFracClus5 ("OotFracClusters5");
-    safeFill<float, float, xAOD::Jet>(jet, OotFracClus5, m_OotFracClusters5, -999);
+      static SG::AuxElement::ConstAccessor<float> LeadingClusterSecondLambda ("LeadingClusterSecondLambda");
+      myjet->LeadingClusterSecondLambda=LeadingClusterSecondLambda(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> OotFracClus10 ("OotFracClusters10");
-    safeFill<float, float, xAOD::Jet>(jet, OotFracClus10, m_OotFracClusters10, -999);
+      static SG::AuxElement::ConstAccessor<float> LeadingClusterCenterLambda ("LeadingClusterCenterLambda");
+      myjet->LeadingClusterCenterLambda=LeadingClusterCenterLambda(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> leadClusPt ("LeadingClusterPt");
-    safeFill<float, float, xAOD::Jet>(jet, leadClusPt, m_LeadingClusterPt, -999);
+      static SG::AuxElement::ConstAccessor<float> LeadingClusterSecondR ("LeadingClusterSecondR");
+      myjet->LeadingClusterSecondR=LeadingClusterSecondR(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> leadClusSecondLambda ("LeadingClusterSecondLambda");
-    safeFill<float, float, xAOD::Jet>(jet, leadClusSecondLambda, m_LeadingClusterSecondLambda, -999);
+      static SG::AuxElement::ConstAccessor<char> clean_passLooseBad ("clean_passLooseBad");
+      myjet->clean_passLooseBad=clean_passLooseBad(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> leadClusCenterLambda ("LeadingClusterCenterLambda");
-    safeFill<float, float, xAOD::Jet>(jet, leadClusCenterLambda, m_LeadingClusterCenterLambda, -999);
+      static SG::AuxElement::ConstAccessor<char> clean_passLooseBadUgly ("clean_passLooseBadUgly");
+      myjet->clean_passLooseBadUgly=clean_passLooseBadUgly(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> leadClusSecondR ("LeadingClusterSecondR");
-    safeFill<float, float, xAOD::Jet>(jet, leadClusSecondR, m_LeadingClusterSecondR, -999);
+      static SG::AuxElement::ConstAccessor<char> clean_passTightBad ("clean_passTightBad");
+      myjet->clean_passTightBad=clean_passTightBad(*jet);
 
-    static SG::AuxElement::ConstAccessor<char> clean_passLooseBad ("clean_passLooseBad");
-    safeFill<char, int, xAOD::Jet>(jet, clean_passLooseBad, m_clean_passLooseBad, -999);
+      static SG::AuxElement::ConstAccessor<char> clean_passTightBadUgly ("clean_passTightBadUgly");
+      myjet->clean_passTightBadUgly=clean_passTightBadUgly(*jet);
 
-    static SG::AuxElement::ConstAccessor<char> clean_passLooseBadUgly ("clean_passLooseBadUgly");
-    safeFill<char, int, xAOD::Jet>(jet, clean_passLooseBadUgly, m_clean_passLooseBadUgly, -999);
-
-    static SG::AuxElement::ConstAccessor<char> clean_passTightBad ("clean_passTightBad");
-    safeFill<char, int, xAOD::Jet>(jet, clean_passTightBad, m_clean_passTightBad, -999);
-
-    static SG::AuxElement::ConstAccessor<char> clean_passTightBadUgly ("clean_passTightBadUgly");
-    safeFill<char, int, xAOD::Jet>(jet, clean_passTightBadUgly, m_clean_passTightBadUgly, -999);
-
-  } // clean
+    } // clean
 
 
-  if ( m_infoSwitch.m_energy ) {
-    static SG::AuxElement::ConstAccessor<float> HECf ("HECFrac");
-    safeFill<float, float, xAOD::Jet>(jet, HECf, m_HECFrac, -999);
+  if ( m_infoSwitch.m_energy ) 
+    {
+      static SG::AuxElement::ConstAccessor<float> HECFrac ("HECFrac");
+      myjet->HECFrac=HECFrac(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> EMf ("EMFrac");
-    safeFill<float, float, xAOD::Jet>(jet, EMf, m_EMFrac, -999);
+      static SG::AuxElement::ConstAccessor<float> EMFrac ("EMFrac");
+      myjet->EMFrac=EMFrac(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> centroidR ("CentroidR");
-    safeFill<float, float, xAOD::Jet>(jet, centroidR, m_CentroidR, -999);
+      static SG::AuxElement::ConstAccessor<float> CentroidR ("CentroidR");
+      myjet->CentroidR=CentroidR(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> fracSampMax ("FracSamplingMax");
-    safeFill<float, float, xAOD::Jet>(jet, fracSampMax, m_FracSamplingMax, -999);
+      static SG::AuxElement::ConstAccessor<float> FracSamplingMax ("FracSamplingMax");
+      myjet->FracSamplingMax=FracSamplingMax(*jet);
 
-    static SG::AuxElement::ConstAccessor<int> fracSampMaxIdx ("FracSamplingMaxIndex");
-    safeFill<int, float, xAOD::Jet>(jet, fracSampMaxIdx, m_FracSamplingMaxIndex, -999);
+      static SG::AuxElement::ConstAccessor<int> FracSamplingMaxIndex ("FracSamplingMaxIndex");
+      myjet->FracSamplingMaxIndex=FracSamplingMaxIndex(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> lowEtFrac ("LowEtConstituentsFrac");
-    safeFill<float, float, xAOD::Jet>(jet, lowEtFrac, m_LowEtConstituentsFrac, -999);
+      static SG::AuxElement::ConstAccessor<float> LowEtConstituentsFrac ("LowEtConstituentsFrac");
+      myjet->LowEtConstituentsFrac=LowEtConstituentsFrac(*jet);
 
-    static SG::AuxElement::ConstAccessor<int> muonSegCount ("GhostMuonSegmentCount");
-    safeFill<int, float, xAOD::Jet>(jet, muonSegCount, m_GhostMuonSegmentCount, -999);
+      static SG::AuxElement::ConstAccessor<int> GhostMuonSegmentCount ("GhostMuonSegmentCount");
+      myjet->GhostMuonSegmentCount=GhostMuonSegmentCount(*jet);
 
-    static SG::AuxElement::ConstAccessor<float> width ("Width");
-    safeFill<float, float, xAOD::Jet>(jet, width, m_Width, -999);
+      static SG::AuxElement::ConstAccessor<float> Width ("Width");
+      myjet->Width=Width(*jet);
 
-  } // energy
+    } // energy
 
 
   // each step of the calibration sequence
-  if ( m_infoSwitch.m_scales ) {
-    xAOD::JetFourMom_t fourVec;
-    bool status(false);
-    // EM Scale
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetEMScaleMomentum", fourVec );
-    if( status ) { m_emScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_emScalePt->push_back( -999 ); }
-    // Constit Scale
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
-    if( status ) { m_constScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_constScalePt->push_back( -999 ); }
-    // Pileup Scale
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetPileupScaleMomentum", fourVec );
-    if( status ) { m_pileupScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_pileupScalePt->push_back( -999 ); }
-    // OriginConstit Scale
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetOriginConstitScaleMomentum", fourVec );
-    if( status ) { m_originConstitScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_originConstitScalePt->push_back( -999 ); }
-    // EtaJES Scale
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetEtaJESScaleMomentum", fourVec );
-    if( status ) { m_etaJESScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_etaJESScalePt->push_back( -999 ); }
-    // GSC Scale
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetGSCScaleMomentum", fourVec );
-    if( status ) { m_gscScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_gscScalePt->push_back( -999 ); }
-    // only available in data
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetInsituScaleMomentum", fourVec );
-    if(status) { m_insituScalePt->push_back( fourVec.Pt() / m_units ); }
-    else { m_insituScalePt->push_back( -999 ); }
-  }
-
-  if ( m_infoSwitch.m_constscaleEta ) {
-    xAOD::JetFourMom_t fourVec;
-    bool status(false);
-    status = jet->getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
-    if( status ) { m_constScaleEta->push_back( fourVec.Eta() ); }
-    else { m_constScaleEta->push_back( -999 ); }
-  }
-
-  if ( m_infoSwitch.m_layer ) {
-    static SG::AuxElement::ConstAccessor< std::vector<float> > ePerSamp ("EnergyPerSampling");
-    if ( ePerSamp.isAvailable( *jet ) ) {
-      m_EnergyPerSampling->push_back( ePerSamp( *jet ) );
-      m_EnergyPerSampling->back();
-      std::transform((m_EnergyPerSampling->back()).begin(),
-                     (m_EnergyPerSampling->back()).end(),
-                     (m_EnergyPerSampling->back()).begin(),
-                     std::bind2nd(std::divides<float>(), m_units));
-    } else {
-      // could push back a vector of 24...
-      // ... waste of space vs prevention of out of range down stream
-      std::vector<float> junk(1,-999);
-      m_EnergyPerSampling->push_back( junk );
+  if ( m_infoSwitch.m_scales )
+    {
+      xAOD::JetFourMom_t fourVec;
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetEMScaleMomentum",            fourVec );
+      myjet->JetEMScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum",       fourVec );
+      myjet->JetConstitScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetPileupScaleMomentum",        fourVec );
+      myjet->JetPileupScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetOriginConstitScaleMomentum", fourVec );
+      myjet->JetOriginConstitScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetEtaJESScaleMomentum",        fourVec );
+      myjet->JetEtaJESScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetGSCScaleMomentum",           fourVec );
+      myjet->JetGSCScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
+      jet->getAttribute<xAOD::JetFourMom_t>( "JetInsituScaleMomentum",        fourVec );
+      myjet->JetInsituScaleMomentum.SetPtEtaPhiM(fourVec.Pt()/m_units, fourVec.Eta(), fourVec.Phi(), fourVec.M()/m_units);
     }
-  }
 
-  if ( m_infoSwitch.m_trackAll || m_infoSwitch.m_trackPV ) {
+  if ( m_infoSwitch.m_layer ) 
+    {
+      static SG::AuxElement::ConstAccessor< std::vector<float> > EnergyPerSampling ("EnergyPerSampling");
+      if ( EnergyPerSampling.isAvailable( *jet ) ) 
+	{
+	  myjet->EnergyPerSampling=EnergyPerSampling(*jet);
+	  std::transform(myjet->EnergyPerSampling.begin(),
+			 myjet->EnergyPerSampling.end(),
+			 myjet->EnergyPerSampling.begin(),
+			 std::bind2nd(std::divides<float>(), m_units));
+	} 
+      else
+	{
+	  // could push back a vector of 24...
+	  // ... waste of space vs prevention of out of range down stream
+	  static const std::vector<float> junk(1,-999);
+	  myjet->EnergyPerSampling=junk;
+	}
+    }
 
-    // several moments calculated from all verticies
-    // one accessor for each and just use appropiately in the following
-    static SG::AuxElement::ConstAccessor< std::vector<int> >   nTrk1000("NumTrkPt1000");
-    static SG::AuxElement::ConstAccessor< std::vector<float> > sumPt1000("SumPtTrkPt1000");
-    static SG::AuxElement::ConstAccessor< std::vector<float> > trkWidth1000("TrackWidthPt1000");
-    static SG::AuxElement::ConstAccessor< std::vector<int> >   nTrk500 ("NumTrkPt500");
-    static SG::AuxElement::ConstAccessor< std::vector<float> > sumPt500 ("SumPtTrkPt500");
-    static SG::AuxElement::ConstAccessor< std::vector<float> > trkWidth500 ("TrackWidthPt500");
-    static SG::AuxElement::ConstAccessor< std::vector<float> > jvf("JVF");
+  if ( m_infoSwitch.m_trackAll || m_infoSwitch.m_trackPV ) 
+    {
+
+      // several moments calculated from all verticies
+      // one accessor for each and just use appropiately in the following
+      static SG::AuxElement::ConstAccessor< std::vector<int> >   NumTrkPt1000("NumTrkPt1000");
+      static SG::AuxElement::ConstAccessor< std::vector<float> > SumPtTrkPt1000("SumPtTrkPt1000");
+      static SG::AuxElement::ConstAccessor< std::vector<float> > TrackWidthPt1000("TrackWidthPt1000");
+      static SG::AuxElement::ConstAccessor< std::vector<int> >   NumTrkPt500("NumTrkPt500");
+      static SG::AuxElement::ConstAccessor< std::vector<float> > SumPtTrkPt500("SumPtTrkPt500");
+      static SG::AuxElement::ConstAccessor< std::vector<float> > TrackWidthPt500("TrackWidthPt500");
+      static SG::AuxElement::ConstAccessor< std::vector<float> > JVF("JVF");
     
-    if ( m_infoSwitch.m_trackAll ) {
+      if ( m_infoSwitch.m_trackAll ) {
 
-      std::vector<int> junkInt(1,-999);
-      std::vector<float> junkFlt(1,-999);
+	static const std::vector<int> junkInt(1,-999);
+	static const std::vector<float> junkFlt(1,-999);
 
-      if ( nTrk1000.isAvailable( *jet ) ) {
-        m_NumTrkPt1000->push_back( nTrk1000( *jet ) );
-      } else { m_NumTrkPt1000->push_back( junkInt ); }
+	if ( NumTrkPt1000.isAvailable( *jet ) ) 
+	  NumTrkPt1000=NumTrkPt1000( *jet );
 
-      if ( sumPt1000.isAvailable( *jet ) ) {
-        m_SumPtTrkPt1000->push_back( sumPt1000( *jet ) );
-        std::transform((m_SumPtTrkPt1000->back()).begin(),
-                       (m_SumPtTrkPt1000->back()).end(),
-                       (m_SumPtTrkPt1000->back()).begin(),
-                       std::bind2nd(std::divides<float>(), m_units));
-      } else { m_SumPtTrkPt1000->push_back( junkFlt ); }
+      if ( SumPtTrkPt1000.isAvailable( *jet ) )
+	{
+	  myjet->SumPtTrkPt1000=SumPtTrkPt1000(*jet);
+	  std::transform(myjet->SumPtTrkPt1000.begin(),
+			 myjet->SumPtTrkPt1000.end(),
+			 myjet->SumPtTrkPt1000.begin(),
+			 std::bind2nd(std::divides<float>(), m_units));
+	}
 
-      if ( trkWidth1000.isAvailable( *jet ) ) {
-        m_TrackWidthPt1000->push_back( trkWidth1000( *jet ) );
-      } else { m_TrackWidthPt1000->push_back( junkFlt ); }
+      if ( TrackWidthPt1000.isAvailable( *jet ) )
+        myjet->TrackWidthPt1000=TrackWidthPt1000( *jet );
 
-      if ( nTrk500.isAvailable( *jet ) ) {
-        m_NumTrkPt500->push_back( nTrk500( *jet ) );
-      } else { m_NumTrkPt500->push_back( junkInt ); }
+      if ( NumTrkPt500.isAvailable( *jet ) )
+        myjet->NumTrkPt500=NumTrkPt500( *jet );
 
-      if ( sumPt500.isAvailable( *jet ) ) {
-        m_SumPtTrkPt500->push_back( sumPt500( *jet ) );
-        std::transform((m_SumPtTrkPt500->back()).begin(),
-                       (m_SumPtTrkPt500->back()).end(),
-                       (m_SumPtTrkPt500->back()).begin(),
-                       std::bind2nd(std::divides<float>(), m_units));
-      } else { m_SumPtTrkPt500->push_back( junkFlt ); }
+      if ( SumPtTrkPt500.isAvailable( *jet ) )
+	{
+	  myjet->SumPtTrkPt500=SumPtTrkPt500( *jet );
+	  std::transform(myjet->SumPtTrkPt500.begin(),
+			 myjet->SumPtTrkPt500.end(),
+			 myjet->SumPtTrkPt500.begin(),
+			 std::bind2nd(std::divides<float>(), m_units));
+	}
 
-      if ( trkWidth500.isAvailable( *jet ) ) {
-        m_TrackWidthPt500->push_back( trkWidth500( *jet ) );
-      } else { m_TrackWidthPt500->push_back( junkFlt ); }
+      if ( TrackWidthPt500.isAvailable( *jet ) ) {
+        myjet->TrackWidthPt500=TrackWidthPt500( *jet );
 
-      if ( jvf.isAvailable( *jet ) ) {
-        m_JVF->push_back( jvf( *jet ) );
-      } else { m_JVF->push_back( junkFlt ); }
+      if ( JVF.isAvailable( *jet ) )
+	myjet->JVF=JVF( *jet );
 
     } // trackAll
 
@@ -605,13 +579,13 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
       } else { m_JVFPV->push_back( -999 ); }
 
       static SG::AuxElement::ConstAccessor< float > jvt ("Jvt");
-      safeFill<float, float, xAOD::Jet>(jet, jvt, m_Jvt, -999);
+      jet, jvt, m_Jvt, -999);
 
       static SG::AuxElement::ConstAccessor< float > jvtJvfcorr ("JvtJvfcorr");
-      safeFill<float, float, xAOD::Jet>(jet, jvtJvfcorr, m_JvtJvfcorr, -999);
+      jet, jvtJvfcorr, m_JvtJvfcorr, -999);
 
       static SG::AuxElement::ConstAccessor< float > jvtRpt ("JvtRpt");
-      safeFill<float, float, xAOD::Jet>(jet, jvtRpt, m_JvtRpt, -999);
+      jet, jvtRpt, m_JvtRpt, -999);
 
       if ( m_mc ) {
 	static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Loose("JetJvtEfficiency_JVTSyst_JVT_Loose");
@@ -637,7 +611,7 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
     safeFill<int, int, xAOD::Jet>(jet, ghostTrackCount, m_GhostTrackCount, -999);
 
     static SG::AuxElement::ConstAccessor< float > ghostTrackPt ("GhostTrackPt");
-    safeFill<float, float, xAOD::Jet>(jet, ghostTrackPt, m_GhostTrackPt, -999, m_units);
+    jet, ghostTrackPt, m_GhostTrackPt, -999, m_units);
 
     std::vector<float> pt;
     std::vector<float> qOverP;
@@ -1118,25 +1092,25 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
   if ( m_infoSwitch.m_area ) {
 
     static SG::AuxElement::ConstAccessor<float> ghostArea("JetGhostArea");
-    safeFill<float, float, xAOD::Jet>(jet, ghostArea, m_GhostArea, -999);
+    jet, ghostArea, m_GhostArea, -999);
 
     static SG::AuxElement::ConstAccessor<float> activeArea("ActiveArea");
-    safeFill<float, float, xAOD::Jet>(jet, activeArea, m_ActiveArea, -999);
+    jet, activeArea, m_ActiveArea, -999);
 
     static SG::AuxElement::ConstAccessor<float> voronoiArea("VoronoiArea");
-    safeFill<float, float, xAOD::Jet>(jet, voronoiArea, m_VoronoiArea, -999);
+    jet, voronoiArea, m_VoronoiArea, -999);
 
     static SG::AuxElement::ConstAccessor<float> activeArea_pt("ActiveArea4vec_pt");
-    safeFill<float, float, xAOD::Jet>(jet, activeArea_pt, m_ActiveArea4vec_pt, -999);
+    jet, activeArea_pt, m_ActiveArea4vec_pt, -999);
 
     static SG::AuxElement::ConstAccessor<float> activeArea_eta("ActiveArea4vec_eta");
-    safeFill<float, float, xAOD::Jet>(jet, activeArea_eta, m_ActiveArea4vec_eta, -999);
+    jet, activeArea_eta, m_ActiveArea4vec_eta, -999);
 
     static SG::AuxElement::ConstAccessor<float> activeArea_phi("ActiveArea4vec_phi");
-    safeFill<float, float, xAOD::Jet>(jet, activeArea_phi, m_ActiveArea4vec_phi, -999);
+    jet, activeArea_phi, m_ActiveArea4vec_phi, -999);
 
     static SG::AuxElement::ConstAccessor<float> activeArea_m("ActiveArea4vec_m");
-    safeFill<float, float, xAOD::Jet>(jet, activeArea_m, m_ActiveArea4vec_m, -999);
+    jet, activeArea_m, m_ActiveArea4vec_m, -999);
   }
 
 
@@ -1155,19 +1129,19 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
     //      } else { m_truthPt->push_back( -999 ); }
 
     static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_B ("TruthLabelDeltaR_B");
-    safeFill<float, float, xAOD::Jet>(jet, TruthLabelDeltaR_B, m_TruthLabelDeltaR_B, -999);
+    jet, TruthLabelDeltaR_B, m_TruthLabelDeltaR_B, -999);
 
     static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_C ("TruthLabelDeltaR_C");
-    safeFill<float, float, xAOD::Jet>(jet, TruthLabelDeltaR_C, m_TruthLabelDeltaR_C, -999);
+    jet, TruthLabelDeltaR_C, m_TruthLabelDeltaR_C, -999);
 
     static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_T ("TruthLabelDeltaR_T");
-    safeFill<float, float, xAOD::Jet>(jet, TruthLabelDeltaR_T, m_TruthLabelDeltaR_T, -999);
+    jet, TruthLabelDeltaR_T, m_TruthLabelDeltaR_T, -999);
 
     static SG::AuxElement::ConstAccessor<int> partonLabel("PartonTruthLabelID");
     safeFill<int, int, xAOD::Jet>(jet, partonLabel, m_PartonTruthLabelID, -999);
 
     static SG::AuxElement::ConstAccessor<float> ghostTruthAssFrac("GhostTruthAssociationFraction");
-    safeFill<float, float, xAOD::Jet>(jet, ghostTruthAssFrac, m_GhostTruthAssociationFraction, -999);
+    jet, ghostTruthAssFrac, m_GhostTruthAssociationFraction, -999);
 
     const xAOD::Jet* truthJet = HelperFunctions::getLink<xAOD::Jet>( jet, "GhostTruthAssociationLink" );
     if(truthJet) {
@@ -1199,13 +1173,13 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
     safeFill<int, int, xAOD::Jet>(jet, GhostBQuarksFinalCount, m_GhostBQuarksFinalCount, -999);
 
     static SG::AuxElement::ConstAccessor<float> GhostBHadronsFinalPt ("GhostBHadronsFinalPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostBHadronsFinalPt, m_GhostBHadronsFinalPt, -999);
+    jet, GhostBHadronsFinalPt, m_GhostBHadronsFinalPt, -999);
 
     static SG::AuxElement::ConstAccessor<float> GhostBHadronsInitialPt ("GhostBHadronsInitialPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostBHadronsInitialPt, m_GhostBHadronsInitialPt, -999);
+    jet, GhostBHadronsInitialPt, m_GhostBHadronsInitialPt, -999);
 
     static SG::AuxElement::ConstAccessor<float> GhostBQuarksFinalPt ("GhostBQuarksFinalPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostBQuarksFinalPt, m_GhostBQuarksFinalPt, -999);
+    jet, GhostBQuarksFinalPt, m_GhostBQuarksFinalPt, -999);
 
     //
     // C-Hadron Details
@@ -1220,13 +1194,13 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
     safeFill<int, int, xAOD::Jet>(jet, GhostCQuarksFinalCount, m_GhostCQuarksFinalCount, -999);
 
     static SG::AuxElement::ConstAccessor<float> GhostCHadronsFinalPt ("GhostCHadronsFinalPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostCHadronsFinalPt, m_GhostCHadronsFinalPt, -999);
+    jet, GhostCHadronsFinalPt, m_GhostCHadronsFinalPt, -999);
 
     static SG::AuxElement::ConstAccessor<float> GhostCHadronsInitialPt ("GhostCHadronsInitialPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostCHadronsInitialPt, m_GhostCHadronsInitialPt, -999);
+    jet, GhostCHadronsInitialPt, m_GhostCHadronsInitialPt, -999);
 
     static SG::AuxElement::ConstAccessor<float> GhostCQuarksFinalPt ("GhostCQuarksFinalPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostCQuarksFinalPt, m_GhostCQuarksFinalPt, -999);
+    jet, GhostCQuarksFinalPt, m_GhostCQuarksFinalPt, -999);
 
     //
     // Tau Details
@@ -1236,7 +1210,7 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
 
     // THE ONLY UN-OFFICIAL PIECE OF CODE HERE USE WITH CAUTION
     static SG::AuxElement::ConstAccessor<float> GhostTausFinalPt ("GhostTausFinalPt");
-    safeFill<float, float, xAOD::Jet>(jet, GhostTausFinalPt, m_GhostTausFinalPt, -999);
+    jet, GhostTausFinalPt, m_GhostTausFinalPt, -999);
 
     // light quark(1,2,3) , gluon (21 or 9), charm(4) and b(5)
     // GhostPartons should select for these pdgIds only
@@ -1281,7 +1255,7 @@ void JetHelpTree::FillJet( const xAOD::IParticle* particle, const xAOD::Vertex* 
 }
 
 
-void JetHelpTree::FillGlobalBTagSF( const xAOD::EventInfo* eventInfo ){
+void JetHelpTree::fillGlobalBTagSF( const xAOD::EventInfo* eventInfo ){
 
   if( !m_infoSwitch.m_sfFTagFix.empty() ) {
     for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFix.size(); i++ ) {

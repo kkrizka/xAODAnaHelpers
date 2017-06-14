@@ -54,18 +54,18 @@ JetContainer::JetContainer(const std::string& name, const std::string& detailStr
 
   // scales
   if ( m_infoSwitch.m_scales ) {
-    m_emScalePt               = new std::vector<float>(); 
+    m_emScalePt             = new std::vector<float>(); 
     m_constScalePt	    = new std::vector<float>(); 
-    m_pileupScalePt		    = new std::vector<float>(); 
-    m_originConstitScalePt    = new std::vector<float>(); 
+    m_pileupScalePt	    = new std::vector<float>(); 
+    m_originConstitScalePt  = new std::vector<float>(); 
     m_etaJESScalePt	    = new std::vector<float>(); 
-    m_gscScalePt		    = new std::vector<float>(); 
+    m_gscScalePt	    = new std::vector<float>(); 
     m_insituScalePt	    = new std::vector<float>(); 
   }
 
   // constscale eta
   if ( m_infoSwitch.m_constscaleEta ) {
-    m_constScaleEta               = new std::vector<float>(); 
+    m_constScaleEta         = new std::vector<float>(); 
   }
 
   // layer
@@ -939,7 +939,7 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
       jet.AverageLArQF              =m_AverageLArQF              ->at(idx);
       jet.BchCorrCell               =m_BchCorrCell               ->at(idx);
       jet.N90Constituents           =m_N90Constituents           ->at(idx);
-      jet.LArBadHVEFrac             =m_LArBadHVEnergyFrac       ->at(idx);
+      jet.LArBadHVEnergyFrac        =m_LArBadHVEnergyFrac       ->at(idx);
       jet.LArBadHVNCell             =m_LArBadHVNCell             ->at(idx);
       jet.OotFracClusters5          =m_OotFracClusters5          ->at(idx);
       jet.OotFracClusters10         =m_OotFracClusters10         ->at(idx);

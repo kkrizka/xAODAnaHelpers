@@ -22,7 +22,7 @@ namespace xAH {
       float AverageLArQF;
       float BchCorrCell;
       float N90Constituents;
-      float LArBadHVEFrac;
+      float LArBadHVEnergyFrac;
       int   LArBadHVNCell;
       float OotFracClusters5;
       float OotFracClusters10;
@@ -44,7 +44,19 @@ namespace xAH {
       float LowEtConstituentsFrac;
       float GhostMuonSegmentCount;
       float Width;
+
+      // scales
+      TLorentzVector JetEMScaleMomentum;
+      TLorentzVector JetConstitScaleMomentum;
+      TLorentzVector JetPileupScaleMomentum;
+      TLorentzVector JetOriginConstitScaleMomentum;
+      TLorentzVector JetEtaJESScaleMomentum;
+      TLorentzVector JetGSCScaleMomentum;
+      TLorentzVector JetInsituScaleMomentum;
     
+      // layers
+      std::vector<float> EnergyPerSampling;
+
       // trackPV
       float NumTrkPt1000PV;
       float SumPtTrkPt1000PV;
@@ -53,6 +65,16 @@ namespace xAH {
       float SumPtTrkPt500PV;
       float TrackWidthPt500PV;
       float JVFPV;
+
+      // trackAll
+      std::vector<int>   NumTrkPt1000;
+      std::vector<float> SumPtTrkPt1000;
+      std::vector<float> TrackWidthPt1000;
+      std::vector<int>   NumTrkPt500;
+      std::vector<float> SumPtTrkPt500;
+      std::vector<float> TrackWidthPt500;
+      std::vector<float> JVF;
+    
     
       // trackAll or trackPV
       float Jvt;
