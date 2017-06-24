@@ -76,4 +76,4 @@ namespace xAH {
     };
 
 }//xAH
-#endif // xAODAnaHelpers_Particle_H
+#endif // xAODAnaHelpers_FatJet_H

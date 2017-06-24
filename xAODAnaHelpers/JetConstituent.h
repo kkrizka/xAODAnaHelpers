@@ -10,8 +10,11 @@ namespace xAH {
 
   class JetConstituent : public Particle
   {
+    ClassDef(JetConstituent, 1);
+
   public:      
-    JetConstituent();
+    JetConstituent() : Particle() {};
+    virtual ~JetConstituent() {};
   };
 
 } //xAH

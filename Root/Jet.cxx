@@ -2,10 +2,11 @@
 
 using namespace xAH;
 
-Jet::Jet() : matchedJet(0) 
-{
-}
+Jet::Jet() : Particle(), matchedJet(0) 
+{ }
 
+Jet::~Jet()
+{ }
 
 void Jet::muonInJetCorrection(const xAH::MuonContainer* muons){
 

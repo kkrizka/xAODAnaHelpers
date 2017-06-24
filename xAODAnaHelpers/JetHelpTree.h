@@ -111,7 +111,7 @@ namespace xAH {
     virtual ~JetHelpTree();
     
     virtual void createBranches(TTree *tree);
-    virtual void fillJet(const xAOD::Jet* jet, xAH::Jet *myjet, int pvLocation );
+    virtual void fillJet(const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvLocation );
     virtual void fillGlobalBTagSF( const xAOD::EventInfo* eventInfo );
 
   private:

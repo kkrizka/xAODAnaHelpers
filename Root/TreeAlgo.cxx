@@ -63,9 +63,6 @@ TreeAlgo :: TreeAlgo (std::string className) :
   m_jetSystsVec                 = "";
   m_photonSystsVec              = "";
   m_fatJetSystsVec              = "";
-  // DC14 switch for little things that need to happen to run
-  // for those samples with the corresponding packages
-  m_DC14                        = false;
 
   //Units, defaulting to GeV
   m_units                       = 1e3;
@@ -224,7 +221,7 @@ EL::StatusCode TreeAlgo :: execute ()
       return EL::StatusCode::FAILURE;
     }
 
-    m_trees[systName] = new HelpTreeBase( m_event, outTree, treeFile, m_units, m_debug, m_DC14 );
+    m_trees[systName] = new HelpTreeBase( m_event, outTree, treeFile, m_units, m_debug );
     const auto& helpTree = m_trees[systName];
 
     // tell the tree to go into the file

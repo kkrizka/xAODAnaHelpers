@@ -10,8 +10,8 @@ JetHists :: JetHists (std::string name, std::string detailStr, const std::string
   IParticleHists(name, detailStr, prefix, titlePrefix),
   m_infoSwitch(new HelperClasses::JetInfoSwitch(m_detailStr)),
   m_titlePrefix(titlePrefix),
-  m_tracksInJet(0),
-  m_onlineBSTool()
+  m_onlineBSTool(),
+  m_tracksInJet(0)
 { }
 
 JetHists :: ~JetHists () {
@@ -267,11 +267,11 @@ StatusCode JetHists::initialize() {
   if( m_infoSwitch->m_svDetails ) {
     if(m_debug) Info("JetHists::initialize()", "adding JetFitter Detail plots");
     m_SV0           = book(m_name, "SV0",            "SV0" ,          100, -20,   200);
-    m_sv0_NGTinSvx  = book(m_name, "SV0_NGTinSvx",   "SV0_NGTinSvx",   20,  -0.5,  19.5);
-    m_sv0_N2Tpair   = book(m_name, "SV0_N2Tpair ",   "SV0_N2Tpair ",   40,  -9.5,  29.5);
-    m_sv0_massvx    = book(m_name, "SV0_massvx  ",   "SV0_massvx  ",   100, -0.1,    8);
-    m_sv0_efracsvx  = book(m_name, "SV0_efracsvx",   "SV0_efracsvx",   100, -0.1,   1.2);
-    m_sv0_normdist  = book(m_name, "SV0_normdist",   "SV0_normdist",   100, -10,    70);
+    m_SV0_NGTinSvx  = book(m_name, "SV0_NGTinSvx",   "SV0_NGTinSvx",   20,  -0.5,  19.5);
+    m_SV0_N2Tpair   = book(m_name, "SV0_N2Tpair ",   "SV0_N2Tpair ",   40,  -9.5,  29.5);
+    m_SV0_masssvx   = book(m_name, "SV0_masssvx ",   "SV0_masssvx ",   100, -0.1,    8);
+    m_SV0_efracsvx  = book(m_name, "SV0_efracsvx",   "SV0_efracsvx",   100, -0.1,   1.2);
+    m_SV0_normdist  = book(m_name, "SV0_normdist",   "SV0_normdist",   100, -10,    70);
 
     m_SV1_pu        = book(m_name, "SV1_pu",                   "SV1_pu" ,                100,  -0.1, 1.1);
     m_SV1_pb        = book(m_name, "SV1_pb",                   "SV1_pb" ,                100,  -0.1, 1.1);
@@ -280,11 +280,11 @@ StatusCode JetHists::initialize() {
     m_SV1_c         = book(m_name, "SV1_c",                    "SV1_c" ,                 100,  -5,  15);
     m_SV1_cu        = book(m_name, "SV1_cu",                   "SV1_cu" ,                100,  -5,  15);
 
-    m_sv1_NGTinSvx  = book(m_name, "SV1_NGTinSvx",   "SV1_NGTinSvx",   20,  -0.5,  19.5);
-    m_sv1_N2Tpair   = book(m_name, "SV1_N2Tpair ",   "SV1_N2Tpair ",   40,  -9.5,  29.5);
-    m_sv1_massvx    = book(m_name, "SV1_massvx  ",   "SV1_massvx  ",   100, -0.1,     8);
-    m_sv1_efracsvx  = book(m_name, "SV1_efracsvx",   "SV1_efracsvx",   100, -0.1,   1.2);
-    m_sv1_normdist  = book(m_name, "SV1_normdist",   "SV1_normdist",   100, -10,    70);
+    m_SV1_NGTinSvx  = book(m_name, "SV1_NGTinSvx",   "SV1_NGTinSvx",   20,  -0.5,  19.5);
+    m_SV1_N2Tpair   = book(m_name, "SV1_N2Tpair ",   "SV1_N2Tpair ",   40,  -9.5,  29.5);
+    m_SV1_masssvx   = book(m_name, "SV1_masssvx ",   "SV1_masssvx ",   100, -0.1,     8);
+    m_SV1_efracsvx  = book(m_name, "SV1_efracsvx",   "SV1_efracsvx",   100, -0.1,   1.2);
+    m_SV1_normdist  = book(m_name, "SV1_normdist",   "SV1_normdist",   100, -10,    70);
     m_SV1_Lxy       = book(m_name, "SV1_Lxy",        "SV1_Lxy",        100,  -1,    70);
     m_SV1_L3d       = book(m_name, "SV1_L3d",        "SV1_L3d",        100,  -1,    70);
     m_SV1_distmatlay = book(m_name, "SV1_distmatlay","SV1_distmatlay", 100,  -1,    30);
@@ -936,7 +936,7 @@ StatusCode JetHists::execute( const xAOD::IParticle* particle, float eventWeight
   //
   // if(m_infoSwitch->m_JVC) {
   //   if(m_debug) std::cout << "JetHists: m_JVC " << std::endl;
-  //   m_JVC->Fill(jet->JVC, eventWeight);
+  //   m_JVC->Fill(jet->JetVertexCharge_discriminant, eventWeight);
   // }
 
   //
@@ -1148,46 +1148,45 @@ StatusCode JetHists::execute( const xAOD::IParticle* particle, float eventWeight
       //
 
       /// @brief SV0 : Number of good tracks in vertex
-      static SG::AuxElement::ConstAccessor< int   >   sv0_NGTinSvxAcc     ("SV0_NGTinSvx");
+      static SG::AuxElement::ConstAccessor< int   >   SV0_NGTinSvx     ("SV0_NGTinSvx");
       // @brief SV0 : Number of 2-track pairs
-      static SG::AuxElement::ConstAccessor< int   >   sv0_N2TpairAcc      ("SV0_N2Tpair");
+      static SG::AuxElement::ConstAccessor< int   >   SV0_N2Tpair      ("SV0_N2Tpair");
       /// @brief SV0 : vertex mass
-      static SG::AuxElement::ConstAccessor< float   > sv0_masssvxAcc      ("SV0_masssvx");
+      static SG::AuxElement::ConstAccessor< float   > SV0_masssvx      ("SV0_masssvx");
       /// @brief SV0 : energy fraction
-      static SG::AuxElement::ConstAccessor< float   > sv0_efracsvxAcc     ("SV0_efracsvx");                                                                  	/// @brief SV0 : 3D vertex significance
-      static SG::AuxElement::ConstAccessor< float   > sv0_normdistAcc     ("SV0_normdist");
+      static SG::AuxElement::ConstAccessor< float   > SV0_efracsvx     ("SV0_efracsvx");                                                                  	/// @brief SV0 : 3D vertex significance
+      static SG::AuxElement::ConstAccessor< float   > SV0_normdist     ("SV0_normdist");
 
 
-      if(sv0_NGTinSvxAcc .isAvailable(*btag_info)) m_sv0_NGTinSvx -> Fill( sv0_NGTinSvxAcc (*btag_info), eventWeight);
-      if(sv0_N2TpairAcc  .isAvailable(*btag_info)) m_sv0_N2Tpair  -> Fill( sv0_N2TpairAcc  (*btag_info), eventWeight);
-      if(sv0_masssvxAcc  .isAvailable(*btag_info)) m_sv0_massvx   -> Fill( sv0_masssvxAcc  (*btag_info)/1000, eventWeight);
-      if(sv0_efracsvxAcc .isAvailable(*btag_info)) m_sv0_efracsvx -> Fill( sv0_efracsvxAcc (*btag_info), eventWeight);
-      if(sv0_normdistAcc .isAvailable(*btag_info)) m_sv0_normdist -> Fill( sv0_normdistAcc (*btag_info), eventWeight);
+      if(SV0_NGTinSvx .isAvailable(*btag_info)) m_SV0_NGTinSvx -> Fill( SV0_NGTinSvx (*btag_info), eventWeight);
+      if(SV0_N2Tpair  .isAvailable(*btag_info)) m_SV0_N2Tpair  -> Fill( SV0_N2Tpair  (*btag_info), eventWeight);
+      if(SV0_masssvx  .isAvailable(*btag_info)) m_SV0_masssvx  -> Fill( SV0_masssvx  (*btag_info)/1000, eventWeight);
+      if(SV0_efracsvx .isAvailable(*btag_info)) m_SV0_efracsvx -> Fill( SV0_efracsvx (*btag_info), eventWeight);
+      if(SV0_normdist .isAvailable(*btag_info)) m_SV0_normdist -> Fill( SV0_normdist (*btag_info), eventWeight);
 
-      double sv0;
-      btag_info->variable<double>("SV0", "significance3D", sv0);
-      m_SV0             ->  Fill( sv0 , eventWeight );
-
+      double SV0;
+      btag_info->variable<double>("SV0", "significance3D", SV0);
+      m_SV0             ->  Fill( SV0 , eventWeight );
 
       //
       // SV1
       //
 
       /// @brief SV1 : Number of good tracks in vertex
-      static SG::AuxElement::ConstAccessor< int   >   sv1_NGTinSvxAcc     ("SV1_NGTinSvx");
+      static SG::AuxElement::ConstAccessor< int   >   SV1_NGTinSvx     ("SV1_NGTinSvx");
       // @brief SV1 : Number of 2-track pairs
-      static SG::AuxElement::ConstAccessor< int   >   sv1_N2TpairAcc      ("SV1_N2Tpair");
+      static SG::AuxElement::ConstAccessor< int   >   SV1_N2Tpair      ("SV1_N2Tpair");
       /// @brief SV1 : vertex mass
-      static SG::AuxElement::ConstAccessor< float   > sv1_masssvxAcc      ("SV1_masssvx");
+      static SG::AuxElement::ConstAccessor< float   > SV1_masssvx      ("SV1_masssvx");
       /// @brief SV1 : energy fraction
-      static SG::AuxElement::ConstAccessor< float   > sv1_efracsvxAcc     ("SV1_efracsvx");                                                                 /// @brief SV1 : 3D vertex significance
-      static SG::AuxElement::ConstAccessor< float   > sv1_normdistAcc     ("SV1_normdist");
+      static SG::AuxElement::ConstAccessor< float   > SV1_efracsvx     ("SV1_efracsvx");                                                                 /// @brief SV1 : 3D vertex significance
+      static SG::AuxElement::ConstAccessor< float   > SV1_normdist     ("SV1_normdist");
 
-      if(sv1_NGTinSvxAcc .isAvailable(*btag_info)) m_sv1_NGTinSvx -> Fill( sv1_NGTinSvxAcc (*btag_info), eventWeight);
-      if(sv1_N2TpairAcc  .isAvailable(*btag_info)) m_sv1_N2Tpair  -> Fill( sv1_N2TpairAcc  (*btag_info), eventWeight);
-      if(sv1_masssvxAcc  .isAvailable(*btag_info)) m_sv1_massvx   -> Fill( sv1_masssvxAcc  (*btag_info)/1000, eventWeight);
-      if(sv1_efracsvxAcc .isAvailable(*btag_info)) m_sv1_efracsvx -> Fill( sv1_efracsvxAcc (*btag_info), eventWeight);
-      if(sv1_normdistAcc .isAvailable(*btag_info)) m_sv1_normdist -> Fill( sv1_normdistAcc (*btag_info), eventWeight);
+      if(SV1_NGTinSvx .isAvailable(*btag_info)) m_SV1_NGTinSvx -> Fill( SV1_NGTinSvx (*btag_info), eventWeight);
+      if(SV1_N2Tpair  .isAvailable(*btag_info)) m_SV1_N2Tpair  -> Fill( SV1_N2Tpair  (*btag_info), eventWeight);
+      if(SV1_masssvx  .isAvailable(*btag_info)) m_SV1_masssvx  -> Fill( SV1_masssvx  (*btag_info)/1000, eventWeight);
+      if(SV1_efracsvx .isAvailable(*btag_info)) m_SV1_efracsvx -> Fill( SV1_efracsvx (*btag_info), eventWeight);
+      if(SV1_normdist .isAvailable(*btag_info)) m_SV1_normdist -> Fill( SV1_normdist (*btag_info), eventWeight);
 
       double sv1_pu = -30;  btag_info->variable<double>("SV1", "pu", sv1_pu);
       double sv1_pb = -30;  btag_info->variable<double>("SV1", "pb", sv1_pb);
@@ -1660,7 +1659,7 @@ StatusCode JetHists::execute( const xAH::Particle* particle, float eventWeight, 
 
   if(m_infoSwitch->m_JVC)
     {
-      m_JVC->Fill(jet->JVC, eventWeight);
+      m_JVC->Fill(jet->JetVertexCharge_discriminant, eventWeight);
     }
 
   if(m_infoSwitch->m_flavTag || m_infoSwitch->m_flavTagHLT)
@@ -1669,33 +1668,31 @@ StatusCode JetHists::execute( const xAH::Particle* particle, float eventWeight, 
 //      h_SV1                       ->Fill(jet->SV1                  , eventWeight);
 //      h_IP3D                      ->Fill(jet->IP3D                 , eventWeight);
 
-      float MV2c20 = jet->MV2c20;
-
       m_MV2c00                    ->Fill(jet->MV2c00               , eventWeight);
       m_MV2c10                    ->Fill(jet->MV2c10               , eventWeight);
       m_MV2c20                    ->Fill(jet->MV2c20               , eventWeight);
-      m_MV2c20_l                  ->Fill(MV2c20                    , eventWeight);
+      m_MV2c20_l                  ->Fill(jet->MV2c20               , eventWeight);
       //      h_MV2                       ->Fill(jet->MV2                  , eventWeight);
 
       if(m_infoSwitch->m_vsLumiBlock && eventInfo){
       
 	uint32_t lumiBlock = eventInfo->m_lumiBlock;
       
-	bool passMV2c2040 = (MV2c20 >  0.9540);
-	bool passMV2c2050 = (MV2c20 >  0.7535);
-	bool passMV2c2060 = (MV2c20 >  0.4496);
-	bool passMV2c2070 = (MV2c20 > -0.0436);
-	bool passMV2c2077 = (MV2c20 > -0.4434);
-	bool passMV2c2085 = (MV2c20 > -0.7887);
+	bool passMV2c2040 = (jet->MV2c20 >  0.9540);
+	bool passMV2c2050 = (jet->MV2c20 >  0.7535);
+	bool passMV2c2060 = (jet->MV2c20 >  0.4496);
+	bool passMV2c2070 = (jet->MV2c20 > -0.0436);
+	bool passMV2c2077 = (jet->MV2c20 > -0.4434);
+	bool passMV2c2085 = (jet->MV2c20 > -0.7887);
 
 
 	if(m_infoSwitch->m_flavTagHLT){
-	  passMV2c2040 = (MV2c20 > 0.75);
-	  passMV2c2050 = (MV2c20 > 0.50);
-	  passMV2c2060 = (MV2c20 > -0.022472);
-	  passMV2c2070 = (MV2c20 > -0.509032);
-	  passMV2c2077 = (MV2c20 > -0.764668);
-	  passMV2c2085 = (MV2c20 > -0.938441);
+	  passMV2c2040 = (jet->MV2c20 > 0.75);
+	  passMV2c2050 = (jet->MV2c20 > 0.50);
+	  passMV2c2060 = (jet->MV2c20 > -0.022472);
+	  passMV2c2070 = (jet->MV2c20 > -0.509032);
+	  passMV2c2077 = (jet->MV2c20 > -0.764668);
+	  passMV2c2085 = (jet->MV2c20 > -0.938441);
 	}
 
 	m_frac_MV2c2040_vs_lBlock  -> Fill(lumiBlock, passMV2c2040,  eventWeight);
@@ -1708,13 +1705,9 @@ StatusCode JetHists::execute( const xAH::Particle* particle, float eventWeight, 
 
       }
 
-      m_COMB                      ->Fill(jet->SV1IP3D              , eventWeight);
-      //m_JetFitter               ->Fill(jet->JetFitter            , eventWeight);
-      //m_JetFitterCombNN         ->Fill(jet->JetFitter            , eventWeight);
-    
-//
-//      h_IP3DvsMV2c20->Fill(jet->MV2c20, jet->IP3D);
-      
+      m_COMB                      ->Fill(jet->SV1plusIP3D_discriminant, eventWeight);
+      //m_JetFitter                 ->Fill(jet->JetFitter               , eventWeight);
+      //m_JetFitterCombNN           ->Fill(jet->JetFitter               , eventWeight);
     }
 
   if(  m_infoSwitch->m_byEta ){
@@ -1878,34 +1871,33 @@ StatusCode JetHists::execute( const xAH::Particle* particle, float eventWeight, 
     //
     // SV0
     //
-    m_sv0_NGTinSvx -> Fill( jet->sv0_NGTinSvx, eventWeight);
-    m_sv0_N2Tpair  -> Fill( jet->sv0_N2Tpair , eventWeight);
-    m_sv0_massvx   -> Fill( jet->sv0_massvx  /1000, eventWeight);
-    m_sv0_efracsvx -> Fill( jet->sv0_efracsvx, eventWeight);
-    m_sv0_normdist -> Fill( jet->sv0_normdist, eventWeight);
+    m_SV0_NGTinSvx -> Fill( jet->SV0_NGTinSvx, eventWeight);
+    m_SV0_N2Tpair  -> Fill( jet->SV0_N2Tpair , eventWeight);
+    m_SV0_masssvx  -> Fill( jet->SV0_masssvx /1000, eventWeight);
+    m_SV0_efracsvx -> Fill( jet->SV0_efracsvx, eventWeight);
+    m_SV0_normdist -> Fill( jet->SV0_normdist, eventWeight);
 
     //
     // SV1
     //
-    m_sv1_NGTinSvx -> Fill( jet->sv1_NGTinSvx, eventWeight);
-    m_sv1_N2Tpair  -> Fill( jet->sv1_N2Tpair , eventWeight);
-    m_sv1_massvx   -> Fill( jet->sv1_massvx  /1000, eventWeight);
-    m_sv1_efracsvx -> Fill( jet->sv1_efracsvx, eventWeight);
-    m_sv1_normdist -> Fill( jet->sv1_normdist, eventWeight);
+    m_SV1_NGTinSvx -> Fill( jet->SV1_NGTinSvx, eventWeight);
+    m_SV1_N2Tpair  -> Fill( jet->SV1_N2Tpair , eventWeight);
+    m_SV1_masssvx  -> Fill( jet->SV1_masssvx /1000, eventWeight);
+    m_SV1_efracsvx -> Fill( jet->SV1_efracsvx, eventWeight);
+    m_SV1_normdist -> Fill( jet->SV1_normdist, eventWeight);
 
       
-    m_SV1_pu         ->  Fill(jet->sv1_pu  , eventWeight );
-    m_SV1_pb         ->  Fill(jet->sv1_pb  , eventWeight );
-    m_SV1_pc         ->  Fill(jet->sv1_pc  , eventWeight );
+    m_SV1_pu         ->  Fill(jet->SV1_pu  , eventWeight );
+    m_SV1_pb         ->  Fill(jet->SV1_pb  , eventWeight );
+    m_SV1_pc         ->  Fill(jet->SV1_pc  , eventWeight );
 
-    m_SV1_c          ->  Fill(jet->sv1_c  , eventWeight );
-    m_SV1_cu         ->  Fill(jet->sv1_cu , eventWeight );
+    m_SV1_c          ->  Fill(jet->SV1_c  , eventWeight );
+    m_SV1_cu         ->  Fill(jet->SV1_cu , eventWeight );
 
-    m_SV1_Lxy        -> Fill(jet->sv1_Lxy,         eventWeight);
-    m_SV1_L3d        -> Fill(jet->sv1_L3d,         eventWeight);
-    m_SV1_distmatlay -> Fill(jet->sv1_distmatlay,  eventWeight);
-    m_SV1_dR         -> Fill(jet->sv1_dR,          eventWeight);
-
+    m_SV1_Lxy        -> Fill(jet->SV1_Lxy,         eventWeight);
+    m_SV1_L3d        -> Fill(jet->SV1_L3d,         eventWeight);
+    m_SV1_distmatlay -> Fill(jet->SV1_distmatlay,  eventWeight);
+    m_SV1_dR         -> Fill(jet->SV1_dR,          eventWeight);
   }
 
 

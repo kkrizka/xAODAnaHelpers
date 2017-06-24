@@ -61,7 +61,6 @@ public:
   std::string m_photonSystsVec;
   std::string m_fatJetSystsVec;
 
-  bool m_DC14;
   float m_units;
 
 protected:

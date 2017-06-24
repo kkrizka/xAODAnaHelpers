@@ -45,6 +45,8 @@
 /* Particle */
 #include <xAODAnaHelpers/Particle.h>
 #include <xAODAnaHelpers/Jet.h>
+#include <xAODAnaHelpers/JetConstituent.h>
+#include <xAODAnaHelpers/TrackParticle.h>
 
 /* Mini xAOD */
 #include <xAODAnaHelpers/MinixAOD.h>
@@ -98,8 +100,10 @@
 
 #pragma link C++ class TreeAlgo+;
 
-#pragma link C++ class Particle+;
-#pragma link C++ class Jet+;
+#pragma link C++ class xAH::Particle+;
+#pragma link C++ class xAH::Jet+;
+#pragma link C++ class xAH::JetConstituent+;
+#pragma link C++ class xAH::TrackParticle+;
 
 #pragma link C++ class MinixAOD+;
 

@@ -146,7 +146,7 @@ void TrackContainer::setTree(TTree *tree)
   }
 }
 
-void TrackContainer::updateParticle(uint idx, TrackPart& track)
+void TrackContainer::updateParticle(uint idx, TrackParticle& track)
 {
   if(m_debug) std::cout << "in TrackContainer::updateParticle" << std::endl;
   ParticleContainer::updateParticle(idx, track);

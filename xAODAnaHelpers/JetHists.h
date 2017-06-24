@@ -206,11 +206,11 @@ class JetHists : public IParticleHists
     TH1F* m_jf_mass_unco      ; //!
     TH1F* m_jf_dR_flight      ; //!
 
-    TH1F* m_sv0_NGTinSvx ; //!
-    TH1F* m_sv0_N2Tpair  ; //!
-    TH1F* m_sv0_massvx   ; //!
-    TH1F* m_sv0_efracsvx ; //!
-    TH1F* m_sv0_normdist ; //!
+    TH1F* m_SV0_NGTinSvx ; //!
+    TH1F* m_SV0_N2Tpair  ; //!
+    TH1F* m_SV0_masssvx  ; //!
+    TH1F* m_SV0_efracsvx ; //!
+    TH1F* m_SV0_normdist ; //!
 
     TH1F* m_SV1_pu       ; //!
     TH1F* m_SV1_pb       ; //!
@@ -218,11 +218,11 @@ class JetHists : public IParticleHists
     TH1F* m_SV1          ; //!
     TH1F* m_SV1_c        ; //!
     TH1F* m_SV1_cu       ; //!
-    TH1F* m_sv1_NGTinSvx ; //!
-    TH1F* m_sv1_N2Tpair  ; //!
-    TH1F* m_sv1_massvx   ; //!
-    TH1F* m_sv1_efracsvx ; //!
-    TH1F* m_sv1_normdist ; //!
+    TH1F* m_SV1_NGTinSvx ; //!
+    TH1F* m_SV1_N2Tpair  ; //!
+    TH1F* m_SV1_masssvx  ; //!
+    TH1F* m_SV1_efracsvx ; //!
+    TH1F* m_SV1_normdist ; //!
     TH1F* m_SV1_Lxy        ; //!
     TH1F* m_SV1_L3d        ; //!
     TH1F* m_SV1_distmatlay ; //!

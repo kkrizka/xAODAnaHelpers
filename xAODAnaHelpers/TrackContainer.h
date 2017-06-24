@@ -12,12 +12,12 @@
 #include <xAODAnaHelpers/HelperClasses.h>
 #include <xAODAnaHelpers/HelperFunctions.h>
 
-#include <xAODAnaHelpers/TrackPart.h>
+#include <xAODAnaHelpers/TrackParticle.h>
 #include <xAODAnaHelpers/ParticleContainer.h>
 
 namespace xAH {
 
-  class TrackContainer : public ParticleContainer<TrackPart, HelperClasses::TrackInfoSwitch>
+  class TrackContainer : public ParticleContainer<TrackParticle, HelperClasses::TrackInfoSwitch>
     {
     public:
       TrackContainer(const std::string& name = "track", const std::string& detailStr="", float units = 1e3);
@@ -32,7 +32,7 @@ namespace xAH {
 
     protected:
       
-      virtual void updateParticle(uint idx, TrackPart& track);
+      virtual void updateParticle(uint idx, TrackParticle& track);
 
     private:
       // 

@@ -1,7 +1,10 @@
 #include "xAODAnaHelpers/JetHelpTree.h"
+
 #include <xAODAnaHelpers/HelperFunctions.h>
+
+#include <xAODTruth/TruthEventContainer.h>
+
 #include <iostream>
-#include "xAODTruth/TruthEventContainer.h"
 
 using namespace xAH;
 using std::vector;  using std::endl;  using std::cout;
@@ -107,9 +110,9 @@ void JetHelpTree::createBranches(TTree *tree)
       setBranchStatus(tree, "JvtRpt",              1);
       if ( m_mc ) 
 	{
-	  setBranchStatus(tree, "JvtEff_SF_Loose", 1);
-	  setBranchStatus(tree, "JvtEff_SF_Medium",1);
-	  setBranchStatus(tree, "JvtEff_SF_Tight", 1);
+	  setBranchStatus(tree, "JetJvtEfficiency_JVTSyst_JVT_Loose", 1);
+	  setBranchStatus(tree, "JetJvtEfficiency_JVTSyst_JVT_Medium",1);
+	  setBranchStatus(tree, "JetJvtEfficiency_JVTSyst_JVT_Tight", 1);
 	}
     }
 
@@ -158,7 +161,7 @@ void JetHelpTree::createBranches(TTree *tree)
   if ( m_infoSwitch.m_constituentAll )
     {
       setBranchStatus(tree, "constituentWeights", 1);
-      setBranchStatus(tree, "coynstituent_pt",     1);
+      setBranchStatus(tree, "constituent_pt",     1);
       setBranchStatus(tree, "constituent_eta",    1);
       setBranchStatus(tree, "constituent_phi",    1);
       setBranchStatus(tree, "constituent_e",      1);
@@ -355,9 +358,11 @@ void JetHelpTree::createBranches(TTree *tree)
     }
 }
 
-void JetHelpTree::fillJet( const xAOD::Jet* jet, xAH::Jet *myjet, int pvLocation )
+void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvLocation )
 {
-  ParticleHelpTree::fillParticle(jet, myjet);
+  ParticleHelpTree::fillParticle(jet);
+
+  xAH::Jet *myjet=static_cast<xAH::Jet*>(m_particles->Last());
 
   if ( m_infoSwitch.m_rapidity )
     {
@@ -508,748 +513,619 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, xAH::Jet *myjet, int pvLocation
       static SG::AuxElement::ConstAccessor< std::vector<float> > TrackWidthPt500("TrackWidthPt500");
       static SG::AuxElement::ConstAccessor< std::vector<float> > JVF("JVF");
     
-      if ( m_infoSwitch.m_trackAll ) {
-
-	static const std::vector<int> junkInt(1,-999);
-	static const std::vector<float> junkFlt(1,-999);
-
-	if ( NumTrkPt1000.isAvailable( *jet ) ) 
-	  NumTrkPt1000=NumTrkPt1000( *jet );
-
-      if ( SumPtTrkPt1000.isAvailable( *jet ) )
+      if ( m_infoSwitch.m_trackAll ) 
 	{
-	  myjet->SumPtTrkPt1000=SumPtTrkPt1000(*jet);
-	  std::transform(myjet->SumPtTrkPt1000.begin(),
-			 myjet->SumPtTrkPt1000.end(),
-			 myjet->SumPtTrkPt1000.begin(),
-			 std::bind2nd(std::divides<float>(), m_units));
-	}
+	  if ( NumTrkPt1000.isAvailable( *jet ) ) 
+	    myjet->NumTrkPt1000=NumTrkPt1000( *jet );
 
-      if ( TrackWidthPt1000.isAvailable( *jet ) )
-        myjet->TrackWidthPt1000=TrackWidthPt1000( *jet );
+	  if ( SumPtTrkPt1000.isAvailable( *jet ) )
+	    {
+	      myjet->SumPtTrkPt1000=SumPtTrkPt1000(*jet);
+	      std::transform(myjet->SumPtTrkPt1000.begin(),
+			     myjet->SumPtTrkPt1000.end(),
+			     myjet->SumPtTrkPt1000.begin(),
+			     std::bind2nd(std::divides<float>(), m_units));
+	    }
 
-      if ( NumTrkPt500.isAvailable( *jet ) )
-        myjet->NumTrkPt500=NumTrkPt500( *jet );
+	  if ( TrackWidthPt1000.isAvailable( *jet ) )
+	    myjet->TrackWidthPt1000=TrackWidthPt1000( *jet );
 
-      if ( SumPtTrkPt500.isAvailable( *jet ) )
+	  if ( NumTrkPt500.isAvailable( *jet ) )
+	    myjet->NumTrkPt500=NumTrkPt500( *jet );
+
+	  if ( SumPtTrkPt500.isAvailable( *jet ) )
+	    {
+	      myjet->SumPtTrkPt500=SumPtTrkPt500( *jet );
+	      std::transform(myjet->SumPtTrkPt500.begin(),
+			     myjet->SumPtTrkPt500.end(),
+			     myjet->SumPtTrkPt500.begin(),
+			     std::bind2nd(std::divides<float>(), m_units));
+	    }
+
+	  if ( TrackWidthPt500.isAvailable( *jet ) )
+	    myjet->TrackWidthPt500=TrackWidthPt500( *jet );
+
+	  if ( JVF.isAvailable( *jet ) )
+	    myjet->JVF=JVF( *jet );
+
+	} // trackAll
+
+      if ( m_infoSwitch.m_trackPV && pvLocation >= 0 )
 	{
-	  myjet->SumPtTrkPt500=SumPtTrkPt500( *jet );
-	  std::transform(myjet->SumPtTrkPt500.begin(),
-			 myjet->SumPtTrkPt500.end(),
-			 myjet->SumPtTrkPt500.begin(),
-			 std::bind2nd(std::divides<float>(), m_units));
-	}
 
-      if ( TrackWidthPt500.isAvailable( *jet ) ) {
-        myjet->TrackWidthPt500=TrackWidthPt500( *jet );
+	  if ( NumTrkPt1000.isAvailable( *jet ) )
+	    myjet->NumTrkPt1000PV=NumTrkPt1000( *jet )[pvLocation];
 
-      if ( JVF.isAvailable( *jet ) )
-	myjet->JVF=JVF( *jet );
+	  if ( SumPtTrkPt1000.isAvailable( *jet ) )
+	    myjet->SumPtTrkPt1000PV=SumPtTrkPt1000( *jet )[pvLocation] / m_units;
 
-    } // trackAll
+	  if ( TrackWidthPt500.isAvailable( *jet ) )
+	    myjet->TrackWidthPt500PV=TrackWidthPt500( *jet )[pvLocation];
 
-    if ( m_infoSwitch.m_trackPV && pvLocation >= 0 ) {
+	  if ( NumTrkPt500.isAvailable( *jet ) )
+	    myjet->NumTrkPt500PV=NumTrkPt500( *jet )[pvLocation];
 
-      if ( nTrk1000.isAvailable( *jet ) ) {
-        m_NumTrkPt1000PV->push_back( nTrk1000( *jet )[pvLocation] );
-      } else { m_NumTrkPt1000PV->push_back( -999 ); }
+	  if ( SumPtTrkPt500.isAvailable( *jet ) )
+	    myjet->SumPtTrkPt500PV=SumPtTrkPt500( *jet )[pvLocation] / m_units;
 
-      if ( sumPt1000.isAvailable( *jet ) ) {
-        m_SumPtTrkPt1000PV->push_back( sumPt1000( *jet )[pvLocation] / m_units );
-      } else { m_SumPtTrkPt1000PV->push_back( -999 ); }
+	  if ( TrackWidthPt500.isAvailable( *jet ) )
+	    myjet->TrackWidthPt500PV=TrackWidthPt500( *jet )[pvLocation];
 
-      if ( trkWidth1000.isAvailable( *jet ) ) {
-        m_TrackWidthPt1000PV->push_back( trkWidth1000( *jet )[pvLocation] );
-      } else { m_TrackWidthPt1000PV->push_back( -999 ); }
 
-      if ( nTrk500.isAvailable( *jet ) ) {
-        m_NumTrkPt500PV->push_back( nTrk500( *jet )[pvLocation] );
-      } else { m_NumTrkPt500PV->push_back( -999 ); }
+	  if ( JVF.isAvailable( *jet ) )
+	    myjet->JVFPV=JVF( *jet )[pvLocation];
 
-      if ( sumPt500.isAvailable( *jet ) ) {
-        m_SumPtTrkPt500PV->push_back( sumPt500( *jet )[pvLocation] / m_units );
-      } else { m_SumPtTrkPt500PV->push_back( -999 ); }
+	  static SG::AuxElement::ConstAccessor< float > Jvt ("Jvt");
+	  myjet->Jvt=Jvt(*jet);
 
-      if ( trkWidth500.isAvailable( *jet ) ) {
-        m_TrackWidthPt500PV->push_back( trkWidth500( *jet )[pvLocation] );
-      } else { m_TrackWidthPt500PV->push_back( -999 ); }
+	  static SG::AuxElement::ConstAccessor< float > JvtJvfcorr ("JvtJvfcorr");
+	  myjet->JvtJvfcorr=JvtJvfcorr(*jet);
 
-      if ( jvf.isAvailable( *jet ) ) {
-        m_JVFPV->push_back( jvf( *jet )[pvLocation] );
-      } else { m_JVFPV->push_back( -999 ); }
+	  static SG::AuxElement::ConstAccessor< float > JvtRpt ("JvtRpt");
+	  myjet->JvtRpt=JvtRpt(*jet);
 
-      static SG::AuxElement::ConstAccessor< float > jvt ("Jvt");
-      jet, jvt, m_Jvt, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jvtJvfcorr ("JvtJvfcorr");
-      jet, jvtJvfcorr, m_JvtJvfcorr, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jvtRpt ("JvtRpt");
-      jet, jvtRpt, m_JvtRpt, -999);
-
-      if ( m_mc ) {
-	static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Loose("JetJvtEfficiency_JVTSyst_JVT_Loose");
-	static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Medium("JetJvtEfficiency_JVTSyst_JVT_Medium");
-	static SG::AuxElement::ConstAccessor< std::vector< float > > jvtSF_Tight("JetJvtEfficiency_JVTSyst_JVT_Tight");
-	std::vector<float> junkSF(1,1.0);
+	  if ( m_mc ) 
+	    {
+	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Loose("JetJvtEfficiency_JVTSyst_JVT_Loose");
+	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Medium("JetJvtEfficiency_JVTSyst_JVT_Medium");
+	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Tight("JetJvtEfficiency_JVTSyst_JVT_Tight");
 	
-	if ( jvtSF_Loose.isAvailable( *jet ) )  { m_JvtEff_SF_Loose->push_back( jvtSF_Loose( *jet ) );   } else { m_JvtEff_SF_Loose->push_back( junkSF ); }
-	if ( jvtSF_Medium.isAvailable( *jet ) ) { m_JvtEff_SF_Medium->push_back( jvtSF_Medium( *jet ) ); } else { m_JvtEff_SF_Medium->push_back( junkSF ); }
-	if ( jvtSF_Tight.isAvailable( *jet ) )  { m_JvtEff_SF_Tight->push_back( jvtSF_Tight( *jet ) );   } else { m_JvtEff_SF_Tight->push_back( junkSF ); }
-      }
-      //      static SG::AuxElement::ConstAccessor<float> ghostTrackAssFrac("GhostTrackAssociationFraction");
-      //      if ( ghostTrackAssFrac.isAvailable( *jet) ) {
-      //        m_ghostTrackAssFrac->push_back( ghostTrackAssFrac( *jet) );
-      //      } else { m_ghostTrackAssFrac->push_back( -999 ) ; }
+	      if ( JetJvtEfficiency_JVTSyst_JVT_Loose .isAvailable( *jet ) ) myjet->JetJvtEfficiency_JVTSyst_JVT_Loose = JetJvtEfficiency_JVTSyst_JVT_Loose ( *jet );
+	      if ( JetJvtEfficiency_JVTSyst_JVT_Medium.isAvailable( *jet ) ) myjet->JetJvtEfficiency_JVTSyst_JVT_Medium= JetJvtEfficiency_JVTSyst_JVT_Medium( *jet );
+	      if ( JetJvtEfficiency_JVTSyst_JVT_Tight .isAvailable( *jet ) ) myjet->JetJvtEfficiency_JVTSyst_JVT_Tight = JetJvtEfficiency_JVTSyst_JVT_Tight ( *jet );
+	    }
 
-    } // trackPV
+	} // trackPV
 
-  }
-
-  if ( m_infoSwitch.m_allTrack ) {
-    static SG::AuxElement::ConstAccessor< int > ghostTrackCount("GhostTrackCount");
-    safeFill<int, int, xAOD::Jet>(jet, ghostTrackCount, m_GhostTrackCount, -999);
-
-    static SG::AuxElement::ConstAccessor< float > ghostTrackPt ("GhostTrackPt");
-    jet, ghostTrackPt, m_GhostTrackPt, -999, m_units);
-
-    std::vector<float> pt;
-    std::vector<float> qOverP;
-    std::vector<float> eta;
-    std::vector<float> phi;
-    std::vector<float> e;
-    std::vector<float> d0;
-    std::vector<float> z0;
-    std::vector<int> nPixHits;
-    std::vector<int> nSCTHits;
-    std::vector<int> nTRTHits;
-    std::vector<int> nPixSharedHits;
-    std::vector<int> nPixSplitHits;
-    std::vector<int> nIMLPixHits;
-    std::vector<int> nIMLPixSharedHits;
-    std::vector<int> nIMLPixSplitHits;
-    std::vector<int> nNIMLPixHits;
-    std::vector<int> nNIMLPixSharedHits;
-    std::vector<int> nNIMLPixSplitHits;
-    static SG::AuxElement::ConstAccessor< std::vector<ElementLink<DataVector<xAOD::IParticle> > > >ghostTrack ("GhostTrack");
-    if ( ghostTrack.isAvailable( *jet ) ) {
-      std::vector<ElementLink<DataVector<xAOD::IParticle> > > trackLinks = ghostTrack( *jet );
-      //std::vector<float> pt(trackLinks.size(),-999);
-      for ( auto link_itr : trackLinks ) {
-        if( !link_itr.isValid() ) { continue; }
-        const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>( *link_itr );
-        // if asking for tracks passing PV selection ( i.e. JVF JVT tracks )
-        if( m_infoSwitch.m_allTrackPVSel ) {
-          // PV selection from
-          // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JvtManualRecalculation
-          if( track->pt() < 500 )                { continue; } // pT cut
-          if( !m_trkSelTool->accept(*track,pv) ) { continue; } // ID quality cut
-          if( track->vertex() != pv ) {                        // if not in PV vertex fit
-            if( track->vertex() != 0 )           { continue; } // make sure in no vertex fits
-            if( fabs((track->z0()+track->vz()-pv->z())*sin(track->theta())) > 3.0 ) { continue; } // make sure close to PV in z
-          }
-        }
-        pt. push_back( track->pt() / m_units );
-        qOverP.push_back( track->qOverP() * m_units );
-        eta.push_back( track->eta() );
-        phi.push_back( track->phi() );
-        e.  push_back( track->e()  / m_units );
-        d0. push_back( track->d0() );
-        z0. push_back( track->z0() + track->vz() - pv->z() ); // store z0 wrt PV...most useful
-        if( m_infoSwitch.m_allTrackDetail ) {
-          uint8_t getInt(0);
-          // n pix, sct, trt
-          track->summaryValue( getInt, xAOD::numberOfPixelHits );
-          nPixHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfSCTHits );
-          nSCTHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfTRTHits );
-          nTRTHits.push_back( getInt );
-          // pixel split shared
-          track->summaryValue( getInt, xAOD::numberOfPixelSharedHits );
-          nPixSharedHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfPixelSplitHits );
-          nPixSplitHits.push_back( getInt );
-          // n ibl, split, shared
-          track->summaryValue( getInt, xAOD::numberOfInnermostPixelLayerHits );
-          nIMLPixHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfInnermostPixelLayerSharedHits );
-          nIMLPixSharedHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfInnermostPixelLayerSplitHits );
-          nIMLPixSplitHits.push_back( getInt );
-          // n bl,  split, shared
-          track->summaryValue( getInt, xAOD::numberOfNextToInnermostPixelLayerHits );
-          nNIMLPixHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfNextToInnermostPixelLayerSharedHits );
-          nNIMLPixSharedHits.push_back( getInt );
-          track->summaryValue( getInt, xAOD::numberOfNextToInnermostPixelLayerSplitHits );
-          nNIMLPixSplitHits.push_back( getInt );
-        }
-      }
-    } // if ghostTrack available
-    m_GhostTrack_pt-> push_back( pt  );
-    m_GhostTrack_qOverP-> push_back( qOverP );
-    m_GhostTrack_eta->push_back( eta );
-    m_GhostTrack_phi->push_back( phi );
-    m_GhostTrack_e->  push_back( e   );
-    m_GhostTrack_d0-> push_back( d0  );
-    m_GhostTrack_z0-> push_back( z0  );
-    if( m_infoSwitch.m_allTrackDetail ) {
-      m_GhostTrack_nPixelHits->push_back( nPixHits );
-      m_GhostTrack_nSCTHits->push_back( nSCTHits );
-      m_GhostTrack_nTRTHits->push_back( nTRTHits );
-      m_GhostTrack_nPixelSharedHits->push_back( nPixSharedHits );
-      m_GhostTrack_nPixelSplitHits->push_back( nPixSplitHits );
-      m_GhostTrack_nInnermostPixelLayerHits->push_back( nIMLPixHits );
-      m_GhostTrack_nInnermostPixelLayerSharedHits->push_back( nIMLPixSharedHits );
-      m_GhostTrack_nInnermostPixelLayerSplitHits->push_back( nIMLPixSplitHits );
-      m_GhostTrack_nNextToInnermostPixelLayerHits->push_back( nNIMLPixHits );
-      m_GhostTrack_nNextToInnermostPixelLayerSharedHits->push_back( nNIMLPixSharedHits );
-      m_GhostTrack_nNextToInnermostPixelLayerSplitHits->push_back( nNIMLPixSplitHits );
     }
-  } // allTrack switch
 
-  if( m_infoSwitch.m_constituent ) {
-    m_numConstituents->push_back( jet->numConstituents() );
-  }
+  if ( m_infoSwitch.m_allTrack )
+    {
+      static SG::AuxElement::ConstAccessor< int > GhostTrackCount("GhostTrackCount");
+      myjet->GhostTrackCount=GhostTrackCount( *jet );
 
-  if( m_infoSwitch.m_constituentAll ) {
-    m_constituentWeights->push_back( jet->getAttribute< std::vector<float> >( "constituentWeights" ) );
-    std::vector<float> pt;
-    std::vector<float> eta;
-    std::vector<float> phi;
-    std::vector<float> e;
-    xAOD::JetConstituentVector consVec = jet->getConstituents();
-    if( consVec.isValid() ) {
-      // don't use auto since iterator can also set the scale ...
-      // not sure what that does with auto - probably default but just incase
-      // use the example provided in
-      // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODJet/xAODJet/JetConstituentVector.h
-      xAOD::JetConstituentVector::iterator constit = consVec.begin();
-      xAOD::JetConstituentVector::iterator constitE = consVec.end();
-      for( ; constit != constitE; constit++){
-        pt. push_back( constit->pt() / m_units );
-        eta.push_back( constit->eta() );
-        phi.push_back( constit->phi() );
-        e.  push_back( constit->e() / m_units  );
-      }
+      static SG::AuxElement::ConstAccessor< float > GhostTrackPt ("GhostTrackPt");
+      myjet->GhostTrackPt=GhostTrackPt( *jet );
+
+      static SG::AuxElement::ConstAccessor< std::vector<ElementLink<DataVector<xAOD::IParticle> > > > GhostTrack ("GhostTrack");
+      if ( GhostTrack.isAvailable( *jet ) ) 
+	{
+	  std::vector<ElementLink<DataVector<xAOD::IParticle> > > trackLinks = GhostTrack( *jet );
+	  //std::vector<float> pt(trackLinks.size(),-999);
+	  for ( const auto& link_itr : trackLinks ) 
+	    {
+	      if( !link_itr.isValid() ) { continue; }
+	      const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>( *link_itr );
+	      // if asking for tracks passing PV selection ( i.e. JVF JVT tracks )
+	      if( m_infoSwitch.m_allTrackPVSel ) 
+		{
+		  // PV selection from
+		  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JvtManualRecalculation
+		  if( track->pt() < 500 )                { continue; } // pT cut
+		  if( !m_trkSelTool->accept(*track,pv) ) { continue; } // ID quality cut
+		  if( track->vertex() != pv )                          // if not in PV vertex fit
+		    {
+		      if( track->vertex() != 0 )         { continue; } // make sure in no vertex fits
+		      if( fabs((track->z0()+track->vz()-pv->z())*sin(track->theta())) > 3.0 ) { continue; } // make sure close to PV in z
+		    }
+		}
+
+	      TrackParticle mytrack;
+	      mytrack.p4.SetPtEtaPhiE(track->pt() / m_units, track->eta(), track->phi(), track->e()  / m_units );
+	      mytrack.qOverP = track->qOverP() * m_units;
+	      mytrack.d0 = track->d0();
+	      mytrack.z0 = track->z0() + track->vz() - pv->z(); // store z0 wrt PV...most useful
+	      if( m_infoSwitch.m_allTrackDetail ) 
+		{
+		  // n pix, sct, trt
+		  track->summaryValue( mytrack.numberOfPixelHits, xAOD::numberOfPixelHits );
+		  track->summaryValue( mytrack.numberOfSCTHits  , xAOD::numberOfSCTHits );
+		  track->summaryValue( mytrack.numberOfTRTHits  , xAOD::numberOfTRTHits );
+
+		  // pixel split shared
+		  track->summaryValue( mytrack.numberOfPixelSharedHits, xAOD::numberOfPixelSharedHits );
+		  track->summaryValue( mytrack.numberOfPixelSplitHits , xAOD::numberOfPixelSplitHits );
+
+		  // n ibl, split, shared
+		  track->summaryValue( mytrack.numberOfInnermostPixelLayerHits      , xAOD::numberOfInnermostPixelLayerHits );
+		  track->summaryValue( mytrack.numberOfInnermostPixelLayerSharedHits, xAOD::numberOfInnermostPixelLayerSharedHits );
+		  track->summaryValue( mytrack.numberOfInnermostPixelLayerSplitHits , xAOD::numberOfInnermostPixelLayerSplitHits );
+
+		  // n bl,  split, shared
+		  track->summaryValue( mytrack.numberOfNextToInnermostPixelLayerHits      , xAOD::numberOfNextToInnermostPixelLayerHits );
+		  track->summaryValue( mytrack.numberOfNextToInnermostPixelLayerSharedHits, xAOD::numberOfNextToInnermostPixelLayerSharedHits );
+		  track->summaryValue( mytrack.numberOfNextToInnermostPixelLayerSplitHits , xAOD::numberOfNextToInnermostPixelLayerSplitHits );
+		}
+	      myjet->GhostTrack.push_back(mytrack);
+	    }
+	} // if GhostTrack available
+
+    } // allTrack switch
+
+  if( m_infoSwitch.m_constituent ) 
+    {
+      myjet->numConstituents=jet->numConstituents();
     }
-    m_constituent_pt-> push_back( pt  );
-    m_constituent_eta->push_back( eta );
-    m_constituent_phi->push_back( phi );
-    m_constituent_e->  push_back( e   );
-  }
 
-  if ( m_infoSwitch.m_flavTag || m_infoSwitch.m_flavTagHLT ) {
-    const xAOD::BTagging * myBTag(0);
+  if( m_infoSwitch.m_constituentAll ) 
+    {
+      myjet->constituentWeights = jet->getAttribute< std::vector<float> >( "constituentWeights" );
+
+      xAOD::JetConstituentVector consVec = jet->getConstituents();
+      if( consVec.isValid() ) 
+	{
+	  // don't use auto since iterator can also set the scale ...
+	  // not sure what that does with auto - probably default but just incase
+	  // use the example provided in
+	  // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODJet/xAODJet/JetConstituentVector.h
+	  JetConstituent myconstit;
+	  xAOD::JetConstituentVector::const_iterator constit  = consVec.begin();
+	  xAOD::JetConstituentVector::const_iterator constitE = consVec.end();
+	  for( ; constit != constitE; constit++)
+	    {
+	      myconstit.p4.SetPtEtaPhiE(constit->pt() / m_units, constit->eta(), constit->phi(), constit->e() / m_units );
+	      myjet->constituents.push_back(myconstit);
+	    }
+	}
+    }
+
+  if ( m_infoSwitch.m_flavTag || m_infoSwitch.m_flavTagHLT ) 
+    {
+      const xAOD::BTagging * myBTag(0);
     
-    if(m_infoSwitch.m_flavTag){
-      myBTag = jet->btagging();
-    }else if(m_infoSwitch.m_flavTagHLT){
-      myBTag = jet->auxdata< const xAOD::BTagging* >("HLTBTag");
-    }
+      if(m_infoSwitch.m_flavTag)
+	myBTag = jet->btagging();
+      else if(m_infoSwitch.m_flavTagHLT)
+	myBTag = jet->auxdata< const xAOD::BTagging* >("HLTBTag");
 
-    if(m_infoSwitch.m_JVC ) {
-      static SG::AuxElement::ConstAccessor<double> JetVertexCharge_discriminant("JetVertexCharge_discriminant");
-      safeFill<double, double, xAOD::BTagging>(myBTag, JetVertexCharge_discriminant, m_JetVertexCharge_discriminant, -999);
-    }
+      if(m_infoSwitch.m_JVC ) 
+	{
+	  static SG::AuxElement::ConstAccessor<double> JetVertexCharge_discriminant("JetVertexCharge_discriminant");
+	  myjet->JetVertexCharge_discriminant = JetVertexCharge_discriminant(*myBTag);
+	}
 
-    //MV2c00 MV2c20 MV2c10 MV2c100 MV2m
-    double val(-999);
-    myBTag->variable<double>("MV2c00", "discriminant", val);
-    m_MV2c00->push_back( val );
-    myBTag->variable<double>("MV2c10", "discriminant", val);
-    m_MV2c10->push_back( val );
-    myBTag->variable<double>("MV2c20", "discriminant", val);
-    m_MV2c20->push_back( val );
-    myBTag->variable<double>("MV2c100", "discriminant", val);
-    m_MV2c100->push_back( val );
+      //MV2c00 MV2c20 MV2c10 MV2c100 MV2m
+      myBTag->variable<double>("MV2c00" , "discriminant", myjet->MV2c00);
+      myBTag->variable<double>("MV2c10" , "discriminant", myjet->MV2c10);
+      myBTag->variable<double>("MV2c20" , "discriminant", myjet->MV2c20);
+      myBTag->variable<double>("MV2c100", "discriminant", myjet->MV2c100);
 
-    // flavor groups truth definition
-    static SG::AuxElement::ConstAccessor<int> hadConeExclTruthLabel("HadronConeExclTruthLabelID");
-    safeFill<int, int, xAOD::Jet>(jet, hadConeExclTruthLabel, m_HadronConeExclTruthLabelID, -999);
-
-    if(m_infoSwitch.m_jetFitterDetails ) {
-
-      static SG::AuxElement::ConstAccessor< int   > jf_nVTXAcc       ("JetFitter_nVTX");
-      safeFill<int, float, xAOD::BTagging>(myBTag, jf_nVTXAcc, m_JetFitter_nVTX, -999);
-
-      static SG::AuxElement::ConstAccessor< int   > jf_nSingleTracks ("JetFitter_nSingleTracks");
-      safeFill<int, float, xAOD::BTagging>(myBTag, jf_nSingleTracks, m_JetFitter_nSingleTracks, -999);
-
-      static SG::AuxElement::ConstAccessor< int   > jf_nTracksAtVtx  ("JetFitter_nTracksAtVtx");
-      safeFill<int, float, xAOD::BTagging>(myBTag, jf_nTracksAtVtx, m_JetFitter_nTracksAtVtx, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jf_mass          ("JetFitter_mass");
-      safeFill<float, float, xAOD::BTagging>(myBTag, jf_mass, m_JetFitter_mass, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jf_energyFraction("JetFitter_energyFraction");
-      safeFill<float, float, xAOD::BTagging>(myBTag, jf_energyFraction, m_JetFitter_energyFraction, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jf_significance3d("JetFitter_significance3d");
-      safeFill<float, float, xAOD::BTagging>(myBTag, jf_significance3d, m_JetFitter_significance3d, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jf_deltaeta      ("JetFitter_deltaeta");
-      safeFill<float, float, xAOD::BTagging>(myBTag, jf_deltaeta, m_JetFitter_deltaeta, -999);
-
-      static SG::AuxElement::ConstAccessor< float > jf_deltaphi      ("JetFitter_deltaphi");
-      safeFill<float, float, xAOD::BTagging>(myBTag, jf_deltaphi, m_JetFitter_deltaphi, -999);
-
-      static SG::AuxElement::ConstAccessor< int   > jf_N2Tpar        ("JetFitter_N2Tpair");
-      safeFill<int, float, xAOD::BTagging>(myBTag, jf_N2Tpar, m_JetFitter_N2Tpar, -999);
-
-      //static SG::AuxElement::ConstAccessor< double > jf_pb           ("JetFitterCombNN_pb");
-      //safeFill<double, float, xAOD::BTagging>(myBTag, jf_pb, m_JetFitter_pb, -999);
-      //
-      //static SG::AuxElement::ConstAccessor< double > jf_pc           ("JetFitterCombNN_pc");
-      //safeFill<double, float, xAOD::BTagging>(myBTag, jf_pc, m_JetFitter_pc, -999);
-      //
-      //static SG::AuxElement::ConstAccessor< double > jf_pu           ("JetFitterCombNN_pu");
-      //safeFill<double, float, xAOD::BTagging>(myBTag, jf_pu, m_JetFitter_pu, -999);
-
-    }
-
-    if(m_infoSwitch.m_svDetails ) {
-      if(m_debug) cout << "Filling m_svDetails " << endl;
-
-      /// @brief SV0 : Number of good tracks in vertex
-      static SG::AuxElement::ConstAccessor< int   >   sv0_NGTinSvxAcc     ("SV0_NGTinSvx");
-      safeFill<int, float, xAOD::BTagging>(myBTag,    sv0_NGTinSvxAcc, m_sv0_NGTinSvx, -999);
-
-      // @brief SV0 : Number of 2-track pairs
-      static SG::AuxElement::ConstAccessor< int   >   sv0_N2TpairAcc      ("SV0_N2Tpair");
-      safeFill<int, float, xAOD::BTagging>(myBTag, sv0_N2TpairAcc, m_sv0_N2Tpair, -999);
-
-      /// @brief SV0 : vertex mass
-      static SG::AuxElement::ConstAccessor< float   > sv0_masssvxAcc      ("SV0_masssvx");
-      safeFill<float, float, xAOD::BTagging>(myBTag, sv0_masssvxAcc, m_sv0_massvx, -999);
-
-      /// @brief SV0 : energy fraction
-      static SG::AuxElement::ConstAccessor< float   > sv0_efracsvxAcc     ("SV0_efracsvx");                                    
-      safeFill<float, float, xAOD::BTagging>(myBTag, sv0_efracsvxAcc, m_sv0_efracsvx, -999);
+      // flavor groups truth definition
+      static SG::AuxElement::ConstAccessor<int> HadronConeExclTruthLabelID("HadronConeExclTruthLabelID");
+      myjet->HadronConeExclTruthLabelID = HadronConeExclTruthLabelID( *jet );
       
-      /// @brief SV0 : 3D vertex significance
-      static SG::AuxElement::ConstAccessor< float   > sv0_normdistAcc     ("SV0_normdist");
-      safeFill<float, float, xAOD::BTagging>(myBTag, sv0_normdistAcc, m_sv0_normdist, -999);
+      if(m_infoSwitch.m_jetFitterDetails )
+	{
 
-      double sv0;
-      myBTag->variable<double>("SV0", "significance3D", sv0);
-      m_SV0->push_back(sv0);
+	  static SG::AuxElement::ConstAccessor< int   > JetFitter_nVTX          ("JetFitter_nVTX");
+	  myjet->JetFitter_nVTX = JetFitter_nVTX( *myBTag );
 
-      m_SV1IP3D->push_back( myBTag -> SV1plusIP3D_discriminant() );
+	  static SG::AuxElement::ConstAccessor< int   > JetFitter_nSingleTracks ("JetFitter_nSingleTracks");
+	  myjet->JetFitter_nSingleTracks = JetFitter_nSingleTracks( *myBTag );
 
+	  static SG::AuxElement::ConstAccessor< int   > JetFitter_nTracksAtVtx  ("JetFitter_nTracksAtVtx");
+	  myjet->JetFitter_nTracksAtVtx = JetFitter_nTracksAtVtx( *myBTag );
 
-      /// @brief SV1 : Number of good tracks in vertex
-      static SG::AuxElement::ConstAccessor< int   >   sv1_NGTinSvxAcc     ("SV1_NGTinSvx");
-      safeFill<int, float, xAOD::BTagging>(myBTag, sv1_NGTinSvxAcc, m_sv1_NGTinSvx, -999);
+	  static SG::AuxElement::ConstAccessor< float > JetFitter_mass          ("JetFitter_mass");
+	  myjet->JetFitter_mass = JetFitter_mass( *myBTag );
 
-      // @brief SV1 : Number of 2-track pairs
-      static SG::AuxElement::ConstAccessor< int   >   sv1_N2TpairAcc      ("SV1_N2Tpair");
-      safeFill<int, float, xAOD::BTagging>(myBTag, sv1_N2TpairAcc, m_sv1_N2Tpair, -999);
+	  static SG::AuxElement::ConstAccessor< float > JetFitter_energyFraction("JetFitter_energyFraction");
+	  myjet->JetFitter_energyFraction = JetFitter_energyFraction( *myBTag );
 
-      /// @brief SV1 : vertex mass
-      static SG::AuxElement::ConstAccessor< float   > sv1_masssvxAcc      ("SV1_masssvx");
-      safeFill<float, float, xAOD::BTagging>(myBTag, sv1_masssvxAcc, m_sv1_massvx, -999);
+	  static SG::AuxElement::ConstAccessor< float > JetFitter_significance3d("JetFitter_significance3d");
+	  myjet->JetFitter_significance3d = JetFitter_significance3d( *myBTag );
 
-      /// @brief SV1 : energy fraction
-      static SG::AuxElement::ConstAccessor< float   > sv1_efracsvxAcc     ("SV1_efracsvx");
-      safeFill<float, float, xAOD::BTagging>(myBTag, sv1_efracsvxAcc, m_sv1_efracsvx, -999);
+	  static SG::AuxElement::ConstAccessor< float > JetFitter_deltaeta      ("JetFitter_deltaeta");
+	  myjet->JetFitter_deltaeta = JetFitter_deltaeta( *myBTag );
 
-      /// @brief SV1 : 3D vertex significance
-      static SG::AuxElement::ConstAccessor< float   > sv1_normdistAcc     ("SV1_normdist");
-      safeFill<float, float, xAOD::BTagging>(myBTag, sv1_normdistAcc, m_sv1_normdist, -999);
+	  static SG::AuxElement::ConstAccessor< float > JetFitter_deltaphi      ("JetFitter_deltaphi");
+	  myjet->JetFitter_deltaphi = JetFitter_deltaphi( *myBTag );
 
-      double sv1_pu = -30;  myBTag->variable<double>("SV1", "pu", sv1_pu);
-      double sv1_pb = -30;  myBTag->variable<double>("SV1", "pb", sv1_pb);
-      double sv1_pc = -30;  myBTag->variable<double>("SV1", "pc", sv1_pc);
+	  static SG::AuxElement::ConstAccessor< int   > JetFitter_N2Tpair        ("JetFitter_N2Tpair");
+	  myjet->JetFitter_N2Tpar = JetFitter_N2Tpair( *myBTag );
+	}
 
-      m_sv1_pu         ->push_back(sv1_pu);
-      m_sv1_pb         ->push_back(sv1_pb);
-      m_sv1_pc         ->push_back(sv1_pc);
-      m_SV1            ->push_back( myBTag->calcLLR(sv1_pb,sv1_pu)  );
-      m_sv1_c          ->push_back( myBTag->calcLLR(sv1_pb,sv1_pc)  );
-      m_sv1_cu         ->push_back( myBTag->calcLLR(sv1_pc,sv1_pu)  );
+      if(m_infoSwitch.m_svDetails ) 
+	{
+	  /// @brief SV0 : Number of good tracks in vertex
+	  static SG::AuxElement::ConstAccessor< int   >   SV0_NGTinSvx     ("SV0_NGTinSvx");
+	  myjet->SV0_NGTinSvx=SV0_NGTinSvx( *myBTag );
 
-      float sv1_Lxy;        myBTag->variable<float>("SV1", "Lxy"         , sv1_Lxy);
-      float sv1_L3d;        myBTag->variable<float>("SV1", "L3d"         , sv1_L3d);
-      float sv1_distmatlay; myBTag->variable<float>("SV1", "dstToMatLay" , sv1_distmatlay);
-      float sv1_dR;         myBTag->variable<float>("SV1", "deltaR"      , sv1_dR );
+	  // @brief SV0 : Number of 2-track pairs
+	  static SG::AuxElement::ConstAccessor< int   >   SV0_N2Tpair      ("SV0_N2Tpair");
+	  myjet->SV0_N2Tpair=SV0_N2Tpair( *myBTag );
 
-      m_sv1_Lxy        ->push_back(sv1_Lxy        );
-      m_sv1_L3d        ->push_back(sv1_L3d        );
-      m_sv1_distmatlay ->push_back(sv1_distmatlay );
-      m_sv1_dR         ->push_back(sv1_dR         );
-  
-      
+	  /// @brief SV0 : vertex mass
+	  static SG::AuxElement::ConstAccessor< float   > SV0_masssvx      ("SV0_masssvx");
+	  myjet->SV0_masssvx=SV0_masssvx( *myBTag );
+
+	  /// @brief SV0 : energy fraction
+	  static SG::AuxElement::ConstAccessor< float   > SV0_efracsvx     ("SV0_efracsvx");           
+	  myjet->SV0_efracsvx=SV0_efracsvx( *myBTag );
+
+	  /// @brief SV0 : 3D vertex significance
+	  static SG::AuxElement::ConstAccessor< float   > SV0_normdist     ("SV0_normdist");
+	  myjet->SV0_normdist=SV0_normdist( *myBTag );
+
+	  myBTag->variable<double>("SV0", "significance3D", myjet->SV0);
+
+	  myjet->SV1plusIP3D_discriminant = myBTag -> SV1plusIP3D_discriminant();
+
+	  /// @brief SV1 : Number of good tracks in vertex
+	  static SG::AuxElement::ConstAccessor< int   >   SV1_NGTinSvx     ("SV1_NGTinSvx");
+	  myjet->SV1_NGTinSvx=SV1_NGTinSvx( *myBTag );
+
+	  // @brief SV1 : Number of 2-track pairs
+	  static SG::AuxElement::ConstAccessor< int   >   SV1_N2Tpair      ("SV1_N2Tpair");
+	  myjet->SV1_N2Tpair=SV1_N2Tpair( *myBTag );
+
+	  /// @brief SV1 : vertex mass
+	  static SG::AuxElement::ConstAccessor< float   > SV1_masssvx      ("SV1_masssvx");
+	  myjet->SV1_masssvx=SV1_masssvx( *myBTag );
+
+	  /// @brief SV1 : energy fraction
+	  static SG::AuxElement::ConstAccessor< float   > SV1_efracsvx     ("SV1_efracsvx");
+	  myjet->SV1_efracsvx=SV1_efracsvx( *myBTag );
+
+	  /// @brief SV1 : 3D vertex significance
+	  static SG::AuxElement::ConstAccessor< float   > SV1_normdist     ("SV1_normdist");
+	  myjet->SV1_normdist=SV1_normdist( *myBTag );
+
+	  myjet->SV1_pu = -30;  myBTag->variable<double>("SV1", "pu", myjet->SV1_pu);
+	  myjet->SV1_pb = -30;  myBTag->variable<double>("SV1", "pb", myjet->SV1_pb);
+	  myjet->SV1_pc = -30;  myBTag->variable<double>("SV1", "pc", myjet->SV1_pc);
+
+	  myjet->SV1    = myBTag->calcLLR(myjet->SV1_pb,myjet->SV1_pu);
+	  myjet->SV1_c  = myBTag->calcLLR(myjet->SV1_pb,myjet->SV1_pc);
+	  myjet->SV1_cu = myBTag->calcLLR(myjet->SV1_pc,myjet->SV1_pu);
+
+	  myBTag->variable<float>("SV1", "Lxy"         , myjet->SV1_Lxy);
+	  myBTag->variable<float>("SV1", "L3d"         , myjet->SV1_L3d);
+	  myBTag->variable<float>("SV1", "dstToMatLay" , myjet->SV1_distmatlay);
+	  myBTag->variable<float>("SV1", "deltaR"      , myjet->SV1_dR );
+	}
+
+      if(m_infoSwitch.m_ipDetails ) 
+	{
+	  //
+	  // IP2D
+	  //
+
+	  /// @brief IP2D: track grade
+	  static SG::AuxElement::ConstAccessor< vector<int>   >   IP2D_gradeOfTracks     ("IP2D_gradeOfTracks");
+	  myjet->IP2D_gradeOfTracks=IP2D_gradeOfTracks( *myBTag );
+
+	  /// @brief IP2D : tracks from V0
+	  static SG::AuxElement::ConstAccessor< vector<bool>   >  IP2D_flagFromV0ofTracks("IP2D_flagFromV0ofTracks");
+	  myjet->IP2D_flagFromV0ofTracks=IP2D_flagFromV0ofTracks( *myBTag );
+
+	  /// @brief IP2D : d0 value with respect to primary vertex
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_valD0wrtPVofTracks("IP2D_valD0wrtPVofTracks");
+	  myjet->IP2D_valD0wrtPVofTracks=IP2D_valD0wrtPVofTracks( *myBTag );
+
+	  /// @brief IP2D : d0 significance with respect to primary vertex
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_sigD0wrtPVofTracks("IP2D_sigD0wrtPVofTracks");
+	  myjet->IP2D_sigD0wrtPVofTracks=IP2D_sigD0wrtPVofTracks( *myBTag );
+
+	  /// @brief IP2D : track contribution to B likelihood
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightBofTracks   ("IP2D_weightBofTracks");
+	  myjet->IP2D_weightBofTracks=IP2D_weightBofTracks( *myBTag );
+
+	  /// @brief IP2D : track contribution to C likelihood
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightCofTracks   ("IP2D_weightCofTracks");
+	  myjet->IP2D_weightCofTracks=IP2D_weightCofTracks( *myBTag );
+
+	  /// @brief IP2D : track contribution to U likelihood
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightUofTracks   ("IP2D_weightUofTracks");
+	  myjet->IP2D_weightUofTracks=IP2D_weightUofTracks( *myBTag );
+
+	  myjet->IP2D_pu = -99;  myBTag->variable<double>("IP2D", "pu", myjet->IP2D_pu);
+	  myjet->IP2D_pb = -99;  myBTag->variable<double>("IP2D", "pb", myjet->IP2D_pb);
+	  myjet->IP2D_pc = -99;  myBTag->variable<double>("IP2D", "pc", myjet->IP2D_pc);
+
+	  myjet->IP2D    = myBTag->calcLLR(myjet->IP2D_pb,myjet->IP2D_pu);
+	  myjet->IP2D_c  = myBTag->calcLLR(myjet->IP2D_pb,myjet->IP2D_pc);
+	  myjet->IP2D_cu = myBTag->calcLLR(myjet->IP2D_pc,myjet->IP2D_pu);
+
+	  //
+	  // IP3D
+	  //
+
+	  /// @brief IP3D: track grade
+	  static SG::AuxElement::ConstAccessor< vector<int>   >   IP3D_gradeOfTracks     ("IP3D_gradeOfTracks");
+	  myjet->IP3D_gradeOfTracks=IP3D_gradeOfTracks( *myBTag );
+
+	  /// @brief IP3D : tracks from V0
+	  static SG::AuxElement::ConstAccessor< vector<bool>   >  IP3D_flagFromV0ofTracks("IP3D_flagFromV0ofTracks");
+	  myjet->IP3D_flagFromV0ofTracks=IP3D_flagFromV0ofTracks( *myBTag );
+
+	  /// @brief IP3D : d0 value with respect to primary vertex
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_valD0wrtPVofTracks("IP3D_valD0wrtPVofTracks");
+          myjet->IP3D_valD0wrtPVofTracks=IP3D_valD0wrtPVofTracks( *myBTag );
+
+	  /// @brief IP3D : d0 significance with respect to primary vertex
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_sigD0wrtPVofTracks("IP3D_sigD0wrtPVofTracks");
+	  myjet->IP3D_sigD0wrtPVofTracks=IP3D_sigD0wrtPVofTracks( *myBTag );
+
+	  /// @brief IP3D : z0 value with respect to primary vertex
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_valZ0wrtPVofTracks("IP3D_valZ0wrtPVofTracks");
+	  myjet->IP3D_valZ0wrtPVofTracks=IP3D_valZ0wrtPVofTracks( *myBTag );
+
+	  /// @brief IP3D : z0 significance with respect to primary vertex
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_sigZ0wrtPVofTracks("IP3D_sigZ0wrtPVofTracks");
+	  myjet->IP3D_sigZ0wrtPVofTracks=IP3D_sigZ0wrtPVofTracks( *myBTag );
+
+	  /// @brief IP3D : track contribution to B likelihood
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightBofTracks   ("IP3D_weightBofTracks");
+	  myjet->IP3D_weightBofTracks=IP3D_weightBofTracks( *myBTag );
+
+	  /// @brief IP3D : track contribution to C likelihood
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightCofTracks   ("IP3D_weightCofTracks");
+	  myjet->IP3D_weightCofTracks=IP3D_weightCofTracks( *myBTag );
+
+	  /// @brief IP3D : track contribution to U likelihood
+	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightUofTracks   ("IP3D_weightUofTracks");
+	  myjet->IP3D_weightUofTracks=IP3D_weightUofTracks( *myBTag );
+
+	  myjet->IP3D_pu = -30;  myBTag->variable<double>("IP3D", "pu", myjet->IP3D_pu);
+	  myjet->IP3D_pb = -30;  myBTag->variable<double>("IP3D", "pb", myjet->IP3D_pb);
+	  myjet->IP3D_pc = -30;  myBTag->variable<double>("IP3D", "pc", myjet->IP3D_pc);
+
+	  myjet->IP3D_loglikelihoodratio=myBTag -> IP3D_loglikelihoodratio();
+
+	  myjet->IP3D    = myBTag->calcLLR(myjet->IP3D_pb,myjet->IP3D_pu);
+	  myjet->IP3D_c  = myBTag->calcLLR(myjet->IP3D_pb,myjet->IP3D_pc);
+	  myjet->IP3D_cu = myBTag->calcLLR(myjet->IP3D_pc,myjet->IP3D_pu);
+
+	}
+
+      if(m_infoSwitch.m_flavTagHLT ) 
+	{
+	  const xAOD::Vertex *online_pvx       = jet->auxdata<const xAOD::Vertex*>("HLTBJetTracks_vtx");
+	  const xAOD::Vertex *online_pvx_bkg   = jet->auxdata<const xAOD::Vertex*>("HLTBJetTracks_vtx_bkg");
+	  const xAOD::Vertex *offline_pvx      = jet->auxdata<const xAOD::Vertex*>("offline_vtx");      
+
+	  myjet->vtxOnlineValid = (online_pvx)?1.0:0.0;
+
+	  char hadDummyPV = jet->auxdata< char >("hadDummyPV");
+	       if( hadDummyPV == '0')  myjet->vtxHadDummy=0.0;
+	  else if( hadDummyPV == '1')  myjet->vtxHadDummy=1.0;
+	  else if( hadDummyPV == '2')  myjet->vtxHadDummy=2.0;
+
+	  static SG::AuxElement::ConstAccessor< float > bs_online_vz ("bs_online_vz");
+	  if(bs_online_vz.isAvailable( *jet) )
+	    {
+	      myjet->bs_online_vz = jet->auxdata< float >("bs_online_vz");
+	      myjet->bs_online_vx = jet->auxdata< float >("bs_online_vx");
+	      myjet->bs_online_vy = jet->auxdata< float >("bs_online_vy");
+	    }
+
+	  myjet->vtx_offline_x0 = offline_pvx->x();
+	  myjet->vtx_offline_y0 = offline_pvx->y();
+	  myjet->vtx_offline_z0 = offline_pvx->z();
+
+	  if(online_pvx)
+	    {
+	      myjet->vtx_online_x0 = online_pvx->x();
+	      myjet->vtx_online_y0 = online_pvx->y();
+	      myjet->vtx_online_z0 = online_pvx->z();
+	    }
+
+	  if(online_pvx_bkg)
+	    {
+	      myjet->vtx_online_bkg_x0 = online_pvx_bkg->x();
+	      myjet->vtx_online_bkg_y0 = online_pvx_bkg->y();
+	      myjet->vtx_online_bkg_z0 = online_pvx_bkg->z();
+	    }
+
+	}// m_flavTagHLT
     }
 
-    if(m_infoSwitch.m_ipDetails ) {
-      if(m_debug) cout << "Filling m_ipDetails " << endl;
+  if( !m_infoSwitch.m_sfFTagFix.empty() ) 
+    {
+      for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFix.size(); i++ ) 
+	{
+	  switch( m_infoSwitch.m_sfFTagFix.at(i) )
+	    {
+	    case 30 : m_btag_Fix30->Fill( jet ); break;
+	    case 50 : m_btag_Fix50->Fill( jet ); break;
+	    case 60 : m_btag_Fix60->Fill( jet ); break;
+	    case 70 : m_btag_Fix70->Fill( jet ); break;
+	    case 77 : m_btag_Fix77->Fill( jet ); break;
+	    case 80 : m_btag_Fix80->Fill( jet ); break;
+	    case 85 : m_btag_Fix85->Fill( jet ); break;
+	    case 90 : m_btag_Fix90->Fill( jet ); break;
+	    }
+	}
+    } // sfFTagFix
+
+  if( !m_infoSwitch.m_sfFTagFlt.empty() ) 
+    {
+      for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFlt.size(); i++ ) 
+	{
+	  switch( m_infoSwitch.m_sfFTagFlt.at(i) ) 
+	    {
+	    case 30 : m_btag_Flt30->Fill( jet ); break;
+	    case 50 : m_btag_Flt50->Fill( jet ); break;
+	    case 60 : m_btag_Flt60->Fill( jet ); break;
+	    case 70 : m_btag_Flt70->Fill( jet ); break;
+	    case 77 : m_btag_Flt77->Fill( jet ); break;
+	    case 85 : m_btag_Flt85->Fill( jet ); break;
+	    }
+	}
+    } // sfFTagFlt
+
+  if ( m_infoSwitch.m_area ) 
+    {
+
+      static SG::AuxElement::ConstAccessor<float> JetGhostArea("JetGhostArea");
+      myjet->JetGhostArea=JetGhostArea( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> ActiveArea("ActiveArea");
+      myjet->ActiveArea=ActiveArea( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> VoronoiArea("VoronoiArea");
+      myjet->VoronoiArea=VoronoiArea( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> ActiveArea4vec_pt("ActiveArea4vec_pt");
+      myjet->ActiveArea4vec_pt=ActiveArea4vec_pt( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> ActiveArea4vec_eta("ActiveArea4vec_eta");
+      myjet->ActiveArea4vec_eta=ActiveArea4vec_eta( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> ActiveArea4vec_phi("ActiveArea4vec_phi");
+      myjet->ActiveArea4vec_phi=ActiveArea4vec_phi( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> ActiveArea4vec_m("ActiveArea4vec_m");
+      myjet->ActiveArea4vec_m=ActiveArea4vec_m( *jet );
+    }
+
+  if ( m_infoSwitch.m_truth && m_mc ) 
+    {
+      static SG::AuxElement::ConstAccessor<int> ConeTruthLabelID ("ConeTruthLabelID");
+      myjet->ConeTruthLabelID=ConeTruthLabelID( *jet );
+
+      static SG::AuxElement::ConstAccessor<int> TruthCount ("TruthCount");
+      myjet->TruthCount=TruthCount( *jet );
+
+      //    seems to be empty
+      //      static SG::AuxElement::ConstAccessor<float> TruthPt ("TruthPt");
+      //      if ( TruthPt.isAvailable( *jet) ) {
+      //        m_truthPt->push_back( TruthPt( *jet)/1000 );
+      //      } else { m_truthPt->push_back( -999 ); }
+
+      static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_B ("TruthLabelDeltaR_B");
+      myjet->TruthLabelDeltaR_B=TruthLabelDeltaR_B( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_C ("TruthLabelDeltaR_C");
+      myjet->TruthLabelDeltaR_C=TruthLabelDeltaR_C( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_T ("TruthLabelDeltaR_T");
+      myjet->TruthLabelDeltaR_T=TruthLabelDeltaR_T( *jet );
+
+      static SG::AuxElement::ConstAccessor<int> PartonTruthLabelID("PartonTruthLabelID");
+      myjet->PartonTruthLabelID=PartonTruthLabelID( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> GhostTruthAssociationFraction("GhostTruthAssociationFraction");
+      myjet->GhostTruthAssociationFraction=GhostTruthAssociationFraction( *jet );
+
+      const xAOD::Jet* GhostTruthAssociationLink = HelperFunctions::getLink<xAOD::Jet>( jet, "GhostTruthAssociationLink" );
+      if(GhostTruthAssociationLink) 
+	myjet->truth_p4.SetPtEtaPhiE(GhostTruthAssociationLink->pt() / m_units,
+				     GhostTruthAssociationLink->eta(),
+				     GhostTruthAssociationLink->phi(),
+				     GhostTruthAssociationLink->e() / m_units);
+    }
+
+  if ( m_infoSwitch.m_truthDetails ) 
+    {
+      //
+      // B-Hadron Details
+      //
+      static SG::AuxElement::ConstAccessor<int> GhostBHadronsFinalCount ("GhostBHadronsFinalCount");
+      myjet->GhostBHadronsFinalCount=GhostBHadronsFinalCount( *jet );
+
+      static SG::AuxElement::ConstAccessor<int> GhostBHadronsInitialCount ("GhostBHadronsInitialCount");
+      myjet->GhostBHadronsInitialCount=GhostBHadronsInitialCount( *jet );
+
+      static SG::AuxElement::ConstAccessor<int> GhostBQuarksFinalCount ("GhostBQuarksFinalCount");
+      myjet->GhostBQuarksFinalCount=GhostBQuarksFinalCount( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> GhostBHadronsFinalPt ("GhostBHadronsFinalPt");
+      myjet->GhostBHadronsFinalPt=GhostBHadronsFinalPt( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> GhostBHadronsInitialPt ("GhostBHadronsInitialPt");
+      myjet->GhostBHadronsInitialPt=GhostBHadronsInitialPt( *jet );
+
+      static SG::AuxElement::ConstAccessor<float> GhostBQuarksFinalPt ("GhostBQuarksFinalPt");
+      myjet->GhostBQuarksFinalPt=GhostBQuarksFinalPt( *jet );
 
       //
-      // IP2D
+      // C-Hadron Details
       //
+      static SG::AuxElement::ConstAccessor<int> GhostCHadronsFinalCount ("GhostCHadronsFinalCount");
+      myjet->GhostCHadronsFinalCount=GhostCHadronsFinalCount( *jet );
 
-      /// @brief IP2D: track grade
-      static SG::AuxElement::ConstAccessor< vector<int>   >   IP2D_gradeOfTracksAcc     ("IP2D_gradeOfTracks");
-      safeVecFill<int, float, xAOD::BTagging>(myBTag, IP2D_gradeOfTracksAcc, m_IP2D_gradeOfTracks);
+      static SG::AuxElement::ConstAccessor<int> GhostCHadronsInitialCount ("GhostCHadronsInitialCount");
+      myjet->GhostCHadronsInitialCount=GhostCHadronsInitialCount( *jet );
 
-      /// @brief IP2D : tracks from V0
-      static SG::AuxElement::ConstAccessor< vector<bool>   >  IP2D_flagFromV0ofTracksAcc("IP2D_flagFromV0ofTracks");
-      safeVecFill<bool, float, xAOD::BTagging>(myBTag, IP2D_flagFromV0ofTracksAcc, m_IP2D_flagFromV0ofTracks);
+      static SG::AuxElement::ConstAccessor<int> GhostCQuarksFinalCount ("GhostCQuarksFinalCount");
+      myjet->GhostCQuarksFinalCount=GhostCQuarksFinalCount( *jet );
 
-      /// @brief IP2D : d0 value with respect to primary vertex
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_valD0wrtPVofTracksAcc("IP2D_valD0wrtPVofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP2D_valD0wrtPVofTracksAcc, m_IP2D_valD0wrtPVofTracks);
+      static SG::AuxElement::ConstAccessor<float> GhostCHadronsFinalPt ("GhostCHadronsFinalPt");
+      myjet->GhostCHadronsFinalPt=GhostCHadronsFinalPt( *jet );
 
-      /// @brief IP2D : d0 significance with respect to primary vertex
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_sigD0wrtPVofTracksAcc("IP2D_sigD0wrtPVofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP2D_sigD0wrtPVofTracksAcc, m_IP2D_sigD0wrtPVofTracks);
+      static SG::AuxElement::ConstAccessor<float> GhostCHadronsInitialPt ("GhostCHadronsInitialPt");
+      myjet->GhostCHadronsInitialPt=GhostCHadronsInitialPt( *jet );
 
-      /// @brief IP2D : track contribution to B likelihood
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightBofTracksAcc   ("IP2D_weightBofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP2D_weightBofTracksAcc, m_IP2D_weightBofTracks);
-
-      /// @brief IP2D : track contribution to C likelihood
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightCofTracksAcc   ("IP2D_weightCofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP2D_weightCofTracksAcc, m_IP2D_weightCofTracks);
-
-      /// @brief IP2D : track contribution to U likelihood
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightUofTracksAcc   ("IP2D_weightUofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP2D_weightUofTracksAcc, m_IP2D_weightUofTracks);
-
-      double ip2_pu = -99;  myBTag->variable<double>("IP2D", "pu", ip2_pu);
-      double ip2_pb = -99;  myBTag->variable<double>("IP2D", "pb", ip2_pb);
-      double ip2_pc = -99;  myBTag->variable<double>("IP2D", "pc", ip2_pc);
-
-      m_IP2D_pu         ->push_back(ip2_pu);
-      m_IP2D_pb         ->push_back(ip2_pb);
-      m_IP2D_pc         ->push_back(ip2_pc);
-
-      m_IP2D            ->push_back( myBTag->calcLLR(ip2_pb,ip2_pu)  );
-      m_IP2D_c          ->push_back( myBTag->calcLLR(ip2_pb,ip2_pc)  );
-      m_IP2D_cu         ->push_back( myBTag->calcLLR(ip2_pc,ip2_pu)  );
-
+      static SG::AuxElement::ConstAccessor<float> GhostCQuarksFinalPt ("GhostCQuarksFinalPt");
+      myjet->GhostCQuarksFinalPt=GhostCQuarksFinalPt( *jet );
 
       //
-      // IP3D
+      // Tau Details
       //
+      static SG::AuxElement::ConstAccessor<int> GhostTausFinalCount ("GhostTausFinalCount");
+      myjet->GhostTausFinalCount=GhostTausFinalCount( *jet );
 
-      /// @brief IP3D: track grade
-      static SG::AuxElement::ConstAccessor< vector<int>   >   IP3D_gradeOfTracksAcc     ("IP3D_gradeOfTracks");
-      safeVecFill<int, float, xAOD::BTagging>(myBTag, IP3D_gradeOfTracksAcc, m_IP3D_gradeOfTracks);
+      // THE ONLY UN-OFFICIAL PIECE OF CODE HERE USE WITH CAUTION
+      static SG::AuxElement::ConstAccessor<float> GhostTausFinalPt ("GhostTausFinalPt");
+      myjet->GhostTausFinalPt=GhostTausFinalPt( *jet );
 
-      /// @brief IP3D : tracks from V0
-      static SG::AuxElement::ConstAccessor< vector<bool>   >  IP3D_flagFromV0ofTracksAcc("IP3D_flagFromV0ofTracks");
-      safeVecFill<bool, float, xAOD::BTagging>(myBTag, IP3D_flagFromV0ofTracksAcc, m_IP3D_flagFromV0ofTracks);
+      // light quark(1,2,3) , gluon (21 or 9), charm(4) and b(5)
+      // GhostPartons should select for these pdgIds only
+      //    static SG::AuxElement::ConstAccessor< std::vector<const xAOD::TruthParticle*> > ghostPartons("GhostPartons");
+      //    if( ghostPartons.isAvailable( *jet )) {
+      //    std::vector<const xAOD::TruthParticle*> truthPartons = ghostPartons( *jet );
 
-      /// @brief IP3D : d0 value with respect to primary vertex
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_valD0wrtPVofTracksAcc("IP3D_valD0wrtPVofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_valD0wrtPVofTracksAcc, m_IP3D_valD0wrtPVofTracks);
+      std::vector<const xAOD::TruthParticle*> GhostPartons = jet->getAssociatedObjects<xAOD::TruthParticle>("GhostPartons");
 
-      /// @brief IP3D : d0 significance with respect to primary vertex
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_sigD0wrtPVofTracksAcc("IP3D_sigD0wrtPVofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_sigD0wrtPVofTracksAcc, m_IP3D_sigD0wrtPVofTracks);
-
-      /// @brief IP3D : z0 value with respect to primary vertex
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_valZ0wrtPVofTracksAcc("IP3D_valZ0wrtPVofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_valZ0wrtPVofTracksAcc, m_IP3D_valZ0wrtPVofTracks);
-
-      /// @brief IP3D : z0 significance with respect to primary vertex
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_sigZ0wrtPVofTracksAcc("IP3D_sigZ0wrtPVofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_sigZ0wrtPVofTracksAcc, m_IP3D_sigZ0wrtPVofTracks);
-
-      /// @brief IP3D : track contribution to B likelihood
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightBofTracksAcc   ("IP3D_weightBofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_weightBofTracksAcc, m_IP3D_weightBofTracks);
-
-      /// @brief IP3D : track contribution to C likelihood
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightCofTracksAcc   ("IP3D_weightCofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_weightCofTracksAcc, m_IP3D_weightCofTracks);
-
-      /// @brief IP3D : track contribution to U likelihood
-      static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightUofTracksAcc   ("IP3D_weightUofTracks");
-      safeVecFill<float, float, xAOD::BTagging>(myBTag, IP3D_weightUofTracksAcc, m_IP3D_weightUofTracks);
-
-      double ip3_pu = -30;  myBTag->variable<double>("IP3D", "pu", ip3_pu);
-      double ip3_pb = -30;  myBTag->variable<double>("IP3D", "pb", ip3_pb);
-      double ip3_pc = -30;  myBTag->variable<double>("IP3D", "pc", ip3_pc);
-
-      m_IP3D->push_back(    myBTag -> IP3D_loglikelihoodratio()  );
-
-      m_IP3D_pu         ->push_back(ip3_pu  );
-      m_IP3D_pb         ->push_back(ip3_pb  );
-      m_IP3D_pc         ->push_back(ip3_pc  );
-
-      m_IP3D            ->push_back( myBTag->calcLLR(ip3_pb,ip3_pu)  );
-      m_IP3D_c          ->push_back( myBTag->calcLLR(ip3_pb,ip3_pc)  );
-      m_IP3D_cu         ->push_back( myBTag->calcLLR(ip3_pc,ip3_pu)  );
-
+      if( GhostPartons.size() > 0)
+	{
+	  int iParent = 0;
+	  for(unsigned int i=1; i < GhostPartons.size(); ++i)
+	    {
+	      if( (GhostPartons.at(i)->pt() > 0.001) && (GhostPartons.at(i)->e() > GhostPartons.at(iParent)->e()) )
+		iParent = i;
+	    }
+	  myjet->truth_pdgId   =GhostPartons[iParent]->pdgId();
+	  myjet->truth_partonPt=GhostPartons[iParent]->pt() / m_units;
+	  myjet->truth_partonDR=GhostPartons[iParent]->p4().DeltaR( jet->p4() );
+	}
     }
 
+  if ( m_infoSwitch.m_charge ) 
+    {
+      xAOD::JetFourMom_t p4UsedInJetCharge;
+      bool status = jet->getAttribute<xAOD::JetFourMom_t>( "JetPileupScaleMomentum", p4UsedInJetCharge );
+      static SG::AuxElement::ConstAccessor<float> Charge ("Charge");
 
-
-    if(m_infoSwitch.m_flavTagHLT ) {
-      if(m_debug) cout << "Filling m_flavTagHLT " << endl;
-      const xAOD::Vertex *online_pvx       = jet->auxdata<const xAOD::Vertex*>("HLTBJetTracks_vtx");
-      const xAOD::Vertex *online_pvx_bkg   = jet->auxdata<const xAOD::Vertex*>("HLTBJetTracks_vtx_bkg");
-      const xAOD::Vertex *offline_pvx      = jet->auxdata<const xAOD::Vertex*>("offline_vtx");      
-
-      if(online_pvx)  m_vtxOnlineValid->push_back(1.0);
-      else            m_vtxOnlineValid->push_back(0.0);
-      
-      char hadDummyPV = jet->auxdata< char >("hadDummyPV");
-      if( hadDummyPV == '0')  m_vtxHadDummy->push_back(0.0);
-      if( hadDummyPV == '1')  m_vtxHadDummy->push_back(1.0);
-      if( hadDummyPV == '2')  m_vtxHadDummy->push_back(2.0);
-
-      static SG::AuxElement::ConstAccessor< float > acc_bs_online_vs ("bs_online_vz");
-      if(acc_bs_online_vs.isAvailable( *jet) ){
-	if(m_debug) cout << "Have bs_online_vz " << endl;
-	float bs_online_vz = jet->auxdata< float >("bs_online_vz");
-	//std::cout << "**bs_online_vz " << bs_online_vz << std::endl;
-	m_bs_online_vz->push_back( bs_online_vz );
-
-	float bs_online_vx = jet->auxdata< float >("bs_online_vx");
-	//std::cout << "**bs_online_vx " << bs_online_vx << std::endl;
-	m_bs_online_vx->push_back( bs_online_vx );
-
-	float bs_online_vy = jet->auxdata< float >("bs_online_vy");
-	//std::cout << "**bs_online_vy " << bs_online_vy << std::endl;
-	m_bs_online_vy->push_back( bs_online_vy );
-      }else{
-	m_bs_online_vz->push_back( -999 );
-	m_bs_online_vx->push_back( -999 );
-	m_bs_online_vy->push_back( -999 );
-      }
-
-      if(m_debug) cout << "Filling m_vtx_offline " << endl;
-      m_vtx_offline_x0->push_back( offline_pvx->x() );
-      m_vtx_offline_y0->push_back( offline_pvx->y() );
-      m_vtx_offline_z0->push_back( offline_pvx->z() );
-      if(m_debug) cout << "Done Filling m_vtx_offline " << endl;
-
-      if(m_debug) cout << "Filling m_vtx_online... " << endl;
-      if(online_pvx){
-	if(m_debug) cout << " ... online_pvx valid " << endl;
-        m_vtx_online_x0->push_back( online_pvx->x() );
-        m_vtx_online_y0->push_back( online_pvx->y() );
-        m_vtx_online_z0->push_back( online_pvx->z() );
-      }else{           
-        m_vtx_online_x0->push_back( -999 );
-        m_vtx_online_y0->push_back( -999 );
-        m_vtx_online_z0->push_back( -999 );
-      }
-
-      if(m_debug) cout << "Filling m_vtx_online... " << endl;
-      if(online_pvx_bkg){
-	if(m_debug) cout << " ...online_pvx_bkg valid " << endl;
-        m_vtx_online_bkg_x0->push_back( online_pvx_bkg->x() );
-        m_vtx_online_bkg_y0->push_back( online_pvx_bkg->y() );
-        m_vtx_online_bkg_z0->push_back( online_pvx_bkg->z() );
-      }else{           
-        m_vtx_online_bkg_x0->push_back( -999 );
-        m_vtx_online_bkg_y0->push_back( -999 );
-        m_vtx_online_bkg_z0->push_back( -999 );
-      }
-
-    }// m_flavTagHLT
-    if(m_debug) cout << "Done m_flavTagHLT " << endl;
-  }
-
-
-  if( !m_infoSwitch.m_sfFTagFix.empty() ) {
-    for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFix.size(); i++ ) {
-      switch( m_infoSwitch.m_sfFTagFix.at(i) ) {
-      case 30 : m_btag_Fix30->Fill( jet ); break;
-      case 50 : m_btag_Fix50->Fill( jet ); break;
-      case 60 : m_btag_Fix60->Fill( jet ); break;
-      case 70 : m_btag_Fix70->Fill( jet ); break;
-      case 77 : m_btag_Fix77->Fill( jet ); break;
-      case 80 : m_btag_Fix80->Fill( jet ); break;
-      case 85 : m_btag_Fix85->Fill( jet ); break;
-      case 90 : m_btag_Fix90->Fill( jet ); break;
-      }
+      if(status)
+	{
+	  float ptUsedInJetCharge   = p4UsedInJetCharge.Pt();
+	  float calibratedJetCharge = jet->pt() ? (ptUsedInJetCharge * Charge(*jet) / jet->pt()) : -99;
+	  myjet->charge=calibratedJetCharge;
+	}
     }
-  } // sfFTagFix
-
-
-
-  if( !m_infoSwitch.m_sfFTagFlt.empty() ) {
-    for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFlt.size(); i++ ) {
-      switch( m_infoSwitch.m_sfFTagFlt.at(i) ) {
-      case 30 : m_btag_Flt30->Fill( jet );  break;
-      case 50 : m_btag_Flt50->Fill( jet );	break;
-      case 60 : m_btag_Flt60->Fill( jet );	break;
-      case 70 : m_btag_Flt70->Fill( jet );	break;
-      case 77 : m_btag_Flt77->Fill( jet );	break;
-      case 85 : m_btag_Flt85->Fill( jet );  break;
-      }
-    }
-  } // sfFTagFlt
-
-
-  if ( m_infoSwitch.m_area ) {
-
-    static SG::AuxElement::ConstAccessor<float> ghostArea("JetGhostArea");
-    jet, ghostArea, m_GhostArea, -999);
-
-    static SG::AuxElement::ConstAccessor<float> activeArea("ActiveArea");
-    jet, activeArea, m_ActiveArea, -999);
-
-    static SG::AuxElement::ConstAccessor<float> voronoiArea("VoronoiArea");
-    jet, voronoiArea, m_VoronoiArea, -999);
-
-    static SG::AuxElement::ConstAccessor<float> activeArea_pt("ActiveArea4vec_pt");
-    jet, activeArea_pt, m_ActiveArea4vec_pt, -999);
-
-    static SG::AuxElement::ConstAccessor<float> activeArea_eta("ActiveArea4vec_eta");
-    jet, activeArea_eta, m_ActiveArea4vec_eta, -999);
-
-    static SG::AuxElement::ConstAccessor<float> activeArea_phi("ActiveArea4vec_phi");
-    jet, activeArea_phi, m_ActiveArea4vec_phi, -999);
-
-    static SG::AuxElement::ConstAccessor<float> activeArea_m("ActiveArea4vec_m");
-    jet, activeArea_m, m_ActiveArea4vec_m, -999);
-  }
-
-
-  if ( m_infoSwitch.m_truth && m_mc ) {
-
-    static SG::AuxElement::ConstAccessor<int> ConeTruthLabelID ("ConeTruthLabelID");
-    safeFill<int, int, xAOD::Jet>(jet, ConeTruthLabelID, m_ConeTruthLabelID, -999);
-
-    static SG::AuxElement::ConstAccessor<int> TruthCount ("TruthCount");
-    safeFill<int, int, xAOD::Jet>(jet, TruthCount, m_TruthCount, -999);
-
-    //    seems to be empty
-    //      static SG::AuxElement::ConstAccessor<float> TruthPt ("TruthPt");
-    //      if ( TruthPt.isAvailable( *jet) ) {
-    //        m_truthPt->push_back( TruthPt( *jet)/1000 );
-    //      } else { m_truthPt->push_back( -999 ); }
-
-    static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_B ("TruthLabelDeltaR_B");
-    jet, TruthLabelDeltaR_B, m_TruthLabelDeltaR_B, -999);
-
-    static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_C ("TruthLabelDeltaR_C");
-    jet, TruthLabelDeltaR_C, m_TruthLabelDeltaR_C, -999);
-
-    static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_T ("TruthLabelDeltaR_T");
-    jet, TruthLabelDeltaR_T, m_TruthLabelDeltaR_T, -999);
-
-    static SG::AuxElement::ConstAccessor<int> partonLabel("PartonTruthLabelID");
-    safeFill<int, int, xAOD::Jet>(jet, partonLabel, m_PartonTruthLabelID, -999);
-
-    static SG::AuxElement::ConstAccessor<float> ghostTruthAssFrac("GhostTruthAssociationFraction");
-    jet, ghostTruthAssFrac, m_GhostTruthAssociationFraction, -999);
-
-    const xAOD::Jet* truthJet = HelperFunctions::getLink<xAOD::Jet>( jet, "GhostTruthAssociationLink" );
-    if(truthJet) {
-      m_truth_pt->push_back ( truthJet->pt() / m_units );
-      m_truth_eta->push_back( truthJet->eta() );
-      m_truth_phi->push_back( truthJet->phi() );
-      m_truth_E->push_back  ( truthJet->e() / m_units );
-    } else {
-      m_truth_pt->push_back ( -999 );
-      m_truth_eta->push_back( -999 );
-      m_truth_phi->push_back( -999 );
-      m_truth_E->push_back  ( -999 );
-    }
-
-  }
-
-  if ( m_infoSwitch.m_truthDetails ) {
-
-    //
-    // B-Hadron Details
-    //
-    static SG::AuxElement::ConstAccessor<int> GhostBHadronsFinalCount ("GhostBHadronsFinalCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostBHadronsFinalCount, m_GhostBHadronsFinalCount, -999);
-
-    static SG::AuxElement::ConstAccessor<int> GhostBHadronsInitialCount ("GhostBHadronsInitialCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostBHadronsInitialCount, m_GhostBHadronsInitialCount, -999);
-
-    static SG::AuxElement::ConstAccessor<int> GhostBQuarksFinalCount ("GhostBQuarksFinalCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostBQuarksFinalCount, m_GhostBQuarksFinalCount, -999);
-
-    static SG::AuxElement::ConstAccessor<float> GhostBHadronsFinalPt ("GhostBHadronsFinalPt");
-    jet, GhostBHadronsFinalPt, m_GhostBHadronsFinalPt, -999);
-
-    static SG::AuxElement::ConstAccessor<float> GhostBHadronsInitialPt ("GhostBHadronsInitialPt");
-    jet, GhostBHadronsInitialPt, m_GhostBHadronsInitialPt, -999);
-
-    static SG::AuxElement::ConstAccessor<float> GhostBQuarksFinalPt ("GhostBQuarksFinalPt");
-    jet, GhostBQuarksFinalPt, m_GhostBQuarksFinalPt, -999);
-
-    //
-    // C-Hadron Details
-    //
-    static SG::AuxElement::ConstAccessor<int> GhostCHadronsFinalCount ("GhostCHadronsFinalCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostCHadronsFinalCount, m_GhostCHadronsFinalCount, -999);
-
-    static SG::AuxElement::ConstAccessor<int> GhostCHadronsInitialCount ("GhostCHadronsInitialCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostCHadronsInitialCount, m_GhostCHadronsInitialCount, -999);
-
-    static SG::AuxElement::ConstAccessor<int> GhostCQuarksFinalCount ("GhostCQuarksFinalCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostCQuarksFinalCount, m_GhostCQuarksFinalCount, -999);
-
-    static SG::AuxElement::ConstAccessor<float> GhostCHadronsFinalPt ("GhostCHadronsFinalPt");
-    jet, GhostCHadronsFinalPt, m_GhostCHadronsFinalPt, -999);
-
-    static SG::AuxElement::ConstAccessor<float> GhostCHadronsInitialPt ("GhostCHadronsInitialPt");
-    jet, GhostCHadronsInitialPt, m_GhostCHadronsInitialPt, -999);
-
-    static SG::AuxElement::ConstAccessor<float> GhostCQuarksFinalPt ("GhostCQuarksFinalPt");
-    jet, GhostCQuarksFinalPt, m_GhostCQuarksFinalPt, -999);
-
-    //
-    // Tau Details
-    //
-    static SG::AuxElement::ConstAccessor<int> GhostTausFinalCount ("GhostTausFinalCount");
-    safeFill<int, int, xAOD::Jet>(jet, GhostTausFinalCount, m_GhostTausFinalCount, -999);
-
-    // THE ONLY UN-OFFICIAL PIECE OF CODE HERE USE WITH CAUTION
-    static SG::AuxElement::ConstAccessor<float> GhostTausFinalPt ("GhostTausFinalPt");
-    jet, GhostTausFinalPt, m_GhostTausFinalPt, -999);
-
-    // light quark(1,2,3) , gluon (21 or 9), charm(4) and b(5)
-    // GhostPartons should select for these pdgIds only
-    //    static SG::AuxElement::ConstAccessor< std::vector<const xAOD::TruthParticle*> > ghostPartons("GhostPartons");
-    //    if( ghostPartons.isAvailable( *jet )) {
-    //    std::vector<const xAOD::TruthParticle*> truthPartons = ghostPartons( *jet );
-
-    std::vector<const xAOD::TruthParticle*> truthPartons = jet->getAssociatedObjects<xAOD::TruthParticle>("GhostPartons");
-
-    if( truthPartons.size() == 0){
-      m_truth_pdgId->push_back(-999);
-    } else {
-      int iParent = 0;
-      for(unsigned int i=1; i < truthPartons.size(); ++i){
-        if( (truthPartons.at(i)->pt() > 0.001) && (truthPartons.at(i)->e() > truthPartons.at(iParent)->e()) )
-          iParent = i;
-      }
-      m_truth_pdgId->push_back(truthPartons.at(iParent)->pdgId());
-      m_truth_partonPt->push_back(truthPartons.at(iParent)->pt() / m_units);
-      m_truth_partonDR->push_back(truthPartons.at(iParent)->p4().DeltaR( jet->p4() ));
-    }
-
-  }
-
-
-  if ( m_infoSwitch.m_charge ) {
-    xAOD::JetFourMom_t p4UsedInJetCharge;
-    bool status = jet->getAttribute<xAOD::JetFourMom_t>( "JetPileupScaleMomentum", p4UsedInJetCharge );
-    static SG::AuxElement::ConstAccessor<float>              uncalibratedJetCharge ("Charge");
-
-    if(status){
-      float ptUsedInJetCharge   = p4UsedInJetCharge.Pt();
-      float calibratedJetCharge = jet->pt() ? (ptUsedInJetCharge * uncalibratedJetCharge(*jet) / jet->pt()) : -99;
-      m_charge->push_back(calibratedJetCharge);
-    }else{
-      m_charge->push_back(-99);
-    }
-
-  }
 
   return;
 }

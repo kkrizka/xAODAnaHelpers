@@ -2,245 +2,299 @@
 #define xAODAnaHelpers_Jet_H
 
 #include "xAODAnaHelpers/Particle.h"
+#include "xAODAnaHelpers/TrackParticle.h"
+#include "xAODAnaHelpers/JetConstituent.h"
 #include "xAODAnaHelpers/MuonContainer.h"
 
 
 namespace xAH {
 
   class Jet : public Particle
-    {
-    public:
+  {
+    ClassDef(Jet, 1);
+
+  public:
       
-      Jet();
-      float rapidity;
+    Jet();
+    virtual ~Jet();
 
-      // clean
-      float Timing;
-      float LArQuality;
-      float HECQuality;
-      float NegativeE;
-      float AverageLArQF;
-      float BchCorrCell;
-      float N90Constituents;
-      float LArBadHVEnergyFrac;
-      int   LArBadHVNCell;
-      float OotFracClusters5;
-      float OotFracClusters10;
-      float LeadingClusterPt;
-      float LeadingClusterSecondLambda;
-      float LeadingClusterCenterLambda;
-      float LeadingClusterSecondR;
-      int   clean_passLooseBad;
-      int   clean_passLooseBadUgly;
-      int   clean_passTightBad;
-      int   clean_passTightBadUgly;
-    
-      // energy
-      float HECFrac;
-      float EMFrac;
-      float CentroidR;
-      float FracSamplingMax;
-      float FracSamplingMaxIndex;
-      float LowEtConstituentsFrac;
-      float GhostMuonSegmentCount;
-      float Width;
+    float rapidity;
 
-      // scales
-      TLorentzVector JetEMScaleMomentum;
-      TLorentzVector JetConstitScaleMomentum;
-      TLorentzVector JetPileupScaleMomentum;
-      TLorentzVector JetOriginConstitScaleMomentum;
-      TLorentzVector JetEtaJESScaleMomentum;
-      TLorentzVector JetGSCScaleMomentum;
-      TLorentzVector JetInsituScaleMomentum;
-    
-      // layers
-      std::vector<float> EnergyPerSampling;
+    // clean
+    float Timing;
+    float LArQuality;
+    float HECQuality;
+    float NegativeE;
+    float AverageLArQF;
+    float BchCorrCell;
+    float N90Constituents;
+    float LArBadHVEnergyFrac;
+    int   LArBadHVNCell;
+    float OotFracClusters5;
+    float OotFracClusters10;
+    float LeadingClusterPt;
+    float LeadingClusterSecondLambda;
+    float LeadingClusterCenterLambda;
+    float LeadingClusterSecondR;
+    int   clean_passLooseBad;
+    int   clean_passLooseBadUgly;
+    int   clean_passTightBad;
+    int   clean_passTightBadUgly;
 
-      // trackPV
-      float NumTrkPt1000PV;
-      float SumPtTrkPt1000PV;
-      float TrackWidthPt1000PV;
-      float NumTrkPt500PV;
-      float SumPtTrkPt500PV;
-      float TrackWidthPt500PV;
-      float JVFPV;
+    // energy
+    float HECFrac;
+    float EMFrac;
+    float CentroidR;
+    float FracSamplingMax;
+    float FracSamplingMaxIndex;
+    float LowEtConstituentsFrac;
+    float GhostMuonSegmentCount;
+    float Width;
 
-      // trackAll
-      std::vector<int>   NumTrkPt1000;
-      std::vector<float> SumPtTrkPt1000;
-      std::vector<float> TrackWidthPt1000;
-      std::vector<int>   NumTrkPt500;
-      std::vector<float> SumPtTrkPt500;
-      std::vector<float> TrackWidthPt500;
-      std::vector<float> JVF;
-    
-    
-      // trackAll or trackPV
-      float Jvt;
-      float JvtJvfcorr;
-      float JvtRpt;
-    
-      //JVC
-      float JVC;
+    // scales
+    TLorentzVector JetEMScaleMomentum;
+    TLorentzVector JetConstitScaleMomentum;
+    TLorentzVector JetPileupScaleMomentum;
+    TLorentzVector JetOriginConstitScaleMomentum;
+    TLorentzVector JetEtaJESScaleMomentum;
+    TLorentzVector JetGSCScaleMomentum;
+    TLorentzVector JetInsituScaleMomentum;
 
-      // flavTag
-      float SV0;
-      float SV1;
-      float IP3D;
-      float SV1IP3D;
-      float MV1;
-      float MV2c00;
-      float MV2c10;
-      float MV2c20;
-      float MV2c100;
-      float MV2;
-      int  HadronConeExclTruthLabelID;
+    // layers
+    std::vector<float> EnergyPerSampling;
 
-      float vtxOnlineValid;
-      float vtxHadDummy;
-      
-      float bs_online_vx;
-      float bs_online_vy;
-      float bs_online_vz;
+    // trackPV
+    float NumTrkPt1000PV;
+    float SumPtTrkPt1000PV;
+    float TrackWidthPt1000PV;
+    float NumTrkPt500PV;
+    float SumPtTrkPt500PV;
+    float TrackWidthPt500PV;
+    float JVFPV;
 
-      float vtx_offline_x0;
-      float vtx_offline_y0;
-      float vtx_offline_z0;
-    
-      float vtx_online_x0;
-      float vtx_online_y0;
-      float vtx_online_z0;
-    
-      float JetFitter_nVTX           ;
-      float JetFitter_nSingleTracks  ;
-      float JetFitter_nTracksAtVtx   ;
-      float JetFitter_mass           ;
-      float JetFitter_energyFraction ;
-      float JetFitter_significance3d ;
-      float JetFitter_deltaeta       ;
-      float JetFitter_deltaphi       ;
-      float JetFitter_N2Tpar         ;
-    
-      float sv0_NGTinSvx  ;
-      float sv0_N2Tpair   ;
-      float sv0_massvx    ;
-      float sv0_efracsvx  ;
-      float sv0_normdist  ;
-      float sv1_pu        ;
-      float sv1_pb        ;
-      float sv1_pc        ;
-      float sv1_c         ;
-      float sv1_cu        ;
-      float sv1_NGTinSvx  ;
-      float sv1_N2Tpair   ;
-      float sv1_massvx    ;
-      float sv1_efracsvx  ;
-      float sv1_normdist  ;
-      float sv1_Lxy       ;
-      float sv1_L3d       ;
-      float sv1_distmatlay;
-      float sv1_dR        ;
-    
-      float IP2D_pu     ;
-      float IP2D_pb     ;
-      float IP2D_pc     ;
-      float IP2D        ;
-      float IP2D_c      ;
-      float IP2D_cu     ;
-      float nIP2DTracks ;
-    
-      std::vector<float> IP2D_gradeOfTracks         ;
-      std::vector<float> IP2D_flagFromV0ofTracks    ;
-      std::vector<float> IP2D_valD0wrtPVofTracks    ;
-      std::vector<float> IP2D_sigD0wrtPVofTracks    ;
-      std::vector<float> IP2D_weightBofTracks       ;
-      std::vector<float> IP2D_weightCofTracks       ;
-      std::vector<float> IP2D_weightUofTracks       ;
-    
-      float IP3D_pu     ;
-      float IP3D_pb     ;
-      float IP3D_pc     ;
-      float IP3D_c      ;
-      float IP3D_cu     ;
-      float nIP3DTracks ;
-    
-      std::vector<float> IP3D_gradeOfTracks      ;
-      std::vector<float> IP3D_flagFromV0ofTracks ;
-      std::vector<float> IP3D_valD0wrtPVofTracks ;
-      std::vector<float> IP3D_sigD0wrtPVofTracks ;
-      std::vector<float> IP3D_valZ0wrtPVofTracks ;
-      std::vector<float> IP3D_sigZ0wrtPVofTracks ;
-      std::vector<float> IP3D_weightBofTracks    ;
-      std::vector<float> IP3D_weightCofTracks    ;
-      std::vector<float> IP3D_weightUofTracks    ;
+    // trackAll
+    std::vector<int>   NumTrkPt1000;
+    std::vector<float> SumPtTrkPt1000;
+    std::vector<float> TrackWidthPt1000;
+    std::vector<int>   NumTrkPt500;
+    std::vector<float> SumPtTrkPt500;
+    std::vector<float> TrackWidthPt500;
+    std::vector<float> JVF;
 
-      int MV2c20_isFix30;
-      std::vector<float> MV2c20_sfFix30;
-    
-      int MV2c20_isFix50;
-      std::vector<float> MV2c20_sfFix50;
-    
-      int MV2c20_isFix60;
-      std::vector<float> MV2c20_sfFix60;
-    
-      int MV2c20_isFix70;
-      std::vector<float> MV2c20_sfFix70;
-    
-      int MV2c20_isFix77;
-      std::vector<float> MV2c20_sfFix77;
-    
-      int MV2c20_isFix80;
-      std::vector<float> MV2c20_sfFix80;
-    
-      int MV2c20_isFix85;
-      std::vector<float> MV2c20_sfFix85;
-    
-      int MV2c20_isFix90;
-      std::vector<float> MV2c20_sfFix90;
-    
-      int MV2c20_isFlt30;
-      std::vector<float> MV2c20_sfFlt30;
-    
-      int MV2c20_isFlt40;
-      std::vector<float> MV2c20_sfFlt40;
-    
-      int MV2c20_isFlt50;
-      std::vector<float> MV2c20_sfFlt50;
-    
-      int MV2c20_isFlt60;
-      std::vector<float> MV2c20_sfFlt60;
-    
-      int MV2c20_isFlt70;
-      std::vector<float> MV2c20_sfFlt70;
-    
-      int MV2c20_isFlt77;
-      std::vector<float> MV2c20_sfFlt77;
-    
-      int MV2c20_isFlt85;
-      std::vector<float> MV2c20_sfFlt85;
-    
-      // truth
-      int   ConeTruthLabelID;
-      int   TruthCount;
-      float TruthLabelDeltaR_B;
-      float TruthLabelDeltaR_C;
-      float TruthLabelDeltaR_T;
-      int   PartonTruthLabelID;
-      float GhostTruthAssociationFraction;
-      TLorentzVector truth_p4;
+    int GhostTrackCount;
+    float GhostTrackPt;
+    std::vector<xAH::TrackParticle> GhostTrack;
 
-      // charge
-      double charge;
+    // trackAll or trackPV
+    float Jvt;
+    float JvtJvfcorr;
+    float JvtRpt;
+    std::vector< float > JetJvtEfficiency_JVTSyst_JVT_Loose;
+    std::vector< float > JetJvtEfficiency_JVTSyst_JVT_Medium;
+    std::vector< float > JetJvtEfficiency_JVTSyst_JVT_Tight;
 
-      const Muon* matchedMuon;
-      const Jet * matchedJet;
+    // constituent
+    int numConstituents;
 
-    public:
+    // constituentAll
+    std::vector<float> constituentWeights;
+    std::vector<JetConstituent> constituents;
 
-      void muonInJetCorrection(const xAH::MuonContainer* muons);
+    //JVC
+    float JetVertexCharge_discriminant;
 
-    };
+    // flavTag
+    double SV0;
+    float SV1;
+    float IP3D;
+    float MV1;
+    double MV2c00;
+    double MV2c10;
+    double MV2c20;
+    double MV2c100;
+    float MV2;
+    float SV1plusIP3D_discriminant;
+    float IP3D_loglikelihoodratio;
+    int  HadronConeExclTruthLabelID;
 
-}//xAH
+    float vtxOnlineValid;
+    float vtxHadDummy;
+  
+    float bs_online_vx;
+    float bs_online_vy;
+    float bs_online_vz;
+
+    float vtx_offline_x0;
+    float vtx_offline_y0;
+    float vtx_offline_z0;
+
+    float vtx_online_x0;
+    float vtx_online_y0;
+    float vtx_online_z0;
+
+    float vtx_online_bkg_x0;
+    float vtx_online_bkg_y0;
+    float vtx_online_bkg_z0;
+
+    float JetFitter_nVTX           ;
+    float JetFitter_nSingleTracks  ;
+    float JetFitter_nTracksAtVtx   ;
+    float JetFitter_mass           ;
+    float JetFitter_energyFraction ;
+    float JetFitter_significance3d ;
+    float JetFitter_deltaeta       ;
+    float JetFitter_deltaphi       ;
+    float JetFitter_N2Tpar         ;
+
+    float SV0_NGTinSvx  ;
+    float SV0_N2Tpair   ;
+    float SV0_masssvx   ;
+    float SV0_efracsvx  ;
+    float SV0_normdist  ;
+    double SV1_pu       ;
+    double SV1_pb       ;
+    double SV1_pc       ;
+    float SV1_c         ;
+    float SV1_cu        ;
+    float SV1_NGTinSvx  ;
+    float SV1_N2Tpair   ;
+    float SV1_masssvx   ;
+    float SV1_efracsvx  ;
+    float SV1_normdist  ;
+    float SV1_Lxy       ;
+    float SV1_L3d       ;
+    float SV1_distmatlay;
+    float SV1_dR        ;
+
+    double IP2D_pu     ;
+    double IP2D_pb     ;
+    double IP2D_pc     ;
+    float IP2D        ;
+    float IP2D_c      ;
+    float IP2D_cu     ;
+    float nIP2DTracks ;
+
+    std::vector<int  > IP2D_gradeOfTracks         ;
+    std::vector<bool > IP2D_flagFromV0ofTracks    ;
+    std::vector<float> IP2D_valD0wrtPVofTracks    ;
+    std::vector<float> IP2D_sigD0wrtPVofTracks    ;
+    std::vector<float> IP2D_weightBofTracks       ;
+    std::vector<float> IP2D_weightCofTracks       ;
+    std::vector<float> IP2D_weightUofTracks       ;
+
+    double IP3D_pu     ;
+    double IP3D_pb     ;
+    double IP3D_pc     ;
+    float IP3D_c      ;
+    float IP3D_cu     ;
+    float nIP3DTracks ;
+
+    std::vector<int  > IP3D_gradeOfTracks      ;
+    std::vector<bool > IP3D_flagFromV0ofTracks ;
+    std::vector<float> IP3D_valD0wrtPVofTracks ;
+    std::vector<float> IP3D_sigD0wrtPVofTracks ;
+    std::vector<float> IP3D_valZ0wrtPVofTracks ;
+    std::vector<float> IP3D_sigZ0wrtPVofTracks ;
+    std::vector<float> IP3D_weightBofTracks    ;
+    std::vector<float> IP3D_weightCofTracks    ;
+    std::vector<float> IP3D_weightUofTracks    ;
+
+    int MV2c20_isFix30;
+    std::vector<float> MV2c20_sfFix30;
+
+    int MV2c20_isFix50;
+    std::vector<float> MV2c20_sfFix50;
+
+    int MV2c20_isFix60;
+    std::vector<float> MV2c20_sfFix60;
+
+    int MV2c20_isFix70;
+    std::vector<float> MV2c20_sfFix70;
+
+    int MV2c20_isFix77;
+    std::vector<float> MV2c20_sfFix77;
+
+    int MV2c20_isFix80;
+    std::vector<float> MV2c20_sfFix80;
+
+    int MV2c20_isFix85;
+    std::vector<float> MV2c20_sfFix85;
+
+    int MV2c20_isFix90;
+    std::vector<float> MV2c20_sfFix90;
+
+    int MV2c20_isFlt30;
+    std::vector<float> MV2c20_sfFlt30;
+
+    int MV2c20_isFlt40;
+    std::vector<float> MV2c20_sfFlt40;
+
+    int MV2c20_isFlt50;
+    std::vector<float> MV2c20_sfFlt50;
+
+    int MV2c20_isFlt60;
+    std::vector<float> MV2c20_sfFlt60;
+
+    int MV2c20_isFlt70;
+    std::vector<float> MV2c20_sfFlt70;
+
+    int MV2c20_isFlt77;
+    std::vector<float> MV2c20_sfFlt77;
+
+    int MV2c20_isFlt85;
+    std::vector<float> MV2c20_sfFlt85;
+
+    // area
+    float JetGhostArea;
+    float ActiveArea;
+    float VoronoiArea;
+    float ActiveArea4vec_pt;
+    float ActiveArea4vec_eta;
+    float ActiveArea4vec_phi;
+    float ActiveArea4vec_m;
+
+    // truth
+    int   ConeTruthLabelID;
+    int   TruthCount;
+    float TruthLabelDeltaR_B;
+    float TruthLabelDeltaR_C;
+    float TruthLabelDeltaR_T;
+    int   PartonTruthLabelID;
+    float GhostTruthAssociationFraction;
+
+    int GhostBHadronsFinalCount;
+    int GhostBHadronsInitialCount;
+    int GhostBQuarksFinalCount;
+    float GhostBHadronsFinalPt;
+    float GhostBHadronsInitialPt;
+    float GhostBQuarksFinalPt;
+
+    int GhostCHadronsFinalCount;
+    int GhostCHadronsInitialCount;
+    int GhostCQuarksFinalCount;
+    float GhostCHadronsFinalPt;
+    float GhostCHadronsInitialPt;
+    float GhostCQuarksFinalPt;
+
+    int GhostTausFinalCount;
+    float GhostTausFinalPt;
+
+    TLorentzVector truth_p4;
+    int truth_pdgId;
+    double truth_partonPt;
+    double truth_partonDR;
+
+    // charge
+    double charge;
+
+    const Muon* matchedMuon;
+    const Jet * matchedJet;
+
+  public:
+
+    void muonInJetCorrection(const xAH::MuonContainer* muons);
+
+  };
+
+} //xAH
 #endif // xAODAnaHelpers_Jet_H

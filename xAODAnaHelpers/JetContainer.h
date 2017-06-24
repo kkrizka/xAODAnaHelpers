@@ -182,7 +182,7 @@ namespace xAH {
       std::vector<float> *m_SV0;
       std::vector<float> *m_sv0_NGTinSvx  ;
       std::vector<float> *m_sv0_N2Tpair   ;
-      std::vector<float> *m_sv0_massvx    ;
+      std::vector<float> *m_sv0_masssvx   ;
       std::vector<float> *m_sv0_efracsvx  ;
       std::vector<float> *m_sv0_normdist  ;
 
@@ -195,7 +195,7 @@ namespace xAH {
       std::vector<float> *m_sv1_cu        ;
       std::vector<float> *m_sv1_NGTinSvx  ;
       std::vector<float> *m_sv1_N2Tpair   ;
-      std::vector<float> *m_sv1_massvx    ;
+      std::vector<float> *m_sv1_masssvx   ;
       std::vector<float> *m_sv1_efracsvx  ;
       std::vector<float> *m_sv1_normdist  ;
       std::vector<float> *m_sv1_Lxy       ;
@@ -212,8 +212,8 @@ namespace xAH {
       std::vector<float> *m_IP2D_cu                   ;
       std::vector<float> *m_nIP2DTracks               ;
       
-      std::vector<std::vector<float> > *m_IP2D_gradeOfTracks        ;
-      std::vector<std::vector<float> > *m_IP2D_flagFromV0ofTracks   ;
+      std::vector<std::vector<int  > > *m_IP2D_gradeOfTracks        ;
+      std::vector<std::vector<bool > > *m_IP2D_flagFromV0ofTracks   ;
       std::vector<std::vector<float> > *m_IP2D_valD0wrtPVofTracks   ;
       std::vector<std::vector<float> > *m_IP2D_sigD0wrtPVofTracks   ;
       std::vector<std::vector<float> > *m_IP2D_weightBofTracks      ;
@@ -227,8 +227,8 @@ namespace xAH {
       std::vector<float> *m_IP3D_c                    ;
       std::vector<float> *m_IP3D_cu                   ;
       std::vector<float> *m_nIP3DTracks               ;
-      std::vector<std::vector<float> > *m_IP3D_gradeOfTracks        ;
-      std::vector<std::vector<float> > *m_IP3D_flagFromV0ofTracks   ;
+      std::vector<std::vector<int  > > *m_IP3D_gradeOfTracks        ;
+      std::vector<std::vector<bool > > *m_IP3D_flagFromV0ofTracks   ;
       std::vector<std::vector<float> > *m_IP3D_valD0wrtPVofTracks   ;
       std::vector<std::vector<float> > *m_IP3D_sigD0wrtPVofTracks   ;
       std::vector<std::vector<float> > *m_IP3D_valZ0wrtPVofTracks   ;

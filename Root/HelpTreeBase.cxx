@@ -27,7 +27,7 @@ using std::vector;
 #pragma link C++ class vector<float>+;
 #endif
 
-HelpTreeBase::HelpTreeBase(xAOD::TEvent* event, TTree* tree, TFile* file, const float units, bool debug, bool DC14, xAOD::TStore* store):
+HelpTreeBase::HelpTreeBase(xAOD::TEvent* event, TTree* tree, TFile* file, const float units, bool debug, xAOD::TStore* store):
   m_trigInfoSwitch(nullptr),
   m_trigConfTool(nullptr),
   m_trigDecTool(nullptr),
@@ -105,8 +105,8 @@ HelpTreeBase::~HelpTreeBase() {
 }
 
 
-HelpTreeBase::HelpTreeBase(TTree* tree, TFile* file, xAOD::TEvent* event, xAOD::TStore* store, const float units, bool debug, bool DC14):
-  HelpTreeBase(event, tree, file, units, debug, DC14, store)
+HelpTreeBase::HelpTreeBase(TTree* tree, TFile* file, xAOD::TEvent* event, xAOD::TStore* store, const float units, bool debug):
+  HelpTreeBase(event, tree, file, units, debug, store)
 {
   // use the other constructor for everything
 }
@@ -575,64 +575,55 @@ void HelpTreeBase::AddJets(const std::string detailStr, const std::string jetNam
 
   if(m_debug) Info("AddJets()", "Adding jet %s with variables: %s", jetName.c_str(), detailStr.c_str());
 
-  m_jets[jetName] = new xAH::JetContainer(jetName, detailStr, m_units, m_isMC);
+  m_jets[jetName] = new xAH::JetHelpTree(jetName, detailStr, m_units, m_isMC);
   m_jets[jetName]->m_debug = m_debug;
-
-  xAH::JetContainer* thisJet = m_jets[jetName];
-  thisJet->setBranches(m_tree);
-
+  m_jets[jetName]->createBranches(m_tree);
 }
 
 
-void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, const std::string jetName ) {
-
-  this->ClearJets(jetName);
-
+void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, const std::string jetName ) 
+{
   const xAOD::VertexContainer* vertices(nullptr);
   const xAOD::Vertex *pv = 0;
 
-  xAH::JetContainer* thisJet = m_jets[jetName];
+  xAH::JetHelpTree *thisJet = m_jets[jetName];
 
-  if( thisJet->m_infoSwitch.m_trackPV || thisJet->m_infoSwitch.m_allTrack ) {
-    HelperFunctions::retrieve( vertices, "PrimaryVertices", m_event, 0 );
-    pvLocation = HelperFunctions::getPrimaryVertexLocation( vertices );
-    if ( pvLocation >= 0 ) pv = vertices->at( pvLocation );
-  }
-
+  if( thisJet->m_infoSwitch.m_trackPV || thisJet->m_infoSwitch.m_allTrack ) 
+    {
+      HelperFunctions::retrieve( vertices, "PrimaryVertices", m_event, 0 );
+      pvLocation = HelperFunctions::getPrimaryVertexLocation( vertices );
+      if ( pvLocation >= 0 ) pv = vertices->at( pvLocation );
+    }
 
 
   // Global event BTag SF weight (--> the product of each object's weight)
   //
-  if ( m_isMC ) {
-    const xAOD::EventInfo* eventInfo(nullptr);
-    HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false);
+  if ( m_isMC ) 
+    {
+      const xAOD::EventInfo* eventInfo(nullptr);
+      HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false);
 
-    thisJet->FillGlobalBTagSF(eventInfo);
-
+      thisJet->fillGlobalBTagSF(eventInfo);
   }
 
-  for( auto jet_itr : *jets ) {
+  for( auto jet_itr : *jets )
     this->FillJet(jet_itr, pv, pvLocation, jetName);
-  }
 
 }
 
 
 
-void HelpTreeBase::FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string jetName ) {
-
-  xAH::JetContainer* thisJet = m_jets[jetName];
-
-  thisJet->FillJet(jet_itr, pv, pvLocation);
-
+void HelpTreeBase::FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string jetName ) 
+{
+  xAH::JetHelpTree *thisJet = m_jets[jetName];
+  thisJet->fillJet(jet_itr, pv, pvLocation);
   return;
 }
 
-void HelpTreeBase::ClearJets(const std::string jetName) {
-
-  xAH::JetContainer* thisJet = m_jets[jetName];
+void HelpTreeBase::ClearJets(const std::string jetName) 
+{
+  xAH::JetHelpTree* thisJet = m_jets[jetName];
   thisJet->clear();
-
 }
 
 /*********************

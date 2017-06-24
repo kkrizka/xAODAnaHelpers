@@ -89,4 +89,4 @@ namespace xAH {
   };
 
 }//xAH
-#endif // xAODAnaHelpers_Particle_H
+#endif // xAODAnaHelpers_Electron_H

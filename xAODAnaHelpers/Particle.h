@@ -12,7 +12,7 @@ namespace xAH {
   public:
 
     Particle() : TObject() {};
-    virtual ~Particle() {}
+    virtual ~Particle() {};
 
     TLorentzVector p4;
   };

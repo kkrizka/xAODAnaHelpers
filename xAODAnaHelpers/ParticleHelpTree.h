@@ -11,7 +11,6 @@
 #include <xAODAnaHelpers/HelperFunctions.h>
 
 #include <xAODAnaHelpers/Particle.h>
-#include <xAODBase/IParticle.h>
 
 namespace xAH {
 
@@ -54,8 +53,11 @@ namespace xAH {
       m_particles->Clear();
     }
 
-    virtual void fillParticle(const xAOD::IParticle* particle, xAH::Particle* myparticle)
+    virtual void fillParticle(const xAOD::IParticle* particle)
     {
+      new((*m_particles)[m_particles->GetEntries()-1]) T_PARTICLE();
+      xAH::Particle* myparticle=static_cast<xAH::Particle*>(m_particles->Last());
+
       if(m_infoSwitch.m_kinematic)
 	{
 	  if(m_useMass)
@@ -84,23 +86,6 @@ namespace xAH {
       tree->SetBranchStatus((branchName()+"."+varName).c_str(), status); 
     }
 
-    template<typename T, typename U, typename V> void safeFill(const V* xAODObj, SG::AuxElement::ConstAccessor<T>& accessor, std::vector<U>* destination, U defaultValue, int units = 1){
-      if ( accessor.isAvailable( *xAODObj ) ) {
-	destination->push_back( accessor( *xAODObj ) / units );
-      } else {
-	destination->push_back( defaultValue );
-      }
-    }
-
-    template<typename T, typename U, typename V> void safeVecFill(const V* xAODObj, SG::AuxElement::ConstAccessor<std::vector<T> >& accessor, std::vector<std::vector<U> >* destination, int units = 1){
-      destination->push_back( std::vector<U>() );
-
-      if ( accessor.isAvailable( *xAODObj ) ) {
-	for(U itemInVec : accessor(*xAODObj))        destination->back().push_back(itemInVec / units);
-      } 
-      return;
-    }
-
   public:
     std::string m_name;
     T_INFOSWITCH m_infoSwitch;
@@ -108,10 +93,12 @@ namespace xAH {
     bool  m_debug;
     float m_units;
 
+  protected:
+    TClonesArray *m_particles;
+
   private:
     bool          m_useMass;
     std::string   m_suffix;
-    TClonesArray *m_particles;
   };
 
 }//xAH
