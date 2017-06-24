@@ -72,7 +72,7 @@ public:
   void AddMuons       (const std::string detailStr = "", const std::string muonName = "muon");
   void AddElectrons   (const std::string detailStr = "", const std::string elecName = "el");
   void AddPhotons     (const std::string detailStr = "", const std::string photonName = "ph");
-  void AddJets        (const std::string detailStr = "", const std::string jetName = "jet");
+  void AddJets        (const std::string& detailStr = "", const std::string& jetName = "jet");
   void AddL1Jets      ();
   void AddTruthParts  (const std::string truthName,      const std::string detailStr = "");
   void AddTrackParts  (const std::string trackName,	 const std::string detailStr = "");
@@ -129,8 +129,8 @@ public:
   void FillPhotons( const xAOD::PhotonContainer* photons, const std::string photonName = "ph" );
   void FillPhoton ( const xAOD::Photon*          photon,  const std::string photonName = "ph" );
 
-  void FillJets( const xAOD::JetContainer* jets, int pvLocation = -1, const std::string jetName = "jet" );
-  void FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string jetName = "jet" );
+  void FillJets( const xAOD::JetContainer* jets, int pvLocation = -1, const std::string& jetName = "jet" );
+  void FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string& jetName = "jet" );
   void FillL1Jets( const xAOD::JetRoIContainer* jets );
 
   void FillTruth( const std::string truthName, const xAOD::TruthParticleContainer* truth);
@@ -162,10 +162,10 @@ public:
   void ClearEvent();
   void ClearTrigger();
   void ClearJetTrigger();
-  void ClearMuons       (const std::string jetName = "muon");
+  void ClearMuons       (const std::string muonName = "muon");
   void ClearElectrons   (const std::string elecName = "el");
   void ClearPhotons     (const std::string photonName = "ph");
-  void ClearJets        (const std::string jetName = "jet");
+  void ClearJets        (const std::string& jetName = "jet");
   void ClearL1Jets      ();
   void ClearTruth       (const std::string truthName);
   void ClearTracks	(const std::string trackName);

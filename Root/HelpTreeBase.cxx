@@ -570,9 +570,8 @@ void HelpTreeBase::ClearL1Jets() {
  *
  ********************/
 
-void HelpTreeBase::AddJets(const std::string detailStr, const std::string jetName)
+void HelpTreeBase::AddJets(const std::string& detailStr, const std::string& jetName)
 {
-
   if(m_debug) Info("AddJets()", "Adding jet %s with variables: %s", jetName.c_str(), detailStr.c_str());
 
   m_jets[jetName] = new xAH::JetHelpTree(jetName, detailStr, m_units, m_isMC);
@@ -581,8 +580,10 @@ void HelpTreeBase::AddJets(const std::string detailStr, const std::string jetNam
 }
 
 
-void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, const std::string jetName ) 
+void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, const std::string& jetName )
 {
+  ClearJets(jetName);
+
   const xAOD::VertexContainer* vertices(nullptr);
   const xAOD::Vertex *pv = 0;
 
@@ -603,7 +604,7 @@ void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, con
       const xAOD::EventInfo* eventInfo(nullptr);
       HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false);
 
-      thisJet->fillGlobalBTagSF(eventInfo);
+      //thisJet->fillGlobalBTagSF(eventInfo);
   }
 
   for( auto jet_itr : *jets )
@@ -613,14 +614,14 @@ void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, con
 
 
 
-void HelpTreeBase::FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string jetName ) 
+void HelpTreeBase::FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string& jetName )
 {
   xAH::JetHelpTree *thisJet = m_jets[jetName];
   thisJet->fillJet(jet_itr, pv, pvLocation);
   return;
 }
 
-void HelpTreeBase::ClearJets(const std::string jetName) 
+void HelpTreeBase::ClearJets(const std::string& jetName) 
 {
   xAH::JetHelpTree* thisJet = m_jets[jetName];
   thisJet->clear();

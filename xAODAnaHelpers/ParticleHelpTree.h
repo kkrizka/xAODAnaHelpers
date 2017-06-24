@@ -12,6 +12,8 @@
 
 #include <xAODAnaHelpers/Particle.h>
 
+#define SAFE_SET(obj, variable, xaodobj) if(variable.isAvailable( *xaodobj )) obj->variable=variable( *xaodobj );
+
 namespace xAH {
 
   template <class T_PARTICLE, class T_INFOSWITCH>
@@ -55,7 +57,7 @@ namespace xAH {
 
     virtual void fillParticle(const xAOD::IParticle* particle)
     {
-      new((*m_particles)[m_particles->GetEntries()-1]) T_PARTICLE();
+      new((*m_particles)[m_particles->GetEntries()]) T_PARTICLE();
       xAH::Particle* myparticle=static_cast<xAH::Particle*>(m_particles->Last());
 
       if(m_infoSwitch.m_kinematic)

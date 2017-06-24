@@ -199,49 +199,49 @@ namespace xAH {
     std::vector<float> IP3D_weightCofTracks    ;
     std::vector<float> IP3D_weightUofTracks    ;
 
-    int MV2c20_isFix30;
+    char MV2c20_isFix30;
     std::vector<float> MV2c20_sfFix30;
 
-    int MV2c20_isFix50;
+    char MV2c20_isFix50;
     std::vector<float> MV2c20_sfFix50;
 
-    int MV2c20_isFix60;
+    char MV2c20_isFix60;
     std::vector<float> MV2c20_sfFix60;
 
-    int MV2c20_isFix70;
+    char MV2c20_isFix70;
     std::vector<float> MV2c20_sfFix70;
 
-    int MV2c20_isFix77;
+    char MV2c20_isFix77;
     std::vector<float> MV2c20_sfFix77;
 
-    int MV2c20_isFix80;
+    char MV2c20_isFix80;
     std::vector<float> MV2c20_sfFix80;
 
-    int MV2c20_isFix85;
+    char MV2c20_isFix85;
     std::vector<float> MV2c20_sfFix85;
 
-    int MV2c20_isFix90;
+    char MV2c20_isFix90;
     std::vector<float> MV2c20_sfFix90;
 
-    int MV2c20_isFlt30;
+    char MV2c20_isFlt30;
     std::vector<float> MV2c20_sfFlt30;
 
-    int MV2c20_isFlt40;
+    char MV2c20_isFlt40;
     std::vector<float> MV2c20_sfFlt40;
 
-    int MV2c20_isFlt50;
+    char MV2c20_isFlt50;
     std::vector<float> MV2c20_sfFlt50;
 
-    int MV2c20_isFlt60;
+    char MV2c20_isFlt60;
     std::vector<float> MV2c20_sfFlt60;
 
-    int MV2c20_isFlt70;
+    char MV2c20_isFlt70;
     std::vector<float> MV2c20_sfFlt70;
 
-    int MV2c20_isFlt77;
+    char MV2c20_isFlt77;
     std::vector<float> MV2c20_sfFlt77;
 
-    int MV2c20_isFlt85;
+    char MV2c20_isFlt85;
     std::vector<float> MV2c20_sfFlt85;
 
     // area

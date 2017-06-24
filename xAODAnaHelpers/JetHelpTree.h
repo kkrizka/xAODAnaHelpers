@@ -20,87 +20,27 @@
 
 namespace xAH {
 
-  class btagOpPoint {
+  class btagOpPoint 
+  {
   public:
     std::string m_name;
+
     bool m_mc;
-    std::string m_acessorName;
-    std::string m_tagger;
+    std::string m_accessorName;
+    SG::AuxElement::ConstAccessor< char > m_isTag;
+    SG::AuxElement::ConstAccessor< std::vector<float> > m_sf;
+
     int m_njets;
-    std::vector<int>*                  m_isTag;
-    std::vector<float>                 m_weight_sf;
-    std::vector< std::vector<float> >* m_sf;
+    std::vector<float> m_weight_sf;
 
-    btagOpPoint(std::string name, bool mc, std::string acessorName, std::string tagger="mv2c10"): m_name(name), m_mc(mc), m_acessorName(acessorName), m_tagger(tagger) {
-      m_isTag = new std::vector<int>();
-      m_sf    = new std::vector< std::vector<float> >();
-    }
+    btagOpPoint(const std::string& name, bool mc, const std::string& accessorName);
+    ~btagOpPoint();
 
-    ~btagOpPoint(){
-      delete m_isTag;
-      delete m_sf;
-    }
-
-    void setTree(TTree *tree, std::string jetName){
-      //tree->SetBranchStatus  (("n"+jetName+"s_"+m_tagger+"_"+m_name).c_str(), 1);
-      //tree->SetBranchAddress (("n"+jetName+"s_"+m_tagger+"_"+m_name).c_str(), &m_njets);
-      tree->SetBranchStatus  (("n"+jetName+"s_"+m_name).c_str(), 1);
-      tree->SetBranchAddress (("n"+jetName+"s_"+m_name).c_str(), &m_njets);
-
-      HelperFunctions::connectBranch<int>     (jetName, tree,"is"+m_name,      &m_isTag);
-      if(m_mc) HelperFunctions::connectBranch<std::vector<float> >(jetName, tree,"SF"+m_name,       &m_sf);
-    }
-
-    void setBranch(TTree *tree, std::string jetName){
-      tree->Branch(("n"+jetName+"s_"+m_name).c_str(), &m_njets, ("n"+jetName+"s_"+m_name+"/I").c_str());
-      tree->Branch((jetName+"_is"+m_name).c_str(),        &m_isTag);
-
-      if ( m_mc ) {
-	tree->Branch((jetName+"_SF"+m_name).c_str(),        &m_sf);
-	tree->Branch(("weight_"+jetName+"SF"+m_name).c_str(), &m_weight_sf);
-      }
-    }
-
-
-    void clear(){
-      m_njets = 0;
-      m_isTag->clear();
-      m_weight_sf.clear();
-      m_sf->clear();
-    }
-
-    void Fill( const xAOD::Jet* jet ) {
-
-      SG::AuxElement::ConstAccessor< char > isTag("BTag_"+m_acessorName);
-      if( isTag.isAvailable( *jet ) ) {
-	if ( isTag( *jet ) == 1 ) ++m_njets;
-	m_isTag->push_back( isTag( *jet ) );
-      } else { 
-	m_isTag->push_back( -1 ); 
-      }
-    
-      if(!m_mc) { return; }
-      SG::AuxElement::ConstAccessor< std::vector<float> > sf("BTag_SF_"+m_acessorName);
-      if ( sf.isAvailable( *jet ) ) {
-	m_sf->push_back( sf( *jet ) );
-      } else {
-	std::vector<float> junk(1,-999);
-	m_sf->push_back(junk);
-      }
-
-      return;
-    } // Fill
-
-    void FillGlobalSF( const xAOD::EventInfo* eventInfo ) {
-      SG::AuxElement::ConstAccessor< std::vector<float> > sf_GLOBAL("BTag_SF_"+m_acessorName+"_GLOBAL");
-      if ( sf_GLOBAL.isAvailable( *eventInfo ) ) { 
-	m_weight_sf = sf_GLOBAL( *eventInfo ); 
-      } else { 
-	m_weight_sf.push_back(-999.0); 
-      }
-
-      return;
-    }
+    void setTree(TTree *tree, const std::string& jetName);
+    void setBranch(TTree *tree, const std::string& jetName);
+    void clear();
+    void Fill( const xAOD::Jet* jet );
+    void FillGlobalSF( const xAOD::EventInfo* eventInfo );
   
   };  //struct btagOpPoint
 

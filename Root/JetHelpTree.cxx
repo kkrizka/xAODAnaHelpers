@@ -7,17 +7,104 @@
 #include <iostream>
 
 using namespace xAH;
-using std::vector;  using std::endl;  using std::cout;
 
+btagOpPoint::btagOpPoint(const std::string& name, bool mc, const std::string& accessorName)
+  : m_name(name), m_mc(mc), m_accessorName(accessorName), m_isTag("BTag_"+accessorName), m_sf("BTag_SF_"+m_accessorName)
+{ }
+
+btagOpPoint::~btagOpPoint()
+{ }
+
+void btagOpPoint::setTree(TTree *tree, const std::string& jetName)
+{
+  tree->SetBranchStatus  (("n"+jetName+"s_"+m_name).c_str(), 1);
+  tree->SetBranchAddress (("n"+jetName+"s_"+m_name).c_str(), &m_njets);
+}
+
+void btagOpPoint::setBranch(TTree *tree, const std::string& jetName)
+{
+  tree->Branch(("n"+jetName+"s_"+m_name).c_str(), &m_njets, ("n"+jetName+"s_"+m_name+"/I").c_str());
+
+  if ( m_mc ) 
+    tree->Branch(("weight_"+jetName+"SF"+m_name).c_str(), &m_weight_sf);
+}
+
+void btagOpPoint::clear()
+{
+  m_njets = 0;
+  m_weight_sf.clear();
+}
+
+void btagOpPoint::Fill( const xAOD::Jet* jet ) 
+{
+  if( m_isTag.isAvailable( *jet ) ) 
+    if ( m_isTag( *jet ) == 1 ) ++m_njets;
+  return;
+}
+
+void btagOpPoint::FillGlobalSF( const xAOD::EventInfo* eventInfo )
+{
+  SG::AuxElement::ConstAccessor< std::vector<float> > sf_GLOBAL("BTag_SF_"+m_accessorName+"_GLOBAL");
+  if ( sf_GLOBAL.isAvailable( *eventInfo ) )
+    m_weight_sf = sf_GLOBAL( *eventInfo ); 
+  else
+    m_weight_sf.push_back(-999.0); 
+}
 
 JetHelpTree::JetHelpTree(const std::string& name, const std::string& detailStr, float units, bool mc)
   : ParticleHelpTree("xAH::Jet",name,detailStr,units,mc),
     m_trkSelTool(nullptr)
 
-{ }
+{
+  if( !m_infoSwitch.m_sfFTagFix.empty() ) 
+    {
+      m_btag_Fix30   = new  btagOpPoint("Fix30",m_mc, "FixedCutBEff_30");
+      m_btag_Fix50   = new  btagOpPoint("Fix50",m_mc, "FixedCutBEff_50");
+      m_btag_Fix60   = new  btagOpPoint("Fix60",m_mc, "FixedCutBEff_60");
+      m_btag_Fix70   = new  btagOpPoint("Fix70",m_mc, "FixedCutBEff_70");
+      m_btag_Fix77   = new  btagOpPoint("Fix77",m_mc, "FixedCutBEff_77");
+      m_btag_Fix80   = new  btagOpPoint("Fix80",m_mc, "FixedCutBEff_80");
+      m_btag_Fix85   = new  btagOpPoint("Fix85",m_mc, "FixedCutBEff_85");
+      m_btag_Fix90   = new  btagOpPoint("Fix90",m_mc, "FixedCutBEff_90");
+    }
+
+  if( !m_infoSwitch.m_sfFTagFlt.empty() ) 
+    {
+      m_btag_Flt30   = new  btagOpPoint("Flt30",m_mc, "FlatBEff_30");
+      m_btag_Flt50   = new  btagOpPoint("Flt50",m_mc, "FlatBEff_50");
+      m_btag_Flt60   = new  btagOpPoint("Flt60",m_mc, "FlatBEff_60");
+      m_btag_Flt70   = new  btagOpPoint("Flt70",m_mc, "FlatBEff_70");
+      m_btag_Flt77   = new  btagOpPoint("Flt77",m_mc, "FlatBEff_77");
+      m_btag_Flt85   = new  btagOpPoint("Flt85",m_mc, "FlatBEff_85");
+      m_btag_Flt90   = new  btagOpPoint("Flt90",m_mc, "FlatBEff_90");
+    }
+}
 
 JetHelpTree::~JetHelpTree()
-{ }
+{
+  if( !m_infoSwitch.m_sfFTagFix.empty() )
+    {
+      delete m_btag_Fix30;
+      delete m_btag_Fix50;
+      delete m_btag_Fix60;
+      delete m_btag_Fix70;
+      delete m_btag_Fix77;
+      delete m_btag_Fix80;
+      delete m_btag_Fix85;
+      delete m_btag_Fix90;
+    }
+
+  if( !m_infoSwitch.m_sfFTagFlt.empty() ) 
+    {
+      delete m_btag_Flt30;
+      delete m_btag_Flt50;
+      delete m_btag_Flt60;
+      delete m_btag_Flt70;
+      delete m_btag_Flt77;
+      delete m_btag_Flt85;
+      delete m_btag_Flt90;
+    }
+}
 
 void JetHelpTree::createBranches(TTree *tree)
 {
@@ -50,7 +137,6 @@ void JetHelpTree::createBranches(TTree *tree)
       setBranchStatus(tree, "clean_passTightBad",         1);
       setBranchStatus(tree, "clean_passTightBadUgly",     1);
   }
-
 
   if ( m_infoSwitch.m_energy ) 
     {
@@ -192,28 +278,28 @@ void JetHelpTree::createBranches(TTree *tree)
       if( m_infoSwitch.m_svDetails)
 	{
 	  setBranchStatus(tree, "SV0",               1);
-	  setBranchStatus(tree, "sv0_NGTinSvx",      1);
-	  setBranchStatus(tree, "sv0_N2Tpair",       1);
-	  setBranchStatus(tree, "sv0_massvx",        1);
-	  setBranchStatus(tree, "sv0_efracsvx",      1);
-	  setBranchStatus(tree, "sv0_normdist",      1);
+	  setBranchStatus(tree, "SV0_NGTinSvx",      1);
+	  setBranchStatus(tree, "SV0_N2Tpair",       1);
+	  setBranchStatus(tree, "SV0_massvx",        1);
+	  setBranchStatus(tree, "SV0_efracsvx",      1);
+	  setBranchStatus(tree, "SV0_normdist",      1);
 
 	  setBranchStatus(tree, "SV1",               1);
 	  setBranchStatus(tree, "SV1IP3D",           1);
-	  setBranchStatus(tree, "sv1_pu",            1);
-	  setBranchStatus(tree, "sv1_pb",            1);
-	  setBranchStatus(tree, "sv1_pc",            1);
-	  setBranchStatus(tree, "sv1_c",             1);
-	  setBranchStatus(tree, "sv1_cu",            1);
-	  setBranchStatus(tree, "sv1_NGTinSvx",      1);
-	  setBranchStatus(tree, "sv1_N2Tpair",       1);
-	  setBranchStatus(tree, "sv1_massvx",        1);
-	  setBranchStatus(tree, "sv1_efracsvx",      1);
-	  setBranchStatus(tree, "sv1_normdist",      1);
-	  setBranchStatus(tree, "sv1_Lxy",           1);
-	  setBranchStatus(tree, "sv1_L3d",           1);
-	  setBranchStatus(tree, "sv1_distmatlay",    1);
-	  setBranchStatus(tree, "sv1_dR",            1);
+	  setBranchStatus(tree, "SV1_pu",            1);
+	  setBranchStatus(tree, "SV1_pb",            1);
+	  setBranchStatus(tree, "SV1_pc",            1);
+	  setBranchStatus(tree, "SV1_c",             1);
+	  setBranchStatus(tree, "SV1_cu",            1);
+	  setBranchStatus(tree, "SV1_NGTinSvx",      1);
+	  setBranchStatus(tree, "SV1_N2Tpair",       1);
+	  setBranchStatus(tree, "SV1_massvx",        1);
+	  setBranchStatus(tree, "SV1_efracsvx",      1);
+	  setBranchStatus(tree, "SV1_normdist",      1);
+	  setBranchStatus(tree, "SV1_Lxy",           1);
+	  setBranchStatus(tree, "SV1_L3d",           1);
+	  setBranchStatus(tree, "SV1_distmatlay",    1);
+	  setBranchStatus(tree, "SV1_dR",            1);
 	}
 
     if( m_infoSwitch.m_ipDetails)
@@ -322,13 +408,13 @@ void JetHelpTree::createBranches(TTree *tree)
       setBranchStatus(tree, "TruthLabelDeltaR_T", 1);
       setBranchStatus(tree, "PartonTruthLabelID", 1);
       setBranchStatus(tree, "GhostTruthAssociationFraction", 1);
-      setBranchStatus(tree, "truth_E",   1);
-      setBranchStatus(tree, "truth_pt",  1);
-      setBranchStatus(tree, "truth_phi", 1);
-      setBranchStatus(tree, "truth_eta", 1);
+      setBranchStatus(tree, "truth_p4",           1);
+      setBranchStatus(tree, "truth_pdgId",        1);
+      setBranchStatus(tree, "truth_partonPt",     1);
+      setBranchStatus(tree, "truth_partonDR",     1);
   }
 
-  if ( m_infoSwitch.m_truthDetails ) 
+  if ( m_infoSwitch.m_truthDetails )
     {
       setBranchStatus(tree, "GhostBHadronsFinalCount",   1);
       setBranchStatus(tree, "GhostBHadronsInitialCount", 1);
@@ -361,7 +447,6 @@ void JetHelpTree::createBranches(TTree *tree)
 void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvLocation )
 {
   ParticleHelpTree::fillParticle(jet);
-
   xAH::Jet *myjet=static_cast<xAH::Jet*>(m_particles->Last());
 
   if ( m_infoSwitch.m_rapidity )
@@ -387,16 +472,16 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
       myjet->AverageLArQF=AverageLArQF(*jet);
 
       static SG::AuxElement::ConstAccessor<float> BchCorrCell ("BchCorrCell");
-      myjet->BchCorrCell=BchCorrCell(*jet);
+      if(BchCorrCell.isAvailable( *jet )) myjet->BchCorrCell=BchCorrCell(*jet);
 
       static SG::AuxElement::ConstAccessor<float> N90Constituents ("N90Constituents");
       myjet->N90Constituents=N90Constituents(*jet);
 
       static SG::AuxElement::ConstAccessor<float> LArBadHVEnergyFrac ("LArBadHVEnergyFrac");
-      myjet->LArBadHVEnergyFrac=LArBadHVEnergyFrac(*jet);
+      if(LArBadHVEnergyFrac.isAvailable( *jet )) myjet->LArBadHVEnergyFrac=LArBadHVEnergyFrac(*jet);
 
       static SG::AuxElement::ConstAccessor<int> LArBadHVNCell ("LArBadHVNCell");
-      myjet->LArBadHVNCell=LArBadHVNCell(*jet);
+      if(LArBadHVNCell.isAvailable( *jet )) myjet->LArBadHVNCell=LArBadHVNCell(*jet);
 
       static SG::AuxElement::ConstAccessor<float> OotFracClusters5 ("OotFracClusters5");
       myjet->OotFracClusters5=OotFracClusters5(*jet);
@@ -449,13 +534,13 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
       myjet->FracSamplingMaxIndex=FracSamplingMaxIndex(*jet);
 
       static SG::AuxElement::ConstAccessor<float> LowEtConstituentsFrac ("LowEtConstituentsFrac");
-      myjet->LowEtConstituentsFrac=LowEtConstituentsFrac(*jet);
+      if(LowEtConstituentsFrac.isAvailable( *jet )) myjet->LowEtConstituentsFrac=LowEtConstituentsFrac(*jet);
 
       static SG::AuxElement::ConstAccessor<int> GhostMuonSegmentCount ("GhostMuonSegmentCount");
       myjet->GhostMuonSegmentCount=GhostMuonSegmentCount(*jet);
 
       static SG::AuxElement::ConstAccessor<float> Width ("Width");
-      myjet->Width=Width(*jet);
+      if(Width.isAvailable( *jet )) myjet->Width=Width(*jet);
 
     } // energy
 
@@ -812,31 +897,31 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	  //
 
 	  /// @brief IP2D: track grade
-	  static SG::AuxElement::ConstAccessor< vector<int>   >   IP2D_gradeOfTracks     ("IP2D_gradeOfTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<int>   >   IP2D_gradeOfTracks     ("IP2D_gradeOfTracks");
 	  myjet->IP2D_gradeOfTracks=IP2D_gradeOfTracks( *myBTag );
 
 	  /// @brief IP2D : tracks from V0
-	  static SG::AuxElement::ConstAccessor< vector<bool>   >  IP2D_flagFromV0ofTracks("IP2D_flagFromV0ofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<bool>   >  IP2D_flagFromV0ofTracks("IP2D_flagFromV0ofTracks");
 	  myjet->IP2D_flagFromV0ofTracks=IP2D_flagFromV0ofTracks( *myBTag );
 
 	  /// @brief IP2D : d0 value with respect to primary vertex
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_valD0wrtPVofTracks("IP2D_valD0wrtPVofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP2D_valD0wrtPVofTracks("IP2D_valD0wrtPVofTracks");
 	  myjet->IP2D_valD0wrtPVofTracks=IP2D_valD0wrtPVofTracks( *myBTag );
 
 	  /// @brief IP2D : d0 significance with respect to primary vertex
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_sigD0wrtPVofTracks("IP2D_sigD0wrtPVofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP2D_sigD0wrtPVofTracks("IP2D_sigD0wrtPVofTracks");
 	  myjet->IP2D_sigD0wrtPVofTracks=IP2D_sigD0wrtPVofTracks( *myBTag );
 
 	  /// @brief IP2D : track contribution to B likelihood
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightBofTracks   ("IP2D_weightBofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP2D_weightBofTracks   ("IP2D_weightBofTracks");
 	  myjet->IP2D_weightBofTracks=IP2D_weightBofTracks( *myBTag );
 
 	  /// @brief IP2D : track contribution to C likelihood
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightCofTracks   ("IP2D_weightCofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP2D_weightCofTracks   ("IP2D_weightCofTracks");
 	  myjet->IP2D_weightCofTracks=IP2D_weightCofTracks( *myBTag );
 
 	  /// @brief IP2D : track contribution to U likelihood
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP2D_weightUofTracks   ("IP2D_weightUofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP2D_weightUofTracks   ("IP2D_weightUofTracks");
 	  myjet->IP2D_weightUofTracks=IP2D_weightUofTracks( *myBTag );
 
 	  myjet->IP2D_pu = -99;  myBTag->variable<double>("IP2D", "pu", myjet->IP2D_pu);
@@ -852,39 +937,39 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	  //
 
 	  /// @brief IP3D: track grade
-	  static SG::AuxElement::ConstAccessor< vector<int>   >   IP3D_gradeOfTracks     ("IP3D_gradeOfTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<int>   >   IP3D_gradeOfTracks     ("IP3D_gradeOfTracks");
 	  myjet->IP3D_gradeOfTracks=IP3D_gradeOfTracks( *myBTag );
 
 	  /// @brief IP3D : tracks from V0
-	  static SG::AuxElement::ConstAccessor< vector<bool>   >  IP3D_flagFromV0ofTracks("IP3D_flagFromV0ofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<bool>   >  IP3D_flagFromV0ofTracks("IP3D_flagFromV0ofTracks");
 	  myjet->IP3D_flagFromV0ofTracks=IP3D_flagFromV0ofTracks( *myBTag );
 
 	  /// @brief IP3D : d0 value with respect to primary vertex
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_valD0wrtPVofTracks("IP3D_valD0wrtPVofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_valD0wrtPVofTracks("IP3D_valD0wrtPVofTracks");
           myjet->IP3D_valD0wrtPVofTracks=IP3D_valD0wrtPVofTracks( *myBTag );
 
 	  /// @brief IP3D : d0 significance with respect to primary vertex
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_sigD0wrtPVofTracks("IP3D_sigD0wrtPVofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_sigD0wrtPVofTracks("IP3D_sigD0wrtPVofTracks");
 	  myjet->IP3D_sigD0wrtPVofTracks=IP3D_sigD0wrtPVofTracks( *myBTag );
 
 	  /// @brief IP3D : z0 value with respect to primary vertex
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_valZ0wrtPVofTracks("IP3D_valZ0wrtPVofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_valZ0wrtPVofTracks("IP3D_valZ0wrtPVofTracks");
 	  myjet->IP3D_valZ0wrtPVofTracks=IP3D_valZ0wrtPVofTracks( *myBTag );
 
 	  /// @brief IP3D : z0 significance with respect to primary vertex
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_sigZ0wrtPVofTracks("IP3D_sigZ0wrtPVofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_sigZ0wrtPVofTracks("IP3D_sigZ0wrtPVofTracks");
 	  myjet->IP3D_sigZ0wrtPVofTracks=IP3D_sigZ0wrtPVofTracks( *myBTag );
 
 	  /// @brief IP3D : track contribution to B likelihood
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightBofTracks   ("IP3D_weightBofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_weightBofTracks   ("IP3D_weightBofTracks");
 	  myjet->IP3D_weightBofTracks=IP3D_weightBofTracks( *myBTag );
 
 	  /// @brief IP3D : track contribution to C likelihood
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightCofTracks   ("IP3D_weightCofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_weightCofTracks   ("IP3D_weightCofTracks");
 	  myjet->IP3D_weightCofTracks=IP3D_weightCofTracks( *myBTag );
 
 	  /// @brief IP3D : track contribution to U likelihood
-	  static SG::AuxElement::ConstAccessor< vector<float>   > IP3D_weightUofTracks   ("IP3D_weightUofTracks");
+	  static SG::AuxElement::ConstAccessor< std::vector<float>   > IP3D_weightUofTracks   ("IP3D_weightUofTracks");
 	  myjet->IP3D_weightUofTracks=IP3D_weightUofTracks( *myBTag );
 
 	  myjet->IP3D_pu = -30;  myBTag->variable<double>("IP3D", "pu", myjet->IP3D_pu);
@@ -947,14 +1032,46 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	{
 	  switch( m_infoSwitch.m_sfFTagFix.at(i) )
 	    {
-	    case 30 : m_btag_Fix30->Fill( jet ); break;
-	    case 50 : m_btag_Fix50->Fill( jet ); break;
-	    case 60 : m_btag_Fix60->Fill( jet ); break;
-	    case 70 : m_btag_Fix70->Fill( jet ); break;
-	    case 77 : m_btag_Fix77->Fill( jet ); break;
-	    case 80 : m_btag_Fix80->Fill( jet ); break;
-	    case 85 : m_btag_Fix85->Fill( jet ); break;
-	    case 90 : m_btag_Fix90->Fill( jet ); break;
+	    case 30 :
+	      m_btag_Fix30->Fill( jet ); 
+	      if(        m_btag_Fix30->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix30->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix30->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix30=m_btag_Fix30->m_sf   ( *jet );
+	      break;
+	    case 50 :
+	      m_btag_Fix50->Fill( jet ); 
+	      if(        m_btag_Fix50->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix50->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix50->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix50=m_btag_Fix50->m_sf   ( *jet );
+	      break;
+	    case 60 :
+	      m_btag_Fix60->Fill( jet ); 
+	      if(        m_btag_Fix60->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix60->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix60->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix60=m_btag_Fix60->m_sf   ( *jet );
+	      break;
+	    case 70 :
+	      m_btag_Fix70->Fill( jet ); 
+	      if(        m_btag_Fix70->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix70->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix70->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix70=m_btag_Fix70->m_sf   ( *jet );
+	      break;
+	    case 77 :
+	      m_btag_Fix77->Fill( jet ); 
+	      if(        m_btag_Fix77->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix77->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix77->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix77=m_btag_Fix77->m_sf   ( *jet );
+	      break;
+	    case 80 :
+	      m_btag_Fix80->Fill( jet ); 
+	      if(        m_btag_Fix80->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix80->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix80->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix80=m_btag_Fix80->m_sf   ( *jet );
+	      break;
+	    case 85 :
+	      m_btag_Fix85->Fill( jet ); 
+	      if(        m_btag_Fix85->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix85->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix85->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix85=m_btag_Fix85->m_sf   ( *jet );
+	      break;
+	    case 90 :
+	      m_btag_Fix90->Fill( jet ); 
+	      if(        m_btag_Fix90->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix90->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix90->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix90=m_btag_Fix90->m_sf   ( *jet );
+	      break;
 	    }
 	}
     } // sfFTagFix
@@ -965,12 +1082,36 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	{
 	  switch( m_infoSwitch.m_sfFTagFlt.at(i) ) 
 	    {
-	    case 30 : m_btag_Flt30->Fill( jet ); break;
-	    case 50 : m_btag_Flt50->Fill( jet ); break;
-	    case 60 : m_btag_Flt60->Fill( jet ); break;
-	    case 70 : m_btag_Flt70->Fill( jet ); break;
-	    case 77 : m_btag_Flt77->Fill( jet ); break;
-	    case 85 : m_btag_Flt85->Fill( jet ); break;
+	    case 30 :
+	      m_btag_Flt30->Fill( jet ); 
+	      if(        m_btag_Flt30->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt30->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt30->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt30=m_btag_Flt30->m_sf   ( *jet );
+	      break;
+	    case 50 :
+	      m_btag_Flt50->Fill( jet ); 
+	      if(        m_btag_Flt50->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt50->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt50->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt50=m_btag_Flt50->m_sf   ( *jet );
+	      break;
+	    case 60 :
+	      m_btag_Flt60->Fill( jet ); 
+	      if(        m_btag_Flt60->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt60->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt60->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt60=m_btag_Flt60->m_sf   ( *jet );
+	      break;
+	    case 70 :
+	      m_btag_Flt70->Fill( jet ); 
+	      if(        m_btag_Flt70->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt70->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt70->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt70=m_btag_Flt70->m_sf   ( *jet );
+	      break;
+	    case 77 :
+	      m_btag_Flt77->Fill( jet ); 
+	      if(        m_btag_Flt77->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt77->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt77->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt77=m_btag_Flt77->m_sf   ( *jet );
+	      break;
+	    case 85 :
+	      m_btag_Flt85->Fill( jet ); 
+	      if(        m_btag_Flt85->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt85->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt85->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt85=m_btag_Flt85->m_sf   ( *jet );
+	      break;
 	    }
 	}
     } // sfFTagFlt
@@ -1006,7 +1147,7 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
       myjet->ConeTruthLabelID=ConeTruthLabelID( *jet );
 
       static SG::AuxElement::ConstAccessor<int> TruthCount ("TruthCount");
-      myjet->TruthCount=TruthCount( *jet );
+      if(TruthCount.isAvailable( *jet )) myjet->TruthCount=TruthCount( *jet );
 
       //    seems to be empty
       //      static SG::AuxElement::ConstAccessor<float> TruthPt ("TruthPt");
@@ -1015,19 +1156,19 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
       //      } else { m_truthPt->push_back( -999 ); }
 
       static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_B ("TruthLabelDeltaR_B");
-      myjet->TruthLabelDeltaR_B=TruthLabelDeltaR_B( *jet );
+      SAFE_SET(myjet,TruthLabelDeltaR_B,jet);
 
       static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_C ("TruthLabelDeltaR_C");
-      myjet->TruthLabelDeltaR_C=TruthLabelDeltaR_C( *jet );
+      SAFE_SET(myjet,TruthLabelDeltaR_C,jet);
 
       static SG::AuxElement::ConstAccessor<float> TruthLabelDeltaR_T ("TruthLabelDeltaR_T");
-      myjet->TruthLabelDeltaR_T=TruthLabelDeltaR_T( *jet );
+      SAFE_SET(myjet,TruthLabelDeltaR_T,jet);
 
       static SG::AuxElement::ConstAccessor<int> PartonTruthLabelID("PartonTruthLabelID");
-      myjet->PartonTruthLabelID=PartonTruthLabelID( *jet );
+      SAFE_SET(myjet,PartonTruthLabelID,jet);
 
       static SG::AuxElement::ConstAccessor<float> GhostTruthAssociationFraction("GhostTruthAssociationFraction");
-      myjet->GhostTruthAssociationFraction=GhostTruthAssociationFraction( *jet );
+      SAFE_SET(myjet,GhostTruthAssociationFraction,jet);
 
       const xAOD::Jet* GhostTruthAssociationLink = HelperFunctions::getLink<xAOD::Jet>( jet, "GhostTruthAssociationLink" );
       if(GhostTruthAssociationLink) 
@@ -1163,7 +1304,6 @@ void JetHelpTree::fillGlobalBTagSF( const xAOD::EventInfo* eventInfo ){
 
   return;
 }
-
 
 bool JetHelpTree::haveBTagSF(const std::vector<int>& sfList, int workingPt){
   return (std::find(sfList.begin(), sfList.end(),workingPt ) != sfList.end());
