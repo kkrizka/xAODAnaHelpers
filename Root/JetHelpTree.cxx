@@ -375,6 +375,20 @@ void JetHelpTree::createBranches(TTree *tree)
       if (haveBTagSF(m_infoSwitch.m_sfFTagFix, 80)) m_btag_Fix80->setBranch(tree, m_name);
       if (haveBTagSF(m_infoSwitch.m_sfFTagFix, 85)) m_btag_Fix85->setBranch(tree, m_name);
       if (haveBTagSF(m_infoSwitch.m_sfFTagFix, 90)) m_btag_Fix90->setBranch(tree, m_name);
+
+      std::stringstream ss;
+      for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFix.size(); i++ ) 
+	{
+	  int wp=m_infoSwitch.m_sfFTagFix.at(i);
+
+	  ss.str("");
+	  ss << "isFix" << wp;
+	  setBranchStatus(tree, ss.str(), 1);
+
+	  ss.str("");
+	  ss << "sfFix" << wp;
+	  setBranchStatus(tree, ss.str(), 1);
+	}
     }
 
   if( !m_infoSwitch.m_sfFTagFlt.empty() ) 
@@ -386,6 +400,20 @@ void JetHelpTree::createBranches(TTree *tree)
       if (haveBTagSF(m_infoSwitch.m_sfFTagFlt, 77)) m_btag_Flt77->setBranch(tree, m_name);
       if (haveBTagSF(m_infoSwitch.m_sfFTagFlt, 85)) m_btag_Flt85->setBranch(tree, m_name);
       if (haveBTagSF(m_infoSwitch.m_sfFTagFlt, 90)) m_btag_Flt90->setBranch(tree, m_name);
+
+      std::stringstream ss;
+      for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFlt.size(); i++ ) 
+	{
+	  int wp=m_infoSwitch.m_sfFTagFlt.at(i);
+
+	  ss.str("");
+	  ss << "isFlt" << wp;
+	  setBranchStatus(tree, ss.str(), 1);
+
+	  ss.str("");
+	  ss << "sfFlt" << wp;
+	  setBranchStatus(tree, ss.str(), 1);
+	}
     }// if sfFTagFlt
 
   if( m_infoSwitch.m_area ) 
@@ -443,6 +471,46 @@ void JetHelpTree::createBranches(TTree *tree)
       setBranchStatus(tree, "charge", 1);
     }
 }
+
+void JetHelpTree::clear()
+{
+  ParticleHelpTree::clear();
+
+  if( !m_infoSwitch.m_sfFTagFix.empty() ) 
+    {
+      for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFix.size(); i++ ) 
+	{
+	  switch( m_infoSwitch.m_sfFTagFix.at(i) )
+	    {
+	    case 30 : m_btag_Fix30->clear(); break;
+	    case 50 : m_btag_Fix50->clear(); break;
+	    case 60 : m_btag_Fix60->clear(); break;
+	    case 70 : m_btag_Fix70->clear(); break;
+	    case 77 : m_btag_Fix77->clear(); break;
+	    case 80 : m_btag_Fix80->clear(); break;
+	    case 85 : m_btag_Fix85->clear(); break;
+	    case 90 : m_btag_Fix90->clear(); break;
+	    }
+	}
+    } // sfFTagFix
+
+  if( !m_infoSwitch.m_sfFTagFlt.empty() ) 
+    {
+      for( unsigned int i=0; i<m_infoSwitch.m_sfFTagFlt.size(); i++ ) 
+	{
+	  switch( m_infoSwitch.m_sfFTagFlt.at(i) ) 
+	    {
+	    case 30 : m_btag_Flt30->clear(); break;
+	    case 50 : m_btag_Flt50->clear(); break;
+	    case 60 : m_btag_Flt60->clear(); break;
+	    case 70 : m_btag_Flt70->clear(); break;
+	    case 77 : m_btag_Flt77->clear(); break;
+	    case 85 : m_btag_Flt85->clear(); break;
+	    }
+	}
+    } // sfFTagFlt
+}
+
 
 void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvLocation )
 {
@@ -644,8 +712,8 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	  if ( SumPtTrkPt1000.isAvailable( *jet ) )
 	    myjet->SumPtTrkPt1000PV=SumPtTrkPt1000( *jet )[pvLocation] / m_units;
 
-	  if ( TrackWidthPt500.isAvailable( *jet ) )
-	    myjet->TrackWidthPt500PV=TrackWidthPt500( *jet )[pvLocation];
+	  if ( TrackWidthPt1000.isAvailable( *jet ) )
+	    myjet->TrackWidthPt1000PV=TrackWidthPt1000( *jet )[pvLocation];
 
 	  if ( NumTrkPt500.isAvailable( *jet ) )
 	    myjet->NumTrkPt500PV=NumTrkPt500( *jet )[pvLocation];
@@ -671,13 +739,13 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 
 	  if ( m_mc ) 
 	    {
-	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Loose("JetJvtEfficiency_JVTSyst_JVT_Loose");
+	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Loose ("JetJvtEfficiency_JVTSyst_JVT_Loose");
 	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Medium("JetJvtEfficiency_JVTSyst_JVT_Medium");
-	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Tight("JetJvtEfficiency_JVTSyst_JVT_Tight");
-	
-	      if ( JetJvtEfficiency_JVTSyst_JVT_Loose .isAvailable( *jet ) ) myjet->JetJvtEfficiency_JVTSyst_JVT_Loose = JetJvtEfficiency_JVTSyst_JVT_Loose ( *jet );
-	      if ( JetJvtEfficiency_JVTSyst_JVT_Medium.isAvailable( *jet ) ) myjet->JetJvtEfficiency_JVTSyst_JVT_Medium= JetJvtEfficiency_JVTSyst_JVT_Medium( *jet );
-	      if ( JetJvtEfficiency_JVTSyst_JVT_Tight .isAvailable( *jet ) ) myjet->JetJvtEfficiency_JVTSyst_JVT_Tight = JetJvtEfficiency_JVTSyst_JVT_Tight ( *jet );
+	      static SG::AuxElement::ConstAccessor< std::vector< float > > JetJvtEfficiency_JVTSyst_JVT_Tight ("JetJvtEfficiency_JVTSyst_JVT_Tight");
+
+	      SAFE_SET(myjet,JetJvtEfficiency_JVTSyst_JVT_Loose ,jet);
+	      SAFE_SET(myjet,JetJvtEfficiency_JVTSyst_JVT_Medium,jet);
+	      SAFE_SET(myjet,JetJvtEfficiency_JVTSyst_JVT_Tight ,jet);
 	    }
 
 	} // trackPV
@@ -1034,43 +1102,43 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	    {
 	    case 30 :
 	      m_btag_Fix30->Fill( jet ); 
-	      if(        m_btag_Fix30->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix30->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix30->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix30=m_btag_Fix30->m_sf   ( *jet );
+	      if(        m_btag_Fix30->m_isTag.isAvailable( *jet )) myjet->isFix30=m_btag_Fix30->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix30->m_sf   .isAvailable( *jet )) myjet->sfFix30=m_btag_Fix30->m_sf   ( *jet );
 	      break;
 	    case 50 :
 	      m_btag_Fix50->Fill( jet ); 
-	      if(        m_btag_Fix50->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix50->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix50->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix50=m_btag_Fix50->m_sf   ( *jet );
+	      if(        m_btag_Fix50->m_isTag.isAvailable( *jet )) myjet->isFix50=m_btag_Fix50->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix50->m_sf   .isAvailable( *jet )) myjet->sfFix50=m_btag_Fix50->m_sf   ( *jet );
 	      break;
 	    case 60 :
 	      m_btag_Fix60->Fill( jet ); 
-	      if(        m_btag_Fix60->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix60->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix60->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix60=m_btag_Fix60->m_sf   ( *jet );
+	      if(        m_btag_Fix60->m_isTag.isAvailable( *jet )) myjet->isFix60=m_btag_Fix60->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix60->m_sf   .isAvailable( *jet )) myjet->sfFix60=m_btag_Fix60->m_sf   ( *jet );
 	      break;
 	    case 70 :
 	      m_btag_Fix70->Fill( jet ); 
-	      if(        m_btag_Fix70->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix70->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix70->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix70=m_btag_Fix70->m_sf   ( *jet );
+	      if(        m_btag_Fix70->m_isTag.isAvailable( *jet )) myjet->isFix70=m_btag_Fix70->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix70->m_sf   .isAvailable( *jet )) myjet->sfFix70=m_btag_Fix70->m_sf   ( *jet );
 	      break;
 	    case 77 :
 	      m_btag_Fix77->Fill( jet ); 
-	      if(        m_btag_Fix77->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix77->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix77->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix77=m_btag_Fix77->m_sf   ( *jet );
+	      if(        m_btag_Fix77->m_isTag.isAvailable( *jet )) myjet->isFix77=m_btag_Fix77->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix77->m_sf   .isAvailable( *jet )) myjet->sfFix77=m_btag_Fix77->m_sf   ( *jet );
 	      break;
 	    case 80 :
 	      m_btag_Fix80->Fill( jet ); 
-	      if(        m_btag_Fix80->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix80->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix80->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix80=m_btag_Fix80->m_sf   ( *jet );
+	      if(        m_btag_Fix80->m_isTag.isAvailable( *jet )) myjet->isFix80=m_btag_Fix80->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix80->m_sf   .isAvailable( *jet )) myjet->sfFix80=m_btag_Fix80->m_sf   ( *jet );
 	      break;
 	    case 85 :
 	      m_btag_Fix85->Fill( jet ); 
-	      if(        m_btag_Fix85->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix85->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix85->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix85=m_btag_Fix85->m_sf   ( *jet );
+	      if(        m_btag_Fix85->m_isTag.isAvailable( *jet )) myjet->isFix85=m_btag_Fix85->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix85->m_sf   .isAvailable( *jet )) myjet->sfFix85=m_btag_Fix85->m_sf   ( *jet );
 	      break;
 	    case 90 :
 	      m_btag_Fix90->Fill( jet ); 
-	      if(        m_btag_Fix90->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Fix90->m_isTag( *jet );
-	      if(m_mc && m_btag_Fix90->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFix90=m_btag_Fix90->m_sf   ( *jet );
+	      if(        m_btag_Fix90->m_isTag.isAvailable( *jet )) myjet->isFix90=m_btag_Fix90->m_isTag( *jet );
+	      if(m_mc && m_btag_Fix90->m_sf   .isAvailable( *jet )) myjet->sfFix90=m_btag_Fix90->m_sf   ( *jet );
 	      break;
 	    }
 	}
@@ -1084,33 +1152,33 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
 	    {
 	    case 30 :
 	      m_btag_Flt30->Fill( jet ); 
-	      if(        m_btag_Flt30->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt30->m_isTag( *jet );
-	      if(m_mc && m_btag_Flt30->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt30=m_btag_Flt30->m_sf   ( *jet );
+	      if(        m_btag_Flt30->m_isTag.isAvailable( *jet )) myjet->isFlt30=m_btag_Flt30->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt30->m_sf   .isAvailable( *jet )) myjet->sfFlt30=m_btag_Flt30->m_sf   ( *jet );
 	      break;
 	    case 50 :
 	      m_btag_Flt50->Fill( jet ); 
-	      if(        m_btag_Flt50->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt50->m_isTag( *jet );
-	      if(m_mc && m_btag_Flt50->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt50=m_btag_Flt50->m_sf   ( *jet );
+	      if(        m_btag_Flt50->m_isTag.isAvailable( *jet )) myjet->isFlt50=m_btag_Flt50->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt50->m_sf   .isAvailable( *jet )) myjet->sfFlt50=m_btag_Flt50->m_sf   ( *jet );
 	      break;
 	    case 60 :
 	      m_btag_Flt60->Fill( jet ); 
-	      if(        m_btag_Flt60->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt60->m_isTag( *jet );
-	      if(m_mc && m_btag_Flt60->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt60=m_btag_Flt60->m_sf   ( *jet );
+	      if(        m_btag_Flt60->m_isTag.isAvailable( *jet )) myjet->isFlt60=m_btag_Flt60->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt60->m_sf   .isAvailable( *jet )) myjet->sfFlt60=m_btag_Flt60->m_sf   ( *jet );
 	      break;
 	    case 70 :
 	      m_btag_Flt70->Fill( jet ); 
-	      if(        m_btag_Flt70->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt70->m_isTag( *jet );
-	      if(m_mc && m_btag_Flt70->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt70=m_btag_Flt70->m_sf   ( *jet );
+	      if(        m_btag_Flt70->m_isTag.isAvailable( *jet )) myjet->isFlt70=m_btag_Flt70->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt70->m_sf   .isAvailable( *jet )) myjet->sfFlt70=m_btag_Flt70->m_sf   ( *jet );
 	      break;
 	    case 77 :
 	      m_btag_Flt77->Fill( jet ); 
-	      if(        m_btag_Flt77->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt77->m_isTag( *jet );
-	      if(m_mc && m_btag_Flt77->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt77=m_btag_Flt77->m_sf   ( *jet );
+	      if(        m_btag_Flt77->m_isTag.isAvailable( *jet )) myjet->isFlt77=m_btag_Flt77->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt77->m_sf   .isAvailable( *jet )) myjet->sfFlt77=m_btag_Flt77->m_sf   ( *jet );
 	      break;
 	    case 85 :
 	      m_btag_Flt85->Fill( jet ); 
-	      if(        m_btag_Flt85->m_isTag.isAvailable( *jet )) myjet->MV2c20        =m_btag_Flt85->m_isTag( *jet );
-	      if(m_mc && m_btag_Flt85->m_sf   .isAvailable( *jet )) myjet->MV2c20_sfFlt85=m_btag_Flt85->m_sf   ( *jet );
+	      if(        m_btag_Flt85->m_isTag.isAvailable( *jet )) myjet->isFlt85=m_btag_Flt85->m_isTag( *jet );
+	      if(m_mc && m_btag_Flt85->m_sf   .isAvailable( *jet )) myjet->sfFlt85=m_btag_Flt85->m_sf   ( *jet );
 	      break;
 	    }
 	}

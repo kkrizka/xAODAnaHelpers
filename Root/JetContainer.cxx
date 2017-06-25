@@ -1103,37 +1103,36 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
       switch( m_infoSwitch.m_sfFTagFix[i] ) 
         {
         case 30:
-          jet.MV2c20_isFix30       =m_btag_Fix30->m_isTag->at(idx);
-          jet.MV2c20_sfFix30       =(m_mc)?m_btag_Fix30->m_sf->at(idx):dummy1;
+          jet.isFix30       =m_btag_Fix30->m_isTag->at(idx);
+          jet.sfFix30       =(m_mc)?m_btag_Fix30->m_sf->at(idx):dummy1;
           break;
         case 50:
-          jet.MV2c20_isFix50       =m_btag_Fix50->m_isTag->at(idx);
-          jet.MV2c20_sfFix50       =(m_mc)?m_btag_Fix50->m_sf->at(idx):dummy1;
+          jet.isFix50       =m_btag_Fix50->m_isTag->at(idx);
+          jet.sfFix50       =(m_mc)?m_btag_Fix50->m_sf->at(idx):dummy1;
           break;
         case 60:
-          jet.MV2c20_isFix60       =m_btag_Fix60->m_isTag->at(idx);
-          jet.MV2c20_sfFix60       =(m_mc)?m_btag_Fix60->m_sf->at(idx):dummy1;
+          jet.isFix60       =m_btag_Fix60->m_isTag->at(idx);
+          jet.sfFix60       =(m_mc)?m_btag_Fix60->m_sf->at(idx):dummy1;
           break;
         case 70: 
-	  if(m_debug) cout << "updating flavTag70 " << endl;
-          jet.MV2c20_isFix70       =m_btag_Fix70->m_isTag->at(idx);
-          jet.MV2c20_sfFix70       =(m_mc)?m_btag_Fix70->m_sf->at(idx):dummy1;
+          jet.isFix70       =m_btag_Fix70->m_isTag->at(idx);
+          jet.sfFix70       =(m_mc)?m_btag_Fix70->m_sf->at(idx):dummy1;
           break;
         case 77:
-          jet.MV2c20_isFix77       =m_btag_Fix77->m_isTag->at(idx);
-          jet.MV2c20_sfFix77       =(m_mc)?m_btag_Fix77->m_sf->at(idx):dummy1;
+          jet.isFix77       =m_btag_Fix77->m_isTag->at(idx);
+          jet.sfFix77       =(m_mc)?m_btag_Fix77->m_sf->at(idx):dummy1;
           break;
         case 80:
-          jet.MV2c20_isFix80       =m_btag_Fix80->m_isTag->at(idx);
-          jet.MV2c20_sfFix80       =(m_mc)?m_btag_Fix80->m_sf->at(idx):dummy1;
+          jet.isFix80       =m_btag_Fix80->m_isTag->at(idx);
+          jet.sfFix80       =(m_mc)?m_btag_Fix80->m_sf->at(idx):dummy1;
           break;
         case 85:
-          jet.MV2c20_isFix85       =m_btag_Fix85->m_isTag ->at(idx);
-          jet.MV2c20_sfFix85       =(m_mc)?m_btag_Fix85->m_sf->at(idx):dummy1;
+          jet.isFix85       =m_btag_Fix85->m_isTag ->at(idx);
+          jet.sfFix85       =(m_mc)?m_btag_Fix85->m_sf->at(idx):dummy1;
           break;
         case 90:
-          jet.MV2c20_isFix90       =m_btag_Fix90->m_isTag       ->at(idx);
-          jet.MV2c20_sfFix90       =(m_mc)?m_btag_Fix90->m_sf->at(idx):dummy1;
+          jet.isFix90       =m_btag_Fix90->m_isTag       ->at(idx);
+          jet.sfFix90       =(m_mc)?m_btag_Fix90->m_sf->at(idx):dummy1;
           break;
         }
     }
@@ -1143,28 +1142,28 @@ void JetContainer::updateParticle(uint idx, Jet& jet)
       switch( m_infoSwitch.m_sfFTagFlt[i] ) 
         {
         case 30:
-          jet.MV2c20_isFlt30       =m_btag_Flt30->m_isTag       ->at(idx);
-          jet.MV2c20_sfFlt30       =(m_mc)?m_btag_Flt30->m_sf->at(idx):dummy1;
+          jet.isFlt30       =m_btag_Flt30->m_isTag       ->at(idx);
+          jet.sfFlt30       =(m_mc)?m_btag_Flt30->m_sf->at(idx):dummy1;
           break;
         case 50:
-          jet.MV2c20_isFlt50       =m_btag_Flt50->m_isTag       ->at(idx);
-          jet.MV2c20_sfFlt50       =(m_mc)?m_btag_Flt50->m_sf->at(idx):dummy1;
+          jet.isFlt50       =m_btag_Flt50->m_isTag       ->at(idx);
+          jet.sfFlt50       =(m_mc)?m_btag_Flt50->m_sf->at(idx):dummy1;
           break;
         case 60:
-          jet.MV2c20_isFlt60       =m_btag_Flt60->m_isTag       ->at(idx);
-          jet.MV2c20_sfFlt60       =(m_mc)?m_btag_Flt60->m_sf->at(idx):dummy1;
+          jet.isFlt60       =m_btag_Flt60->m_isTag       ->at(idx);
+          jet.sfFlt60       =(m_mc)?m_btag_Flt60->m_sf->at(idx):dummy1;
           break;
         case 70:
-          jet.MV2c20_isFlt70       =m_btag_Flt70->m_isTag       ->at(idx);
-          jet.MV2c20_sfFlt70       =(m_mc)?m_btag_Flt70->m_sf->at(idx):dummy1;
+          jet.isFlt70       =m_btag_Flt70->m_isTag       ->at(idx);
+          jet.sfFlt70       =(m_mc)?m_btag_Flt70->m_sf->at(idx):dummy1;
           break;
         case 77:
-          jet.MV2c20_isFlt77       =m_btag_Flt77->m_isTag       ->at(idx);
-          jet.MV2c20_sfFlt77       =(m_mc)?m_btag_Flt77->m_sf->at(idx):dummy1;
+          jet.isFlt77       =m_btag_Flt77->m_isTag       ->at(idx);
+          jet.sfFlt77       =(m_mc)?m_btag_Flt77->m_sf->at(idx):dummy1;
           break;
         case 85:
-          jet.MV2c20_isFlt85       =m_btag_Flt85->m_isTag       ->at(idx);
-          jet.MV2c20_sfFlt85       =(m_mc)?m_btag_Flt85->m_sf->at(idx):dummy1;
+          jet.isFlt85       =m_btag_Flt85->m_isTag       ->at(idx);
+          jet.sfFlt85       =(m_mc)?m_btag_Flt85->m_sf->at(idx):dummy1;
           break;
         }
     }

@@ -199,50 +199,50 @@ namespace xAH {
     std::vector<float> IP3D_weightCofTracks    ;
     std::vector<float> IP3D_weightUofTracks    ;
 
-    char MV2c20_isFix30;
-    std::vector<float> MV2c20_sfFix30;
+    char isFix30;
+    std::vector<float> sfFix30;
 
-    char MV2c20_isFix50;
-    std::vector<float> MV2c20_sfFix50;
+    char isFix50;
+    std::vector<float> sfFix50;
 
-    char MV2c20_isFix60;
-    std::vector<float> MV2c20_sfFix60;
+    char isFix60;
+    std::vector<float> sfFix60;
 
-    char MV2c20_isFix70;
-    std::vector<float> MV2c20_sfFix70;
+    char isFix70;
+    std::vector<float> sfFix70;
 
-    char MV2c20_isFix77;
-    std::vector<float> MV2c20_sfFix77;
+    char isFix77;
+    std::vector<float> sfFix77;
 
-    char MV2c20_isFix80;
-    std::vector<float> MV2c20_sfFix80;
+    char isFix80;
+    std::vector<float> sfFix80;
 
-    char MV2c20_isFix85;
-    std::vector<float> MV2c20_sfFix85;
+    char isFix85;
+    std::vector<float> sfFix85;
 
-    char MV2c20_isFix90;
-    std::vector<float> MV2c20_sfFix90;
+    char isFix90;
+    std::vector<float> sfFix90;
 
-    char MV2c20_isFlt30;
-    std::vector<float> MV2c20_sfFlt30;
+    char isFlt30;
+    std::vector<float> sfFlt30;
 
-    char MV2c20_isFlt40;
-    std::vector<float> MV2c20_sfFlt40;
+    char isFlt40;
+    std::vector<float> sfFlt40;
 
-    char MV2c20_isFlt50;
-    std::vector<float> MV2c20_sfFlt50;
+    char isFlt50;
+    std::vector<float> sfFlt50;
 
-    char MV2c20_isFlt60;
-    std::vector<float> MV2c20_sfFlt60;
+    char isFlt60;
+    std::vector<float> sfFlt60;
 
-    char MV2c20_isFlt70;
-    std::vector<float> MV2c20_sfFlt70;
+    char isFlt70;
+    std::vector<float> sfFlt70;
 
-    char MV2c20_isFlt77;
-    std::vector<float> MV2c20_sfFlt77;
+    char isFlt77;
+    std::vector<float> sfFlt77;
 
-    char MV2c20_isFlt85;
-    std::vector<float> MV2c20_sfFlt85;
+    char isFlt85;
+    std::vector<float> sfFlt85;
 
     // area
     float JetGhostArea;

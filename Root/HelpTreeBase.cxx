@@ -604,7 +604,7 @@ void HelpTreeBase::FillJets( const xAOD::JetContainer* jets, int pvLocation, con
       const xAOD::EventInfo* eventInfo(nullptr);
       HelperFunctions::retrieve(eventInfo, "EventInfo", m_event, m_store, false);
 
-      //thisJet->fillGlobalBTagSF(eventInfo);
+      thisJet->fillGlobalBTagSF(eventInfo);
   }
 
   for( auto jet_itr : *jets )
