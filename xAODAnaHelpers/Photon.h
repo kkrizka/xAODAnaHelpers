@@ -8,50 +8,55 @@ namespace xAH {
   
   class Photon : public Particle
   {
+    ClassDef(Photon, 1);
+
   public:
+    Photon() : Particle() {};
+    virtual ~Photon() {};
 
-      // isolation
-      int    isIsolated_Cone40CaloOnly;
-      int    isIsolated_Cone40;
-      int    isIsolated_Cone20;
-      float  ptcone20;
-      float  ptcone30;
-      float  ptcone40;
-      float  ptvarcone20;
-      float  ptvarcone30;
-      float  ptvarcone40;
-      float  topoetcone20;
-      float  topoetcone30;
-      float  topoetcone40;
-    
-      // PID
-      int   IsLoose;
-      int   IsMedium;
-      int   IsTight;
-    
-      //Purity
-      float  radhad1;
-      float  radhad;
-      float  e277;
-      float  reta;
-      float  rphi;
-      float  weta2;
-      float  f1;
-      float  wtot;
-      float  deltae;
-      float  eratio;
+    // isolation
+    char isIsolated_FixedCutTightCaloOnly;
+    char isIsolated_FixedCutTight;
+    char isIsolated_FixedCutLoose;
 
-      // effSF
-      float LooseEffSF;
-      float MediumEffSF;
-      float TightEffSF;
+    float  ptcone20;
+    float  ptcone30;
+    float  ptcone40;
+    float  ptvarcone20;
+    float  ptvarcone30;
+    float  ptvarcone40;
+    float  topoetcone20;
+    float  topoetcone30;
+    float  topoetcone40;
 
-      float LooseEffSF_Error;
-      float MediumEffSF_Error;
-      float TightEffSF_Error;
+    // PID
+    bool   PhotonID_Loose;
+    bool   PhotonID_Medium;
+    bool   PhotonID_Tight;
 
-      // trigger
-      std::vector<std::string> trigMatched;
+    //Purity
+    float  Rhad1;
+    float  Rhad;
+    float  e277;
+    float  Reta;
+    float  Rphi;
+    float  weta2;
+    float  f1;
+    float  wtots1;
+    float  DeltaE;
+    float  Eratio;
+
+    // effSF
+    float PhotonID_Tight_EffSF;
+    float PhotonID_Medium_EffSF;
+    float PhotonID_Loose_EffSF;
+
+    float PhotonID_Tight_EffSF_Error;
+    float PhotonID_Medium_EffSF_Error;
+    float PhotonID_Loose_EffSF_Error;
+
+    // trigger
+    std::vector<std::string> trigMatched;
   };
 
 }//xAH

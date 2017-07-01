@@ -37,9 +37,9 @@ namespace xAH {
     private:
 
       // isolation
-      std::vector<int>*   m_isIsolated_Cone40CaloOnly;
-      std::vector<int>*   m_isIsolated_Cone40;
-      std::vector<int>*   m_isIsolated_Cone20;
+      std::vector<char>*  m_isIsolated_FixedCutTightCaloOnly;
+      std::vector<char>*  m_isIsolated_FixedCutTight;
+      std::vector<char>*  m_isIsolated_FixedCutLoose;
       //std::vector<float>* m_etcone20;
       std::vector<float>* m_ptcone20;
       std::vector<float>* m_ptcone30;
@@ -53,33 +53,33 @@ namespace xAH {
     
       // PID
       int m_n_IsLoose;
-      std::vector<int>*   m_IsLoose;
+      std::vector<bool>*   m_PhotonID_Loose;
       int m_n_IsMedium;
-      std::vector<int>*   m_IsMedium;
+      std::vector<bool>*   m_PhotonID_Medium;
       int m_n_IsTight;
-      std::vector<int>*   m_IsTight;
+      std::vector<bool>*   m_PhotonID_Tight;
     
       //Purity
-      std::vector<float>* m_radhad1;
-      std::vector<float>* m_radhad;
+      std::vector<float>* m_Rhad1;
+      std::vector<float>* m_Rhad;
       std::vector<float>* m_e277;
-      std::vector<float>* m_reta;
-      std::vector<float>* m_rphi;
+      std::vector<float>* m_Reta;
+      std::vector<float>* m_Rphi;
       std::vector<float>* m_weta2;
       std::vector<float>* m_f1;
-      std::vector<float>* m_wtot;
+      std::vector<float>* m_wtots1;
       //std::vector<float>* m_w1;
-      std::vector<float>* m_deltae;
-      std::vector<float>* m_eratio;
-    
-      // effSF
-      std::vector<float> *m_LooseEffSF;
-      std::vector<float> *m_MediumEffSF;
-      std::vector<float> *m_TightEffSF;
+      std::vector<float>* m_DeltaE;
+      std::vector<float>* m_Eratio;
 
-      std::vector<float> *m_LooseEffSF_Error;
-      std::vector<float> *m_MediumEffSF_Error;
-      std::vector<float> *m_TightEffSF_Error;
+      // effSF
+      std::vector<float> *m_PhotonID_Tight_EffSF;
+      std::vector<float> *m_PhotonID_Medium_EffSF;
+      std::vector<float> *m_PhotonID_Loose_EffSF;
+
+      std::vector<float> *m_PhotonID_Tight_EffSF_Error;
+      std::vector<float> *m_PhotonID_Medium_EffSF_Error;
+      std::vector<float> *m_PhotonID_Loose_EffSF_Error;
 
       // trigger
       std::vector<std::vector<std::string> > *m_trigMatched;

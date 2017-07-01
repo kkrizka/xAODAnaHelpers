@@ -515,7 +515,7 @@ void JetHelpTree::clear()
 void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvLocation )
 {
   ParticleHelpTree::fillParticle(jet);
-  xAH::Jet *myjet=static_cast<xAH::Jet*>(m_particles->Last());
+  xAH::Jet* myjet=static_cast<xAH::Jet*>(m_particles->Last());
 
   if ( m_infoSwitch.m_rapidity )
     {
@@ -525,61 +525,62 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
   if ( m_infoSwitch.m_clean )
     {
       static SG::AuxElement::ConstAccessor<float> Timing ("Timing");
-      myjet->Timing=Timing(*jet);
+      SAFE_SET(myjet,Timing,jet);
 
       static SG::AuxElement::ConstAccessor<float> LArQuality ("LArQuality");
-      myjet->LArQuality=LArQuality(*jet);			      
+      SAFE_SET(myjet,LArQuality,jet);			      
 
       static SG::AuxElement::ConstAccessor<float> HECQuality ("HECQuality");
-      myjet->HECQuality=HECQuality(*jet);
+      SAFE_SET(myjet,HECQuality,jet);
 
       static SG::AuxElement::ConstAccessor<float> NegativeE ("NegativeE");
-      myjet->NegativeE=NegativeE(*jet)/m_units;
+      SAFE_SET(myjet,NegativeE,jet);
+      myjet->NegativeE/=m_units;
 
       static SG::AuxElement::ConstAccessor<float> AverageLArQF ("AverageLArQF");
-      myjet->AverageLArQF=AverageLArQF(*jet);
+      SAFE_SET(myjet,AverageLArQF,jet);
 
       static SG::AuxElement::ConstAccessor<float> BchCorrCell ("BchCorrCell");
-      if(BchCorrCell.isAvailable( *jet )) myjet->BchCorrCell=BchCorrCell(*jet);
+      SAFE_SET(myjet,BchCorrCell,jet);
 
       static SG::AuxElement::ConstAccessor<float> N90Constituents ("N90Constituents");
-      myjet->N90Constituents=N90Constituents(*jet);
+      SAFE_SET(myjet,N90Constituents,jet);
 
       static SG::AuxElement::ConstAccessor<float> LArBadHVEnergyFrac ("LArBadHVEnergyFrac");
-      if(LArBadHVEnergyFrac.isAvailable( *jet )) myjet->LArBadHVEnergyFrac=LArBadHVEnergyFrac(*jet);
+      SAFE_SET(myjet,LArBadHVEnergyFrac,jet);
 
       static SG::AuxElement::ConstAccessor<int> LArBadHVNCell ("LArBadHVNCell");
-      if(LArBadHVNCell.isAvailable( *jet )) myjet->LArBadHVNCell=LArBadHVNCell(*jet);
+      SAFE_SET(myjet,LArBadHVNCell,jet);
 
       static SG::AuxElement::ConstAccessor<float> OotFracClusters5 ("OotFracClusters5");
-      myjet->OotFracClusters5=OotFracClusters5(*jet);
+      SAFE_SET(myjet,OotFracClusters5,jet);
 
       static SG::AuxElement::ConstAccessor<float> OotFracClusters10 ("OotFracClusters10");
-      myjet->OotFracClusters10=OotFracClusters10(*jet);
+      SAFE_SET(myjet,OotFracClusters10,jet);
 
       static SG::AuxElement::ConstAccessor<float> LeadingClusterPt ("LeadingClusterPt");
-      myjet->LeadingClusterPt=LeadingClusterPt(*jet);
+      SAFE_SET(myjet,LeadingClusterPt,jet);
 
       static SG::AuxElement::ConstAccessor<float> LeadingClusterSecondLambda ("LeadingClusterSecondLambda");
-      myjet->LeadingClusterSecondLambda=LeadingClusterSecondLambda(*jet);
+      SAFE_SET(myjet,LeadingClusterSecondLambda,jet);
 
       static SG::AuxElement::ConstAccessor<float> LeadingClusterCenterLambda ("LeadingClusterCenterLambda");
-      myjet->LeadingClusterCenterLambda=LeadingClusterCenterLambda(*jet);
+      SAFE_SET(myjet,LeadingClusterCenterLambda,jet);
 
       static SG::AuxElement::ConstAccessor<float> LeadingClusterSecondR ("LeadingClusterSecondR");
-      myjet->LeadingClusterSecondR=LeadingClusterSecondR(*jet);
+      SAFE_SET(myjet,LeadingClusterSecondR,jet);
 
       static SG::AuxElement::ConstAccessor<char> clean_passLooseBad ("clean_passLooseBad");
-      myjet->clean_passLooseBad=clean_passLooseBad(*jet);
+      SAFE_SET(myjet,clean_passLooseBad,jet);
 
       static SG::AuxElement::ConstAccessor<char> clean_passLooseBadUgly ("clean_passLooseBadUgly");
-      myjet->clean_passLooseBadUgly=clean_passLooseBadUgly(*jet);
+      SAFE_SET(myjet,clean_passLooseBadUgly,jet);
 
       static SG::AuxElement::ConstAccessor<char> clean_passTightBad ("clean_passTightBad");
-      myjet->clean_passTightBad=clean_passTightBad(*jet);
+      SAFE_SET(myjet,clean_passTightBad,jet);
 
       static SG::AuxElement::ConstAccessor<char> clean_passTightBadUgly ("clean_passTightBadUgly");
-      myjet->clean_passTightBadUgly=clean_passTightBadUgly(*jet);
+      SAFE_SET(myjet,clean_passTightBadUgly,jet);
 
     } // clean
 
@@ -587,28 +588,28 @@ void JetHelpTree::fillJet( const xAOD::Jet* jet, const xAOD::Vertex* pv, int pvL
   if ( m_infoSwitch.m_energy ) 
     {
       static SG::AuxElement::ConstAccessor<float> HECFrac ("HECFrac");
-      myjet->HECFrac=HECFrac(*jet);
+      SAFE_SET(myjet,HECFrac,jet);
 
       static SG::AuxElement::ConstAccessor<float> EMFrac ("EMFrac");
-      myjet->EMFrac=EMFrac(*jet);
+      SAFE_SET(myjet,EMFrac,jet);
 
       static SG::AuxElement::ConstAccessor<float> CentroidR ("CentroidR");
-      myjet->CentroidR=CentroidR(*jet);
+      SAFE_SET(myjet,CentroidR,jet);
 
       static SG::AuxElement::ConstAccessor<float> FracSamplingMax ("FracSamplingMax");
-      myjet->FracSamplingMax=FracSamplingMax(*jet);
+      SAFE_SET(myjet,FracSamplingMax,jet);
 
       static SG::AuxElement::ConstAccessor<int> FracSamplingMaxIndex ("FracSamplingMaxIndex");
-      myjet->FracSamplingMaxIndex=FracSamplingMaxIndex(*jet);
+      SAFE_SET(myjet,FracSamplingMaxIndex,jet);
 
       static SG::AuxElement::ConstAccessor<float> LowEtConstituentsFrac ("LowEtConstituentsFrac");
-      if(LowEtConstituentsFrac.isAvailable( *jet )) myjet->LowEtConstituentsFrac=LowEtConstituentsFrac(*jet);
+      SAFE_SET(myjet,LowEtConstituentsFrac,jet);
 
       static SG::AuxElement::ConstAccessor<int> GhostMuonSegmentCount ("GhostMuonSegmentCount");
-      myjet->GhostMuonSegmentCount=GhostMuonSegmentCount(*jet);
+      SAFE_SET(myjet,GhostMuonSegmentCount,jet);
 
       static SG::AuxElement::ConstAccessor<float> Width ("Width");
-      if(Width.isAvailable( *jet )) myjet->Width=Width(*jet);
+      SAFE_SET(myjet,Width,jet);
 
     } // energy
 

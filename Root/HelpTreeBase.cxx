@@ -122,7 +122,7 @@ void HelpTreeBase::Fill() {
  *
  ********************/
 
-void HelpTreeBase::AddEvent( const std::string detailStr ) {
+void HelpTreeBase::AddEvent( const std::string& detailStr ) {
 
   if(m_debug)  Info("AddEvent()", "Adding event variables: %s", detailStr.c_str());
 
@@ -145,7 +145,7 @@ void HelpTreeBase::FillEvent( const xAOD::EventInfo* eventInfo, xAOD::TEvent* /*
  *   TRIGGER
  *
  ********************/
-void HelpTreeBase::AddTrigger( const std::string detailStr ) {
+void HelpTreeBase::AddTrigger( const std::string& detailStr ) {
 
   if(m_debug) Info("AddTrigger()", "Adding trigger variables: %s", detailStr.c_str());
 
@@ -272,7 +272,7 @@ void HelpTreeBase::ClearTrigger() {
 
 /* TODO: jet trigger */
 //CD: is this useful at all?
-void HelpTreeBase::AddJetTrigger( const std::string detailStr )
+void HelpTreeBase::AddJetTrigger( const std::string& detailStr )
 {
   if ( m_debug )  Info("AddJetTrigger()", "Adding jet trigger variables: %s", detailStr.c_str());
 }
@@ -286,7 +286,7 @@ void HelpTreeBase::ClearJetTrigger(  ) { }
  *
  ********************/
 
-void HelpTreeBase::AddMuons(const std::string detailStr, const std::string muonName) {
+void HelpTreeBase::AddMuons(const std::string& detailStr, const std::string& muonName) {
 
   if ( m_debug )  Info("AddMuons()", "Adding muon variables: %s", detailStr.c_str());
 
@@ -332,7 +332,7 @@ void HelpTreeBase::AddMuons(const std::string detailStr, const std::string muonN
   this->AddMuonsUser();
 }
 
-void HelpTreeBase::FillMuons( const xAOD::MuonContainer* muons, const xAOD::Vertex* primaryVertex, const std::string muonName ) {
+void HelpTreeBase::FillMuons( const xAOD::MuonContainer* muons, const xAOD::Vertex* primaryVertex, const std::string& muonName ) {
 
   this->ClearMuons(muonName);
 
@@ -382,7 +382,7 @@ void HelpTreeBase::FillMuons( const xAOD::MuonContainer* muons, const xAOD::Vert
 
 }
 
-void HelpTreeBase::FillMuon( const xAOD::Muon* muon, const xAOD::Vertex* primaryVertex, const std::string muonName ) {
+void HelpTreeBase::FillMuon( const xAOD::Muon* muon, const xAOD::Vertex* primaryVertex, const std::string& muonName ) {
 
   xAH::MuonContainer* thisMuon = m_muons[muonName];
 
@@ -393,7 +393,7 @@ void HelpTreeBase::FillMuon( const xAOD::Muon* muon, const xAOD::Vertex* primary
   return;
 }
 
-void HelpTreeBase::ClearMuons(const std::string muonName) {
+void HelpTreeBase::ClearMuons(const std::string& muonName) {
 
   std::string tname = m_tree->GetName();
 
@@ -436,7 +436,7 @@ void HelpTreeBase::ClearMuons(const std::string muonName) {
  *
  ********************/
 
-void HelpTreeBase::AddElectrons(const std::string detailStr, const std::string elecName) {
+void HelpTreeBase::AddElectrons(const std::string& detailStr, const std::string& elecName) {
 
   if(m_debug)  Info("AddElectrons()", "Adding electron variables: %s", detailStr.c_str());
 
@@ -449,7 +449,7 @@ void HelpTreeBase::AddElectrons(const std::string detailStr, const std::string e
 }
 
 
-void HelpTreeBase::FillElectrons( const xAOD::ElectronContainer* electrons, const xAOD::Vertex* primaryVertex, const std::string elecName ) {
+void HelpTreeBase::FillElectrons( const xAOD::ElectronContainer* electrons, const xAOD::Vertex* primaryVertex, const std::string& elecName ) {
 
   this->ClearElectrons(elecName);
 
@@ -458,7 +458,7 @@ void HelpTreeBase::FillElectrons( const xAOD::ElectronContainer* electrons, cons
   }
 }
 
-void HelpTreeBase::FillElectron ( const xAOD::Electron* elec, const xAOD::Vertex* primaryVertex, const std::string elecName ) {
+void HelpTreeBase::FillElectron ( const xAOD::Electron* elec, const xAOD::Vertex* primaryVertex, const std::string& elecName ) {
 
   xAH::ElectronContainer* thisElec = m_elecs[elecName];
 
@@ -470,7 +470,7 @@ void HelpTreeBase::FillElectron ( const xAOD::Electron* elec, const xAOD::Vertex
 }
 
 
-void HelpTreeBase::ClearElectrons(const std::string elecName) {
+void HelpTreeBase::ClearElectrons(const std::string& elecName) {
 
   xAH::ElectronContainer* thisElec = m_elecs[elecName];
   thisElec->clear();
@@ -484,45 +484,36 @@ void HelpTreeBase::ClearElectrons(const std::string elecName) {
  *
  ********************/
 
-void HelpTreeBase::AddPhotons(const std::string detailStr, const std::string photonName) {
-
+void HelpTreeBase::AddPhotons(const std::string& detailStr, const std::string& photonName)
+{
   if(m_debug)  Info("AddPhotons()", "Adding photon variables: %s", detailStr.c_str());
 
-  m_photons[photonName] = new xAH::PhotonContainer(photonName, detailStr, m_units, m_isMC);
-
-  xAH::PhotonContainer* thisPhoton = m_photons[photonName];
-
-  thisPhoton->setBranches(m_tree);
+  m_photons[photonName] = new xAH::PhotonHelpTree(photonName, detailStr, m_units, m_isMC);
+  m_photons[photonName]->m_debug = m_debug;
+  m_photons[photonName]->createBranches(m_tree);
   this->AddPhotonsUser(photonName);
 }
 
 
-void HelpTreeBase::FillPhotons( const xAOD::PhotonContainer* photons, const std::string photonName ) {
-
+void HelpTreeBase::FillPhotons( const xAOD::PhotonContainer* photons, const std::string& photonName ) 
+{
   this->ClearPhotons(photonName);
 
-  for ( auto ph_itr : *photons ) {
+  for ( auto ph_itr : *photons )
     this->FillPhoton(ph_itr, photonName);
-  }
 }
 
-void HelpTreeBase::FillPhoton( const xAOD::Photon* photon, const std::string photonName ) {
-
-  xAH::PhotonContainer* thisPhoton = m_photons[photonName];
-
-  thisPhoton->FillPhoton(photon);
-
+void HelpTreeBase::FillPhoton( const xAOD::Photon* photon, const std::string& photonName ) 
+{
+  xAH::PhotonHelpTree* thisPhoton = m_photons[photonName];
+  thisPhoton->fillPhoton(photon);
   this->FillPhotonsUser(photon, photonName);
-
-  return;
 }
 
-
-void HelpTreeBase::ClearPhotons(const std::string photonName) {
-
-  xAH::PhotonContainer* thisPhoton = m_photons[photonName];
+void HelpTreeBase::ClearPhotons(const std::string& photonName)
+{
+  xAH::PhotonHelpTree* thisPhoton = m_photons[photonName];
   thisPhoton->clear();
-
   this->ClearPhotonsUser(photonName);
 }
 
@@ -633,7 +624,7 @@ void HelpTreeBase::ClearJets(const std::string& jetName)
  *
  ********************/
 
-void HelpTreeBase::AddTruthParts(const std::string truthName, const std::string detailStr)
+void HelpTreeBase::AddTruthParts(const std::string& truthName, const std::string& detailStr)
 {
 
   if(m_debug) Info("AddTruthParts()", "Adding truth particle %s with variables: %s", truthName.c_str(), detailStr.c_str());
@@ -644,7 +635,7 @@ void HelpTreeBase::AddTruthParts(const std::string truthName, const std::string 
   this->AddTruthUser(truthName);
 }
 
-void HelpTreeBase::FillTruth( const std::string truthName, const xAOD::TruthParticleContainer* truthParts ) {
+void HelpTreeBase::FillTruth( const std::string& truthName, const xAOD::TruthParticleContainer* truthParts ) {
 
   this->ClearTruth(truthName);
 
@@ -663,7 +654,7 @@ void HelpTreeBase::FillTruth( const std::string truthName, const xAOD::TruthPart
 
 }
 
-void HelpTreeBase::FillTruth( const xAOD::TruthParticle* truthPart, const std::string truthName )
+void HelpTreeBase::FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName )
 {
   xAH::TruthContainer* thisTruth = m_truth[truthName];
 
@@ -674,7 +665,7 @@ void HelpTreeBase::FillTruth( const xAOD::TruthParticle* truthPart, const std::s
   return;
 }
 
-void HelpTreeBase::ClearTruth(const std::string truthName) {
+void HelpTreeBase::ClearTruth(const std::string& truthName) {
 
   xAH::TruthContainer* thisTruth = m_truth[truthName];
   thisTruth->clear();
@@ -689,7 +680,7 @@ void HelpTreeBase::ClearTruth(const std::string truthName) {
  *
  ********************/
 
-void HelpTreeBase::AddTrackParts(const std::string trackName, const std::string detailStr)
+void HelpTreeBase::AddTrackParts(const std::string& trackName, const std::string& detailStr)
 {
   if(m_debug) Info("AddTrackParts()", "Adding track particle %s with variables: %s", trackName.c_str(), detailStr.c_str());
   m_tracks[trackName] = new xAH::TrackContainer(trackName, detailStr, m_units);
@@ -699,7 +690,7 @@ void HelpTreeBase::AddTrackParts(const std::string trackName, const std::string 
   this->AddTracksUser(trackName);
 }
 
-void HelpTreeBase::FillTracks( const std::string trackName, const xAOD::TrackParticleContainer* trackParts ) {
+void HelpTreeBase::FillTracks( const std::string& trackName, const xAOD::TrackParticleContainer* trackParts ) {
 
   this->ClearTracks(trackName);
 
@@ -718,7 +709,7 @@ void HelpTreeBase::FillTracks( const std::string trackName, const xAOD::TrackPar
 
 }
 
-void HelpTreeBase::FillTrack( const xAOD::TrackParticle* trackPart, const std::string trackName )
+void HelpTreeBase::FillTrack( const xAOD::TrackParticle* trackPart, const std::string& trackName )
 {
   xAH::TrackContainer* thisTrack = m_tracks[trackName];
 
@@ -729,7 +720,7 @@ void HelpTreeBase::FillTrack( const xAOD::TrackParticle* trackPart, const std::s
   return;
 }
 
-void HelpTreeBase::ClearTracks(const std::string trackName) {
+void HelpTreeBase::ClearTracks(const std::string& trackName) {
 
   xAH::TrackContainer* thisTrack = m_tracks[trackName];
   thisTrack->clear();
@@ -745,17 +736,17 @@ void HelpTreeBase::ClearTracks(const std::string trackName) {
  ********************/
 
 // make a unique container:suffix key to lookup the branches in the maps
-std::string HelpTreeBase::FatJetCollectionName(const std::string fatjetName,
-					       const std::string suffix) {
+std::string HelpTreeBase::FatJetCollectionName(const std::string& fatjetName,
+					       const std::string& suffix) {
   return suffix.empty() ? fatjetName : (fatjetName + ":" + suffix);
 }
 
-void HelpTreeBase::AddFatJets(const std::string detailStr, const std::string fatjetName,
-			      const std::string suffix) {
+void HelpTreeBase::AddFatJets(const std::string& detailStr, const std::string& fatjetName,
+			      const std::string& suffix) {
 
   if(m_debug) Info("AddFatJets()", "Adding fat jet variables: %s", detailStr.c_str());
 
-  const std::string collectionName = FatJetCollectionName(fatjetName, suffix);
+  const std::string& collectionName = FatJetCollectionName(fatjetName, suffix);
   m_fatjets[collectionName] = new xAH::FatJetContainer(fatjetName, detailStr, suffix, m_units, m_isMC);
 
   xAH::FatJetContainer* thisFatJet = m_fatjets[collectionName];
@@ -764,7 +755,7 @@ void HelpTreeBase::AddFatJets(const std::string detailStr, const std::string fat
   this->AddFatJetsUser(detailStr, fatjetName, suffix);
 }
 
-void HelpTreeBase::AddTruthFatJets(const std::string detailStr, const std::string truthFatJetName) {
+void HelpTreeBase::AddTruthFatJets(const std::string& detailStr, const std::string& truthFatJetName) {
 
   if(m_debug) Info("AddTruthFatJets()", "Adding fat jet variables: %s", detailStr.c_str());
 
@@ -777,7 +768,7 @@ void HelpTreeBase::AddTruthFatJets(const std::string detailStr, const std::strin
 }
 
 
-void HelpTreeBase::FillFatJets( const xAOD::JetContainer* fatJets , const std::string fatjetName, const std::string suffix) {
+void HelpTreeBase::FillFatJets( const xAOD::JetContainer* fatJets , const std::string& fatjetName, const std::string& suffix) {
 
   this->ClearFatJets(fatjetName, suffix);
 
@@ -789,9 +780,9 @@ void HelpTreeBase::FillFatJets( const xAOD::JetContainer* fatJets , const std::s
 
 }
 
-void HelpTreeBase::FillFatJet( const xAOD::Jet* fatjet_itr, const std::string fatjetName, const std::string suffix ) {
+void HelpTreeBase::FillFatJet( const xAOD::Jet* fatjet_itr, const std::string& fatjetName, const std::string& suffix ) {
 
-  const std::string collectionName = FatJetCollectionName(fatjetName, suffix);
+  const std::string& collectionName = FatJetCollectionName(fatjetName, suffix);
   xAH::FatJetContainer* thisFatJet = m_fatjets[collectionName];
 
   thisFatJet->FillFatJet(fatjet_itr);
@@ -803,7 +794,7 @@ void HelpTreeBase::FillFatJet( const xAOD::Jet* fatjet_itr, const std::string fa
 
 
 
-void HelpTreeBase::FillTruthFatJets( const xAOD::JetContainer* truthTruthFatJets, const std::string truthFatJetName ) {
+void HelpTreeBase::FillTruthFatJets( const xAOD::JetContainer* truthTruthFatJets, const std::string& truthFatJetName ) {
   this->ClearTruthFatJets();
 
   for( auto truth_fatjet_itr : *truthTruthFatJets ) {
@@ -814,7 +805,7 @@ void HelpTreeBase::FillTruthFatJets( const xAOD::JetContainer* truthTruthFatJets
 
 }
 
-void HelpTreeBase::FillTruthFatJet( const xAOD::Jet* truth_fatjet_itr, const std::string truthFatJetName ) {
+void HelpTreeBase::FillTruthFatJet( const xAOD::Jet* truth_fatjet_itr, const std::string& truthFatJetName ) {
 
   xAH::FatJetContainer* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
 
@@ -826,8 +817,8 @@ void HelpTreeBase::FillTruthFatJet( const xAOD::Jet* truth_fatjet_itr, const std
 }
 
 
-void HelpTreeBase::ClearFatJets(const std::string fatjetName, const std::string suffix) {
-  const std::string collectionName = FatJetCollectionName(fatjetName, suffix);
+void HelpTreeBase::ClearFatJets(const std::string& fatjetName, const std::string& suffix) {
+  const std::string& collectionName = FatJetCollectionName(fatjetName, suffix);
 
   xAH::FatJetContainer* thisFatJet = m_fatjets[collectionName];
   thisFatJet->clear();
@@ -835,7 +826,7 @@ void HelpTreeBase::ClearFatJets(const std::string fatjetName, const std::string 
   this->ClearFatJetsUser(fatjetName, suffix);
 }
 
-void HelpTreeBase::ClearTruthFatJets(const std::string truthFatJetName) {
+void HelpTreeBase::ClearTruthFatJets(const std::string& truthFatJetName) {
 
   xAH::FatJetContainer* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
   thisTruthFatJet->clear();
@@ -855,7 +846,7 @@ void HelpTreeBase::ClearEvent() {
  *
  ********************/
 
-void HelpTreeBase::AddTaus(const std::string detailStr, const std::string tauName) {
+void HelpTreeBase::AddTaus(const std::string& detailStr, const std::string& tauName) {
 
   if ( m_debug )  Info("AddTaus()", "Adding tau variables: %s", detailStr.c_str());
 
@@ -867,7 +858,7 @@ void HelpTreeBase::AddTaus(const std::string detailStr, const std::string tauNam
   this->AddTausUser();
 }
 
-void HelpTreeBase::FillTaus( const xAOD::TauJetContainer* taus, const std::string tauName ) {
+void HelpTreeBase::FillTaus( const xAOD::TauJetContainer* taus, const std::string& tauName ) {
 
   this->ClearTaus();
 
@@ -876,7 +867,7 @@ void HelpTreeBase::FillTaus( const xAOD::TauJetContainer* taus, const std::strin
   }
 }
 
-void HelpTreeBase::FillTau( const xAOD::TauJet* tau, const std::string tauName ) {
+void HelpTreeBase::FillTau( const xAOD::TauJet* tau, const std::string& tauName ) {
 
   xAH::TauContainer* thisTau = m_taus[tauName];
 
@@ -885,7 +876,7 @@ void HelpTreeBase::FillTau( const xAOD::TauJet* tau, const std::string tauName )
   this->FillTausUser(tau, tauName);
 }
 
-void HelpTreeBase::ClearTaus(const std::string tauName) {
+void HelpTreeBase::ClearTaus(const std::string& tauName) {
 
   xAH::TauContainer* thisTau = m_taus[tauName];
   thisTau->clear();
@@ -901,7 +892,7 @@ void HelpTreeBase::ClearTaus(const std::string tauName) {
  *     MET
  *
  ********************/
-void HelpTreeBase::AddMET( const std::string detailStr ) {
+void HelpTreeBase::AddMET( const std::string& detailStr ) {
 
   if(m_debug) Info("AddMET()", "Adding MET variables: %s", detailStr.c_str());
 

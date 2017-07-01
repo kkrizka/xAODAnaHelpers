@@ -47,6 +47,7 @@
 #include <xAODAnaHelpers/Jet.h>
 #include <xAODAnaHelpers/JetConstituent.h>
 #include <xAODAnaHelpers/TrackParticle.h>
+#include <xAODAnaHelpers/Photon.h>
 
 /* Mini xAOD */
 #include <xAODAnaHelpers/MinixAOD.h>
@@ -104,6 +105,7 @@
 #pragma link C++ class xAH::Jet+;
 #pragma link C++ class xAH::JetConstituent+;
 #pragma link C++ class xAH::TrackParticle+;
+#pragma link C++ class xAH::Photon+;
 
 #pragma link C++ class MinixAOD+;
 
