@@ -15,13 +15,13 @@ FatJetContainer::FatJetContainer(const std::string& name, const std::string& det
 {
 
   if (m_infoSwitch.m_scales) {
-      m_JetConstitScaleMomentum_eta       = new std::vector<float>();
-      m_JetConstitScaleMomentum_phi       = new std::vector<float>();
-      m_JetConstitScaleMomentum_m       = new std::vector<float>();
-      m_JetConstitScaleMomentum_pt        = new std::vector<float>();
+      m_JetConstitScaleMomentum_eta = new std::vector<float>();
+      m_JetConstitScaleMomentum_phi = new std::vector<float>();
+      m_JetConstitScaleMomentum_m   = new std::vector<float>();
+      m_JetConstitScaleMomentum_pt  = new std::vector<float>();
 
-      m_JetEMScaleMomentum_eta        = new std::vector<float>();
-      m_JetEMScaleMomentum_phi        = new std::vector<float>();
+      m_JetEMScaleMomentum_eta      = new std::vector<float>();
+      m_JetEMScaleMomentum_phi      = new std::vector<float>();
       m_JetEMScaleMomentum_m        = new std::vector<float>();
       m_JetEMScaleMomentum_pt       = new std::vector<float>();
   }
@@ -41,19 +41,19 @@ FatJetContainer::FatJetContainer(const std::string& name, const std::string& det
     m_Split12           = new std::vector<float>();
     m_Split23           = new std::vector<float>();
     m_Split34           = new std::vector<float>();
-    m_tau1_wta          = new std::vector<float>();
-    m_tau2_wta          = new std::vector<float>();
-    m_tau3_wta          = new std::vector<float>();
-    m_tau21_wta         = new std::vector<float>();
-    m_tau32_wta         = new std::vector<float>();
+    m_Tau1_wta          = new std::vector<float>();
+    m_Tau2_wta          = new std::vector<float>();
+    m_Tau3_wta          = new std::vector<float>();
+    m_Tau21_wta         = new std::vector<float>();
+    m_Tau32_wta         = new std::vector<float>();
     m_ECF1              = new std::vector<float>();
     m_ECF2              = new std::vector<float>();
     m_ECF3              = new std::vector<float>();
     m_C2                = new std::vector<float>();
     m_D2                = new std::vector<float>();
     m_NTrimSubjets      = new std::vector<float>();
-    m_NClusters         = new std::vector<int>  ();
-    m_nTracks           = new std::vector<int>  ();
+    m_MyNClusters       = new std::vector<int>  ();
+    m_GhostTrackCount   = new std::vector<int>  ();
 
   }
 
@@ -70,10 +70,10 @@ FatJetContainer::FatJetContainer(const std::string& name, const std::string& det
   }
 
   if ( m_infoSwitch.m_bosonCount) {
-    m_nTQuarks  = new std::vector< int > ();
-    m_nHBosons  = new std::vector< int > ();      
-    m_nWBosons  = new std::vector< int > ();            
-    m_nZBosons  = new std::vector< int > ();      
+    m_GhostTQuarksFinalCount = new std::vector< int > ();
+    m_GhostHBosonsCount      = new std::vector< int > ();      
+    m_GhostWBosonsCount      = new std::vector< int > ();            
+    m_GhostZBosonsCount      = new std::vector< int > ();      
   }
 
   if ( m_infoSwitch.m_VTags ) { 
@@ -129,22 +129,22 @@ FatJetContainer::~FatJetContainer()
   }
 
   if ( m_infoSwitch.m_substructure ) {
-    delete m_Split12     ;
-    delete m_Split23     ;
-    delete m_Split34     ;
-    delete m_tau1_wta    ;
-    delete m_tau2_wta    ;
-    delete m_tau3_wta    ;
-    delete m_tau21_wta   ;
-    delete m_tau32_wta   ;
-    delete m_ECF1        ;
-    delete m_ECF2        ;
-    delete m_ECF3        ;
-    delete m_C2          ;
-    delete m_D2          ;
-    delete m_NTrimSubjets;
-    delete m_NClusters   ;
-    delete m_nTracks   ;
+    delete m_Split12        ;
+    delete m_Split23        ;
+    delete m_Split34        ;
+    delete m_Tau1_wta       ;
+    delete m_Tau2_wta       ;
+    delete m_Tau3_wta       ;
+    delete m_Tau21_wta      ;
+    delete m_Tau32_wta      ;
+    delete m_ECF1           ;
+    delete m_ECF2           ;
+    delete m_ECF3           ;
+    delete m_C2             ;
+    delete m_D2             ;
+    delete m_NTrimSubjets   ;
+    delete m_MyNClusters    ;
+    delete m_GhostTrackCount;
   }
 
   if ( m_infoSwitch.m_constituent) {
@@ -160,10 +160,10 @@ FatJetContainer::~FatJetContainer()
   }
 
   if ( m_infoSwitch.m_bosonCount) {
-    delete m_nTQuarks;
-    delete m_nHBosons;
-    delete m_nWBosons;
-    delete m_nZBosons;
+    delete m_GhostTQuarksFinalCount;
+    delete m_GhostHBosonsCount;
+    delete m_GhostWBosonsCount;
+    delete m_GhostZBosonsCount;
   }
 
   if ( m_infoSwitch.m_VTags ) { 
@@ -221,19 +221,19 @@ void FatJetContainer::setTree(TTree *tree)
     connectBranch<float>(tree, "Split12",      &m_Split12);
     connectBranch<float>(tree, "Split23",      &m_Split23);
     connectBranch<float>(tree, "Split34",      &m_Split34);
-    connectBranch<float>(tree, "tau1_wta",     &m_tau1_wta);
-    connectBranch<float>(tree, "tau2_wta",     &m_tau2_wta);
-    connectBranch<float>(tree, "tau3_wta",     &m_tau3_wta);
-    connectBranch<float>(tree, "tau21_wta",    &m_tau21_wta);
-    connectBranch<float>(tree, "tau32_wta",    &m_tau32_wta);
+    connectBranch<float>(tree, "tau1_wta",     &m_Tau1_wta);
+    connectBranch<float>(tree, "tau2_wta",     &m_Tau2_wta);
+    connectBranch<float>(tree, "tau3_wta",     &m_Tau3_wta);
+    connectBranch<float>(tree, "tau21_wta",    &m_Tau21_wta);
+    connectBranch<float>(tree, "tau32_wta",    &m_Tau32_wta);
     connectBranch<float>(tree, "ECF1",         &m_ECF1);
     connectBranch<float>(tree, "ECF2",         &m_ECF2);
     connectBranch<float>(tree, "ECF3",         &m_ECF3);
     connectBranch<float>(tree, "C2",           &m_C2);
     connectBranch<float>(tree, "D2",           &m_D2);
     connectBranch<float>(tree, "NTrimSubjets", &m_NTrimSubjets);
-    connectBranch<int>  (tree, "Nclusters",    &m_NClusters);
-    connectBranch<int>  (tree, "nTracks",      &m_nTracks);
+    connectBranch<int>  (tree, "Nclusters",    &m_MyNClusters);
+    connectBranch<int>  (tree, "nTracks",      &m_GhostTrackCount);
   }
 
   if ( m_infoSwitch.m_constituent) {
@@ -249,10 +249,10 @@ void FatJetContainer::setTree(TTree *tree)
   }
 
   if ( m_infoSwitch.m_bosonCount) {
-    connectBranch< int >(tree, "nTQuarks",  &m_nTQuarks);
-    connectBranch< int >(tree, "nHBosons",  &m_nHBosons);
-    connectBranch< int >(tree, "nWBosons",  &m_nWBosons);
-    connectBranch< int >(tree, "nZBosons",  &m_nZBosons);
+    connectBranch< int >(tree, "nTQuarks",  &m_GhostTQuarksFinalCount);
+    connectBranch< int >(tree, "nHBosons",  &m_GhostHBosonsCount     );
+    connectBranch< int >(tree, "nWBosons",  &m_GhostWBosonsCount     );
+    connectBranch< int >(tree, "nZBosons",  &m_GhostZBosonsCount     );
   }
 
 
@@ -276,15 +276,15 @@ void FatJetContainer::updateParticle(uint idx, FatJet& fatjet)
   ParticleContainer::updateParticle(idx,fatjet);  
 
   if ( m_infoSwitch.m_scales ) {
-      fatjet.JetConstitScaleMomentum_eta = m_JetConstitScaleMomentum_eta ->at(idx);
-      fatjet.JetConstitScaleMomentum_phi = m_JetConstitScaleMomentum_phi ->at(idx);
-      fatjet.JetConstitScaleMomentum_m = m_JetConstitScaleMomentum_m ->at(idx);
-      fatjet.JetConstitScaleMomentum_pt = m_JetConstitScaleMomentum_pt ->at(idx);
+      fatjet.JetConstitScaleMomentum.SetPtEtaPhiM(m_JetConstitScaleMomentum_pt ->at(idx),
+					     m_JetConstitScaleMomentum_eta->at(idx),
+					     m_JetConstitScaleMomentum_phi->at(idx),
+					     m_JetConstitScaleMomentum_m  ->at(idx));
 
-      fatjet.JetEMScaleMomentum_eta = m_JetEMScaleMomentum_eta ->at(idx);
-      fatjet.JetEMScaleMomentum_phi = m_JetEMScaleMomentum_phi ->at(idx);
-      fatjet.JetEMScaleMomentum_m = m_JetEMScaleMomentum_m ->at(idx);
-      fatjet.JetEMScaleMomentum_pt = m_JetEMScaleMomentum_pt ->at(idx);
+      fatjet.JetEMScaleMomentum.SetPtEtaPhiM(m_JetEMScaleMomentum_pt ->at(idx),
+					     m_JetEMScaleMomentum_eta->at(idx),
+					     m_JetEMScaleMomentum_phi->at(idx),
+					     m_JetEMScaleMomentum_m  ->at(idx));
   }
 
   if ( m_infoSwitch.m_area ) {
@@ -298,22 +298,22 @@ void FatJetContainer::updateParticle(uint idx, FatJet& fatjet)
   }
 
   if ( m_infoSwitch.m_substructure ) {
-    fatjet.Split12      = m_Split12     ->at(idx);
-    fatjet.Split23      = m_Split23     ->at(idx);
-    fatjet.Split34      = m_Split34     ->at(idx);
-    fatjet.tau1_wta     = m_tau1_wta    ->at(idx);
-    fatjet.tau2_wta     = m_tau2_wta    ->at(idx);
-    fatjet.tau3_wta     = m_tau3_wta    ->at(idx);
-    fatjet.tau21_wta    = m_tau21_wta   ->at(idx);
-    fatjet.tau32_wta    = m_tau32_wta   ->at(idx);
-    fatjet.ECF1         = m_ECF1        ->at(idx);
-    fatjet.ECF2         = m_ECF2        ->at(idx);
-    fatjet.ECF3         = m_ECF3        ->at(idx);
-    fatjet.C2           = m_C2          ->at(idx);
-    fatjet.D2           = m_D2          ->at(idx);
-    fatjet.NTrimSubjets = m_NTrimSubjets->at(idx);
-    fatjet.NClusters    = m_NClusters   ->at(idx);
-    fatjet.nTracks      = m_nTracks     ->at(idx);
+    fatjet.Split12        = m_Split12        ->at(idx);
+    fatjet.Split23        = m_Split23        ->at(idx);
+    fatjet.Split34        = m_Split34        ->at(idx);
+    fatjet.Tau1_wta       = m_Tau1_wta       ->at(idx);
+    fatjet.Tau2_wta       = m_Tau2_wta       ->at(idx);
+    fatjet.Tau3_wta       = m_Tau3_wta       ->at(idx);
+    fatjet.Tau21_wta      = m_Tau21_wta      ->at(idx);
+    fatjet.Tau32_wta      = m_Tau32_wta      ->at(idx);
+    fatjet.ECF1           = m_ECF1           ->at(idx);
+    fatjet.ECF2           = m_ECF2           ->at(idx);
+    fatjet.ECF3           = m_ECF3           ->at(idx);
+    fatjet.C2             = m_C2             ->at(idx);
+    fatjet.D2             = m_D2             ->at(idx);
+    fatjet.NTrimSubjets   = m_NTrimSubjets   ->at(idx);
+    fatjet.MyNClusters    = m_MyNClusters    ->at(idx);
+    fatjet.GhostTrackCount= m_GhostTrackCount->at(idx);
   }
 
   if ( m_infoSwitch.m_constituent) {
@@ -322,17 +322,28 @@ void FatJetContainer::updateParticle(uint idx, FatJet& fatjet)
 
   if ( m_infoSwitch.m_constituentAll) {
     fatjet.constituentWeights = m_constituentWeights  ->at(idx);  
-    fatjet.constituent_pt     = m_constituent_pt      ->at(idx);  
-    fatjet.constituent_eta    = m_constituent_eta     ->at(idx);  
-    fatjet.constituent_phi    = m_constituent_phi     ->at(idx);  
-    fatjet.constituent_e      = m_constituent_e       ->at(idx);  
+
+    std::vector<float> constituent_pt =m_constituent_pt ->at(idx);
+    std::vector<float> constituent_eta=m_constituent_eta->at(idx);
+    std::vector<float> constituent_phi=m_constituent_phi->at(idx);
+    std::vector<float> constituent_e  =m_constituent_e  ->at(idx);
+
+    JetConstituent myconstit;
+    for(uint i=0;i<constituent_pt.size();i++)
+      {
+	myconstit.p4.SetPtEtaPhiE(constituent_pt [i],
+				  constituent_eta[i],
+				  constituent_phi[i],
+				  constituent_e  [i]);
+	fatjet.constituents.push_back(myconstit);
+      }
   }
 
   if(m_infoSwitch.m_bosonCount){
-    fatjet.nTQuarks = m_nTQuarks->at(idx);
-    fatjet.nHBosons = m_nHBosons->at(idx);
-    fatjet.nWBosons = m_nWBosons->at(idx);
-    fatjet.nZBosons = m_nZBosons->at(idx);
+    fatjet.GhostTQuarksFinalCount = m_GhostTQuarksFinalCount->at(idx);
+    fatjet.GhostHBosonsCount      = m_GhostHBosonsCount     ->at(idx);
+    fatjet.GhostWBosonsCount      = m_GhostWBosonsCount     ->at(idx);
+    fatjet.GhostZBosonsCount      = m_GhostZBosonsCount     ->at(idx);
   }
 
   if(m_infoSwitch.m_VTags){
@@ -392,19 +403,19 @@ void FatJetContainer::setBranches(TTree *tree)
     setBranch<float>(tree, "Split12",      m_Split12);
     setBranch<float>(tree, "Split23",      m_Split23);
     setBranch<float>(tree, "Split34",      m_Split34);
-    setBranch<float>(tree, "tau1_wta",     m_tau1_wta);
-    setBranch<float>(tree, "tau2_wta",     m_tau2_wta);
-    setBranch<float>(tree, "tau3_wta",     m_tau3_wta);
-    setBranch<float>(tree, "tau21_wta",    m_tau21_wta);
-    setBranch<float>(tree, "tau32_wta",    m_tau32_wta);
+    setBranch<float>(tree, "tau1_wta",     m_Tau1_wta);
+    setBranch<float>(tree, "tau2_wta",     m_Tau2_wta);
+    setBranch<float>(tree, "tau3_wta",     m_Tau3_wta);
+    setBranch<float>(tree, "tau21_wta",    m_Tau21_wta);
+    setBranch<float>(tree, "tau32_wta",    m_Tau32_wta);
     setBranch<float>(tree, "ECF1",         m_ECF1);
     setBranch<float>(tree, "ECF2",         m_ECF2);
     setBranch<float>(tree, "ECF3",         m_ECF3);
     setBranch<float>(tree, "C2",           m_C2);
     setBranch<float>(tree, "D2",           m_D2);
     setBranch<float>(tree, "NTrimSubjets", m_NTrimSubjets);
-    setBranch<int>  (tree, "Nclusters",    m_NClusters);
-    setBranch<int>  (tree, "nTracks",      m_nTracks);
+    setBranch<int>  (tree, "Nclusters",    m_MyNClusters);
+    setBranch<int>  (tree, "nTracks",      m_GhostTrackCount);
   }
 
   if ( m_infoSwitch.m_constituent) {
@@ -420,10 +431,10 @@ void FatJetContainer::setBranches(TTree *tree)
   }
 
   if(m_infoSwitch.m_bosonCount){
-    setBranch< int >(tree, "nTQuarks",       m_nTQuarks);
-    setBranch< int >(tree, "nHBosons",       m_nHBosons);
-    setBranch< int >(tree, "nWBosons",       m_nWBosons);
-    setBranch< int >(tree, "nZBosons",       m_nZBosons);
+    setBranch< int >(tree, "nTQuarks",       m_GhostTQuarksFinalCount);
+    setBranch< int >(tree, "nHBosons",       m_GhostHBosonsCount);
+    setBranch< int >(tree, "nWBosons",       m_GhostWBosonsCount);
+    setBranch< int >(tree, "nZBosons",       m_GhostZBosonsCount);
   }
 
   if(m_infoSwitch.m_VTags){
@@ -471,22 +482,22 @@ void FatJetContainer::clear()
   }
 
   if ( m_infoSwitch.m_substructure ) {
-    m_Split12     ->clear();
-    m_Split23     ->clear();
-    m_Split34     ->clear();
-    m_tau1_wta    ->clear();
-    m_tau2_wta    ->clear();
-    m_tau3_wta    ->clear();
-    m_tau21_wta   ->clear();
-    m_tau32_wta   ->clear();
-    m_ECF1        ->clear();
-    m_ECF2        ->clear();
-    m_ECF3        ->clear();
-    m_C2          ->clear();
-    m_D2          ->clear();
-    m_NTrimSubjets->clear();
-    m_NClusters   ->clear();
-    m_nTracks     ->clear();
+    m_Split12        ->clear();
+    m_Split23        ->clear();
+    m_Split34        ->clear();
+    m_Tau1_wta       ->clear();
+    m_Tau2_wta       ->clear();
+    m_Tau3_wta       ->clear();
+    m_Tau21_wta      ->clear();
+    m_Tau32_wta      ->clear();
+    m_ECF1           ->clear();
+    m_ECF2           ->clear();
+    m_ECF3           ->clear();
+    m_C2             ->clear();
+    m_D2             ->clear();
+    m_NTrimSubjets   ->clear();
+    m_MyNClusters    ->clear();
+    m_GhostTrackCount->clear();
   }
 
   if ( m_infoSwitch.m_constituent) {
@@ -502,10 +513,10 @@ void FatJetContainer::clear()
   }
 
   if(m_infoSwitch.m_bosonCount){
-    m_nTQuarks->clear();
-    m_nHBosons->clear();
-    m_nWBosons->clear();
-    m_nZBosons->clear();
+    m_GhostTQuarksFinalCount->clear();
+    m_GhostHBosonsCount     ->clear();
+    m_GhostWBosonsCount     ->clear();
+    m_GhostZBosonsCount     ->clear();
   }
 
   if(m_infoSwitch.m_VTags){
@@ -581,31 +592,31 @@ void FatJetContainer::FillFatJet( const xAOD::IParticle* particle ){
     static SG::AuxElement::ConstAccessor<float> acc_Split34("Split34");
     safeFill<float, float, xAOD::Jet>(fatjet, acc_Split34, m_Split34, -999, m_units);
 
-    static SG::AuxElement::ConstAccessor<float> acc_tau1_wta ("Tau1_wta");
-    safeFill<float, float, xAOD::Jet>(fatjet, acc_tau1_wta, m_tau1_wta, -999);
+    static SG::AuxElement::ConstAccessor<float> acc_Tau1_wta ("Tau1_wta");
+    safeFill<float, float, xAOD::Jet>(fatjet, acc_Tau1_wta, m_Tau1_wta, -999);
 
-    static SG::AuxElement::ConstAccessor<float> acc_tau2_wta ("Tau2_wta");
-    safeFill<float, float, xAOD::Jet>(fatjet, acc_tau2_wta, m_tau2_wta, -999);
+    static SG::AuxElement::ConstAccessor<float> acc_Tau2_wta ("Tau2_wta");
+    safeFill<float, float, xAOD::Jet>(fatjet, acc_Tau2_wta, m_Tau2_wta, -999);
 
-    static SG::AuxElement::ConstAccessor<float> acc_tau3_wta ("Tau3_wta");
-    safeFill<float, float, xAOD::Jet>(fatjet, acc_tau3_wta, m_tau3_wta, -999);
+    static SG::AuxElement::ConstAccessor<float> acc_Tau3_wta ("Tau3_wta");
+    safeFill<float, float, xAOD::Jet>(fatjet, acc_Tau3_wta, m_Tau3_wta, -999);
 
-    static SG::AuxElement::ConstAccessor<float> acc_tau21_wta ("Tau21_wta");
-    if(acc_tau21_wta.isAvailable( *fatjet )){
-      m_tau21_wta->push_back( acc_tau21_wta( *fatjet ) );
-    } else if ( acc_tau1_wta.isAvailable( *fatjet ) && acc_tau2_wta.isAvailable( *fatjet ) ) {
-      m_tau21_wta->push_back( acc_tau2_wta( *fatjet ) / acc_tau1_wta( *fatjet ) );
-    } else { m_tau21_wta->push_back( -999 ); }
+    static SG::AuxElement::ConstAccessor<float> acc_Tau21_wta ("Tau21_wta");
+    if(acc_Tau21_wta.isAvailable( *fatjet )){
+      m_Tau21_wta->push_back( acc_Tau21_wta( *fatjet ) );
+    } else if ( acc_Tau1_wta.isAvailable( *fatjet ) && acc_Tau2_wta.isAvailable( *fatjet ) ) {
+      m_Tau21_wta->push_back( acc_Tau2_wta( *fatjet ) / acc_Tau1_wta( *fatjet ) );
+    } else { m_Tau21_wta->push_back( -999 ); }
 
-    static SG::AuxElement::ConstAccessor<float> acc_tau32_wta ("Tau32_wta");
-    if(acc_tau32_wta.isAvailable( *fatjet )){
-      m_tau32_wta->push_back( acc_tau32_wta( *fatjet ) );
-    } else if ( acc_tau2_wta.isAvailable( *fatjet ) && acc_tau3_wta.isAvailable( *fatjet ) ) {
-      m_tau32_wta->push_back( acc_tau3_wta( *fatjet ) / acc_tau2_wta( *fatjet ) );
-    } else { m_tau32_wta->push_back( -999 ); }
+    static SG::AuxElement::ConstAccessor<float> acc_Tau32_wta ("Tau32_wta");
+    if(acc_Tau32_wta.isAvailable( *fatjet )){
+      m_Tau32_wta->push_back( acc_Tau32_wta( *fatjet ) );
+    } else if ( acc_Tau2_wta.isAvailable( *fatjet ) && acc_Tau3_wta.isAvailable( *fatjet ) ) {
+      m_Tau32_wta->push_back( acc_Tau3_wta( *fatjet ) / acc_Tau2_wta( *fatjet ) );
+    } else { m_Tau32_wta->push_back( -999 ); }
 
-    static SG::AuxElement::ConstAccessor<int> acc_NClusters ("MyNClusters");
-    safeFill<int, int, xAOD::Jet>(fatjet, acc_NClusters, m_NClusters, -999);
+    static SG::AuxElement::ConstAccessor<int> acc_MyNClusters ("MyNClusters");
+    safeFill<int, int, xAOD::Jet>(fatjet, acc_MyNClusters, m_MyNClusters, -999);
 
     static SG::AuxElement::ConstAccessor<float> acc_ECF1 ("ECF1");
     safeFill<float, float, xAOD::Jet>(fatjet, acc_ECF1, m_ECF1, -999, m_units);
@@ -635,7 +646,7 @@ void FatJetContainer::FillFatJet( const xAOD::IParticle* particle ){
       m_C2->push_back( acc_ECF3(*fatjet)*acc_ECF1(*fatjet)/pow(acc_ECF2(*fatjet),2.0));
     } else{ m_C2->push_back(-999); }
 
-    m_nTracks->push_back( fatjet->auxdata<int>("GhostTrackCount"));
+    m_GhostTrackCount->push_back( fatjet->auxdata<int>("GhostTrackCount"));
 
   }
 
@@ -691,16 +702,16 @@ void FatJetContainer::FillFatJet( const xAOD::IParticle* particle ){
     
     if(m_mc){
       static SG::AuxElement::ConstAccessor< int > truthfatjet_TQuarks("GhostTQuarksFinalCount");
-      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_TQuarks, m_nTQuarks, -999);
+      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_TQuarks, m_GhostTQuarksFinalCount, -999);
 
       static SG::AuxElement::ConstAccessor< int > truthfatjet_WBosons("GhostWBosonsCount");
-      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_WBosons, m_nWBosons, -999);
+      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_WBosons, m_GhostWBosonsCount, -999);
 
       static SG::AuxElement::ConstAccessor< int > truthfatjet_ZBosons("GhostZBosonsCount");
-      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_ZBosons, m_nZBosons, -999);
+      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_ZBosons, m_GhostZBosonsCount, -999);
 
       static SG::AuxElement::ConstAccessor< int > truthfatjet_HBosons("GhostHBosonsCount");
-      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_HBosons, m_nHBosons, -999);
+      safeFill<int, int, xAOD::Jet>(fatJetParentJet, truthfatjet_HBosons, m_GhostHBosonsCount, -999);
     }
   }
   

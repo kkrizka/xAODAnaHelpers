@@ -45,6 +45,7 @@
 /* Particle */
 #include <xAODAnaHelpers/Particle.h>
 #include <xAODAnaHelpers/Jet.h>
+#include <xAODAnaHelpers/FatJet.h>
 #include <xAODAnaHelpers/JetConstituent.h>
 #include <xAODAnaHelpers/TrackParticle.h>
 #include <xAODAnaHelpers/Photon.h>
@@ -103,6 +104,7 @@
 
 #pragma link C++ class xAH::Particle+;
 #pragma link C++ class xAH::Jet+;
+#pragma link C++ class xAH::FatJet+;
 #pragma link C++ class xAH::JetConstituent+;
 #pragma link C++ class xAH::TrackParticle+;
 #pragma link C++ class xAH::Photon+;

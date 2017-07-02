@@ -25,21 +25,25 @@ namespace xAH {
 		     const std::string& detailStr="", 
 		     float units = 1e3, 
 		     bool mc = false, 
-		     bool useMass=false, 
-		     const std::string& suffix="")
+		     bool useMass=false)
       : m_name(name),
 	m_infoSwitch(detailStr), 
 	m_mc(mc),
 	m_debug(false), 
 	m_units(units), 
-	m_useMass(useMass), 
-	m_suffix(suffix)
+	m_useMass(useMass)
     {
       m_particles=new TClonesArray(className.c_str());
     }
 
     virtual ~ParticleHelpTree()
     { }
+
+    int size()
+    { return m_particles->GetEntries(); }
+
+    TObject* particle(uint idx) const
+    { return m_particles->At(idx); }
 
     virtual void createBranches(TTree *tree)
     {
@@ -52,7 +56,7 @@ namespace xAH {
 
     virtual void clear()
     {
-      m_particles->Clear();
+      m_particles->Clear("C");
     }
 
     virtual void fillParticle(const xAOD::IParticle* particle)
@@ -68,7 +72,7 @@ namespace xAH {
 					particle->phi(),
 					particle->e() / m_units);
 	  else
-	    myparticle->p4.SetPtEtaPhiE(particle->pt() / m_units,
+	    myparticle->p4.SetPtEtaPhiM(particle->pt() / m_units,
 					particle->eta(),
 					particle->phi(),
 					particle->m() / m_units);
@@ -78,9 +82,7 @@ namespace xAH {
   protected:
     std::string branchName()
     {
-      std::string name = m_name;
-      if (! m_suffix.empty()) { name += "_" + m_suffix; }
-      return name;
+      return m_name;
     }
 
     void setBranchStatus(TTree *tree, const std::string& varName, bool status)

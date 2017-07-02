@@ -1,79 +1,76 @@
 #ifndef xAODAnaHelpers_FatJet_H
 #define xAODAnaHelpers_FatJet_H
 
+#include <TLine.h>
+
 #include "xAODAnaHelpers/Particle.h"
 #include "xAODAnaHelpers/Jet.h"
 
 namespace xAH {
 
   class FatJet : public Particle
-    {
-    public:
+  {
+    ClassDef(FatJet, 1);
 
-      // scale
-      float JetConstitScaleMomentum_eta;
-      float JetConstitScaleMomentum_phi;
-      float JetConstitScaleMomentum_m;
-      float JetConstitScaleMomentum_pt;
+  public:
 
-      float JetEMScaleMomentum_eta;
-      float JetEMScaleMomentum_phi;
-      float JetEMScaleMomentum_m;
-      float JetEMScaleMomentum_pt;
+    FatJet() : Particle() {};
+    virtual ~FatJet() {};
 
-      // area
-      float GhostArea;
-      float ActiveArea;
-      float VoronoiArea;
-      float ActiveArea4vec_pt;
-      float ActiveArea4vec_eta;
-      float ActiveArea4vec_phi;
-      float ActiveArea4vec_m;
+    // scale
+    TLorentzVector JetConstitScaleMomentum;
+    TLorentzVector JetEMScaleMomentum;
 
-      // substructure
-      float  Split12;
-      float  Split23;
-      float  Split34;
-      float  tau1_wta;
-      float  tau2_wta;
-      float  tau3_wta;
-      float  tau21_wta;
-      float  tau32_wta;
-      float  ECF1;
-      float  ECF2;
-      float  ECF3;
-      float  C2;
-      float  D2;
-      float  NTrimSubjets;
-      int    NClusters;
-      int    nTracks;
+    // area
+    float GhostArea;
+    float ActiveArea;
+    float VoronoiArea;
+    float ActiveArea4vec_pt;
+    float ActiveArea4vec_eta;
+    float ActiveArea4vec_phi;
+    float ActiveArea4vec_m;
 
-      // constituent
-      int    numConstituents;
+    // substructure
+    float Split12;
+    float Split23;
+    float Split34;
+    float Tau1_wta;
+    float Tau2_wta;
+    float Tau3_wta;
+    float Tau21_wta;
+    float Tau32_wta;
+    float ECF1;
+    float ECF2;
+    float ECF3;
+    float C2;
+    float D2;
+    float NTrimSubjets;
+    int   MyNClusters;
+    int   GhostTrackCount;
 
-      // constituentAll
-      std::vector<float>  constituentWeights;
-      std::vector<float>  constituent_pt;
-      std::vector<float>  constituent_eta;
-      std::vector<float>  constituent_phi;
-      std::vector<float>  constituent_e;
+    // constituent
+    int   numConstituents;
 
-      // bosons 
-      int nTQuarks;
-      int nHBosons;
-      int nWBosons;
-      int nZBosons;
+    // constituentAll
+    std::vector<float>  constituentWeights;
+    std::vector<JetConstituent> constituents;
 
-      // VTag
-      int Wtag_medium;
-      int Ztag_medium;
+    // bosonCount
+    int GhostTQuarksFinalCount;
+    int GhostWBosonsCount;
+    int GhostZBosonsCount;
+    int GhostHBosonsCount;
 
-      int Wtag_tight;
-      int Ztag_tight;
+    // VTags
+    int Wtag_medium;
+    int Ztag_medium;
 
-      std::vector<xAH::Jet> trkJets;
-      
-    };
+    int Wtag_tight;
+    int Ztag_tight;
+
+    // trackJets
+    std::vector<xAH::Jet> trkJets;
+  };
 
 }//xAH
 #endif // xAODAnaHelpers_FatJet_H

@@ -287,8 +287,8 @@ namespace xAH {
     // charge
     double charge;
 
-    const Muon* matchedMuon;
-    const Jet * matchedJet;
+    const Muon* matchedMuon; //!
+    const Jet * matchedJet; //!
 
   public:
 

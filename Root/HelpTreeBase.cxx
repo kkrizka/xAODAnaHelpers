@@ -491,7 +491,6 @@ void HelpTreeBase::AddPhotons(const std::string& detailStr, const std::string& p
   m_photons[photonName] = new xAH::PhotonHelpTree(photonName, detailStr, m_units, m_isMC);
   m_photons[photonName]->m_debug = m_debug;
   m_photons[photonName]->createBranches(m_tree);
-  this->AddPhotonsUser(photonName);
 }
 
 
@@ -507,14 +506,12 @@ void HelpTreeBase::FillPhoton( const xAOD::Photon* photon, const std::string& ph
 {
   xAH::PhotonHelpTree* thisPhoton = m_photons[photonName];
   thisPhoton->fillPhoton(photon);
-  this->FillPhotonsUser(photon, photonName);
 }
 
 void HelpTreeBase::ClearPhotons(const std::string& photonName)
 {
   xAH::PhotonHelpTree* thisPhoton = m_photons[photonName];
   thisPhoton->clear();
-  this->ClearPhotonsUser(photonName);
 }
 
 /*********************
@@ -734,104 +731,66 @@ void HelpTreeBase::ClearTracks(const std::string& trackName) {
  *   FAT JETS
  *
  ********************/
+void HelpTreeBase::AddFatJets(const std::string& detailStr, const std::string& fatjetName) 
+{
+  if(m_debug) Info("AddFatJets()", "Adding fat jet %s variables: %s", fatjetName.c_str(), detailStr.c_str());
 
-// make a unique container:suffix key to lookup the branches in the maps
-std::string HelpTreeBase::FatJetCollectionName(const std::string& fatjetName,
-					       const std::string& suffix) {
-  return suffix.empty() ? fatjetName : (fatjetName + ":" + suffix);
+  m_fatjets[fatjetName] = new xAH::FatJetHelpTree(fatjetName, detailStr, m_units, m_isMC);
+  m_fatjets[fatjetName]->m_debug=m_debug;
+  m_fatjets[fatjetName]->createBranches(m_tree);
 }
 
-void HelpTreeBase::AddFatJets(const std::string& detailStr, const std::string& fatjetName,
-			      const std::string& suffix) {
+void HelpTreeBase::AddTruthFatJets(const std::string& detailStr, const std::string& truthFatJetName)
+{
+  if(m_debug) Info("AddTruthFatJets()", "Adding truth fat jet %s variables: %s", truthFatJetName.c_str(), detailStr.c_str());
 
-  if(m_debug) Info("AddFatJets()", "Adding fat jet variables: %s", detailStr.c_str());
-
-  const std::string& collectionName = FatJetCollectionName(fatjetName, suffix);
-  m_fatjets[collectionName] = new xAH::FatJetContainer(fatjetName, detailStr, suffix, m_units, m_isMC);
-
-  xAH::FatJetContainer* thisFatJet = m_fatjets[collectionName];
-  thisFatJet->setBranches(m_tree);
-
-  this->AddFatJetsUser(detailStr, fatjetName, suffix);
-}
-
-void HelpTreeBase::AddTruthFatJets(const std::string& detailStr, const std::string& truthFatJetName) {
-
-  if(m_debug) Info("AddTruthFatJets()", "Adding fat jet variables: %s", detailStr.c_str());
-
-  m_truth_fatjets[truthFatJetName] = new xAH::FatJetContainer(truthFatJetName, detailStr, "", m_units, m_isMC);
-
-  xAH::FatJetContainer* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
-  thisTruthFatJet->setBranches(m_tree);
-
-  this->AddTruthFatJetsUser(detailStr, truthFatJetName);
+  m_truth_fatjets[truthFatJetName] = new xAH::FatJetHelpTree(truthFatJetName, detailStr, m_units, m_isMC);
+  m_truth_fatjets[truthFatJetName]->m_debug=m_debug;
+  m_truth_fatjets[truthFatJetName]->createBranches(m_tree);
 }
 
 
-void HelpTreeBase::FillFatJets( const xAOD::JetContainer* fatJets , const std::string& fatjetName, const std::string& suffix) {
+void HelpTreeBase::FillFatJets( const xAOD::JetContainer* fatJets , const std::string& fatjetName) 
+{
+  ClearFatJets(fatjetName);
 
-  this->ClearFatJets(fatjetName, suffix);
-
-  for( auto fatjet_itr : *fatJets ) {
-
-    this->FillFatJet(fatjet_itr, fatjetName, suffix);
-
-  } // loop over fat jets
-
+  for( auto fatjet_itr : *fatJets ) 
+    FillFatJet(fatjet_itr, fatjetName);
 }
 
-void HelpTreeBase::FillFatJet( const xAOD::Jet* fatjet_itr, const std::string& fatjetName, const std::string& suffix ) {
-
-  const std::string& collectionName = FatJetCollectionName(fatjetName, suffix);
-  xAH::FatJetContainer* thisFatJet = m_fatjets[collectionName];
-
-  thisFatJet->FillFatJet(fatjet_itr);
-
-  this->FillFatJetsUser(fatjet_itr, fatjetName, suffix);
-
-  return;
+void HelpTreeBase::FillFatJet( const xAOD::Jet* fatjet_itr, const std::string& fatjetName )
+{
+  xAH::FatJetHelpTree *thisFatJet = m_fatjets[fatjetName];
+  thisFatJet->fillFatJet(fatjet_itr);
 }
 
 
 
-void HelpTreeBase::FillTruthFatJets( const xAOD::JetContainer* truthTruthFatJets, const std::string& truthFatJetName ) {
-  this->ClearTruthFatJets();
+void HelpTreeBase::FillTruthFatJets( const xAOD::JetContainer* truthTruthFatJets, const std::string& truthFatJetName ) 
+{
+  ClearTruthFatJets();
 
-  for( auto truth_fatjet_itr : *truthTruthFatJets ) {
-
-    this->FillTruthFatJet(truth_fatjet_itr, truthFatJetName);
-
-  } // loop over fat jets
-
+  for( auto truth_fatjet_itr : *truthTruthFatJets )
+    FillTruthFatJet(truth_fatjet_itr, truthFatJetName);
 }
 
-void HelpTreeBase::FillTruthFatJet( const xAOD::Jet* truth_fatjet_itr, const std::string& truthFatJetName ) {
-
-  xAH::FatJetContainer* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
-
-  thisTruthFatJet->FillFatJet(truth_fatjet_itr);
-
-  this->FillTruthFatJetsUser(truth_fatjet_itr, truthFatJetName);
-
-  return;
+void HelpTreeBase::FillTruthFatJet( const xAOD::Jet* truth_fatjet_itr, const std::string& truthFatJetName ) 
+{
+  xAH::FatJetHelpTree* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
+  thisTruthFatJet->fillFatJet(truth_fatjet_itr);
 }
 
 
-void HelpTreeBase::ClearFatJets(const std::string& fatjetName, const std::string& suffix) {
-  const std::string& collectionName = FatJetCollectionName(fatjetName, suffix);
-
-  xAH::FatJetContainer* thisFatJet = m_fatjets[collectionName];
+void HelpTreeBase::ClearFatJets(const std::string& fatjetName)
+{
+  xAH::FatJetHelpTree* thisFatJet = m_fatjets[fatjetName];
   thisFatJet->clear();
-
-  this->ClearFatJetsUser(fatjetName, suffix);
 }
 
-void HelpTreeBase::ClearTruthFatJets(const std::string& truthFatJetName) {
-
-  xAH::FatJetContainer* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
+void HelpTreeBase::ClearTruthFatJets(const std::string& truthFatJetName)
+{
+  xAH::FatJetHelpTree* thisTruthFatJet = m_truth_fatjets[truthFatJetName];
   thisTruthFatJet->clear();
-
-  this->ClearTruthFatJetsUser(truthFatJetName);
 }
 
 void HelpTreeBase::ClearEvent() {

@@ -84,19 +84,19 @@ namespace xAH {
       std::vector<float> *m_Split12;
       std::vector<float> *m_Split23;
       std::vector<float> *m_Split34;
-      std::vector<float> *m_tau1_wta;
-      std::vector<float> *m_tau2_wta;
-      std::vector<float> *m_tau3_wta;
-      std::vector<float> *m_tau21_wta;
-      std::vector<float> *m_tau32_wta;
+      std::vector<float> *m_Tau1_wta;
+      std::vector<float> *m_Tau2_wta;
+      std::vector<float> *m_Tau3_wta;
+      std::vector<float> *m_Tau21_wta;
+      std::vector<float> *m_Tau32_wta;
       std::vector<float> *m_ECF1;
       std::vector<float> *m_ECF2;
       std::vector<float> *m_ECF3;
       std::vector<float> *m_C2;
       std::vector<float> *m_D2;
       std::vector<float> *m_NTrimSubjets;
-      std::vector<int>   *m_NClusters;
-      std::vector<int>   *m_nTracks;
+      std::vector<int>   *m_MyNClusters;
+      std::vector<int>   *m_GhostTrackCount;
 
       // constituent
       std::vector< int > *m_numConstituents;
@@ -109,10 +109,10 @@ namespace xAH {
       std::vector< std::vector<float> >  *m_constituent_e;
 
       // bosonCount
-      std::vector< int > *m_nTQuarks;
-      std::vector< int > *m_nHBosons;      
-      std::vector< int > *m_nWBosons;            
-      std::vector< int > *m_nZBosons;      
+      std::vector< int > *m_GhostTQuarksFinalCount;
+      std::vector< int > *m_GhostWBosonsCount;
+      std::vector< int > *m_GhostZBosonsCount;
+      std::vector< int > *m_GhostHBosonsCount;
 
       // VTag
       std::vector< int > *m_Wtag_medium;
