@@ -23,7 +23,7 @@ FatJetHelpTree::FatJetHelpTree(const std::string& name, const std::string& detai
     {
       std::string trkJetName = name;
       trkJetName += "_"+m_infoSwitch.m_trackJetName;
-      m_trkJets = new xAH::JetHelpTree(trkJetName, "kinematic flavorTag constituent sfFTagFix77", m_units, m_mc);
+      m_trkJets = new xAH::JetHelpTree(trkJetName, "kinematic flavorTag constituent sfFTagFix60707785", m_units, m_mc);
   }
 }
 
