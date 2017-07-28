@@ -5,7 +5,7 @@
 using namespace xAH;
 
 PhotonHelpTree::PhotonHelpTree(const std::string& name, const std::string& detailStr, float units, bool mc)
-  : ParticleHelpTree("xAH::Photon",name, detailStr, units, mc)
+  : ParticleHelpTree("xAH::Photon", name, detailStr, units, mc)
 { }
 
 PhotonHelpTree::~PhotonHelpTree()
@@ -31,7 +31,6 @@ void PhotonHelpTree::createBranches(TTree *tree)
       setBranchStatus(tree, "topoetcone40",                     1);
     }
 
-  // PID
   if(m_infoSwitch.m_PID)
     {
       tree->Branch(("n"+m_name+"_IsLoose").c_str(), &m_n_IsLoose);
