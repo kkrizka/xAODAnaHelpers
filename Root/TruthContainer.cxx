@@ -119,7 +119,7 @@ void TruthContainer::setTree(TTree *tree)
 
 }
 
-void TruthContainer::updateParticle(uint idx, TruthPart& truth)
+void TruthContainer::updateParticle(uint idx, TruthParticle& truth)
 {
   if(m_debug) cout << "in TruthContainer::updateParticle " << endl;
   ParticleContainer::updateParticle(idx,truth);  

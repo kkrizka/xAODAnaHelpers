@@ -12,12 +12,12 @@
 #include <xAODAnaHelpers/HelperClasses.h>
 #include <xAODAnaHelpers/HelperFunctions.h>
 
-#include <xAODAnaHelpers/TruthPart.h>
+#include <xAODAnaHelpers/TruthParticle.h>
 #include <xAODAnaHelpers/ParticleContainer.h>
 
 namespace xAH {
 
-    class TruthContainer : public ParticleContainer<TruthPart,HelperClasses::TruthInfoSwitch>
+    class TruthContainer : public ParticleContainer<TruthParticle,HelperClasses::TruthInfoSwitch>
     {
     public:
       TruthContainer(const std::string& name = "truth", const std::string& detailStr="", float units = 1e3);
@@ -32,7 +32,7 @@ namespace xAH {
 
     protected:
 
-      virtual void updateParticle(uint idx, TruthPart& truth);
+      virtual void updateParticle(uint idx, TruthParticle& truth);
 
     private:
 

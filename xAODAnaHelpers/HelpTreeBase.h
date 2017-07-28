@@ -36,10 +36,12 @@
 #include "xAODAnaHelpers/ElectronContainer.h"
 #include "xAODAnaHelpers/PhotonHelpTree.h"
 #include "xAODAnaHelpers/FatJetHelpTree.h"
-#include "xAODAnaHelpers/TruthContainer.h"
+#include "xAODAnaHelpers/TruthHelpTree.h"
 #include "xAODAnaHelpers/TrackContainer.h"
 #include "xAODAnaHelpers/MuonContainer.h"
 #include "xAODAnaHelpers/TauContainer.h"
+
+#include "xAODAnaHelpers/TruthContainer.h"
 
 
 #include <map>
@@ -74,7 +76,7 @@ public:
   void AddPhotons     (const std::string& detailStr = "", const std::string& photonName = "ph");
   void AddJets        (const std::string& detailStr = "", const std::string& jetName = "jet");
   void AddL1Jets      ();
-  void AddTruthParts  (const std::string& truthName,      const std::string& detailStr = "");
+  void AddTruth       (const std::string& detailStr = "", const std::string& truthName = "truth");
   void AddTrackParts  (const std::string& trackName,	 const std::string& detailStr = "");
 
   /**
@@ -121,7 +123,7 @@ public:
   void FillJet( const xAOD::Jet* jet_itr, const xAOD::Vertex* pv, int pvLocation, const std::string& jetName = "jet" );
   void FillL1Jets( const xAOD::JetRoIContainer* jets );
 
-  void FillTruth( const std::string& truthName, const xAOD::TruthParticleContainer* truth);
+  void FillTruth( const xAOD::TruthParticleContainer* truth, const std::string& truthName = "truth" );
   void FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName );
 
   void FillTracks( const std::string& trackName, const xAOD::TrackParticleContainer* tracks);
@@ -154,10 +156,10 @@ public:
   void ClearPhotons     (const std::string& photonName = "ph");
   void ClearJets        (const std::string& jetName = "jet");
   void ClearL1Jets      ();
-  void ClearTruth       (const std::string& truthName);
+  void ClearTruth       (const std::string& truthName = "truth" );
   void ClearTracks	(const std::string& trackName);
-  void ClearFatJets     (const std::string& fatjetName = "fatjet");
-  void ClearTruthFatJets(const std::string& truthFatJetName = "truth_fatjet");
+  void ClearFatJets     (const std::string& fatjetName = "fatjet" );
+  void ClearTruthFatJets(const std::string& truthFatJetName = "truth_fatjet" );
   void ClearTaus        (const std::string& tauName = "tau" );
   void ClearMET();
 
@@ -188,11 +190,6 @@ public:
     return;
   };
 
-  virtual void AddTruthUser(const std::string& truthName, const std::string& detailStr = "")       {
-    if(m_debug) Info("AddTruthUser","Empty function called from HelpTreeBase %s %s",truthName.c_str(), detailStr.c_str());
-    return;
-  };
-
   virtual void AddTracksUser(const std::string& trackName, const std::string& detailStr = "")       {
     if(m_debug) Info("AddTracksUser","Empty function called from HelpTreeBase %s %s",trackName.c_str(), detailStr.c_str());
     return;
@@ -212,7 +209,6 @@ public:
   virtual void ClearTriggerUser     ()   { return; };
   virtual void ClearMuonsUser       (const std::string& /*muonName = muon"*/)     { return; };
   virtual void ClearElectronsUser   (const std::string& /*elecName = "el"*/) { return; };
-  virtual void ClearTruthUser       (const std::string& /*truthName*/) 	    { return; };
   virtual void ClearTracksUser       (const std::string& /*trackName*/)       { return; };
   virtual void ClearTausUser        (const std::string& /*tauName = "tau"*/) 	    { return; };
   virtual void ClearMETUser         ()       { return; };
@@ -220,7 +216,6 @@ public:
   virtual void FillEventUser    ( const xAOD::EventInfo*  )        { return; };
   virtual void FillMuonsUser    ( const xAOD::Muon*,     const std::string& /*muonName = "muon"*/  )             { return; };
   virtual void FillElectronsUser( const xAOD::Electron*, const std::string& /*elecName = "el"*/ )     { return; };
-  virtual void FillTruthUser    ( const std::string& /*truthName*/, const xAOD::TruthParticle*  )               { return; };
   virtual void FillTracksUser   ( const std::string& /*trackName*/, const xAOD::TrackParticle*  )               { return; };
   virtual void FillTausUser( const xAOD::TauJet*,           const std::string& /*tauName = "tau"*/  )            { return; };
   virtual void FillMETUser( const xAOD::MissingETContainer*  ) { return; };
@@ -282,7 +277,7 @@ protected:
   //
   // Truth
   //
-  std::map<std::string, xAH::TruthContainer*> m_truth;
+  std::map<std::string, xAH::TruthHelpTree*> m_truth;
 
   //
   // Tracks

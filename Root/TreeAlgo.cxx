@@ -261,7 +261,7 @@ EL::StatusCode TreeAlgo :: execute ()
     if (!m_tauContainerName.empty() )           { helpTree->AddTaus(m_tauDetailStr);                               }
     if (!m_METContainerName.empty() )           { helpTree->AddMET(m_METDetailStr);                                }
     if (!m_photonContainerName.empty() )        { helpTree->AddPhotons(m_photonDetailStr);                         }
-    if (!m_truthParticlesContainerName.empty()) { helpTree->AddTruthParts("xAH_truth", m_truthParticlesDetailStr); }
+    if (!m_truthParticlesContainerName.empty()) { helpTree->AddTruth(m_truthParticlesDetailStr); }
     if (!m_trackParticlesContainerName.empty()) { helpTree->AddTrackParts(m_trackParticlesContainerName, m_trackParticlesDetailStr); }
   }
 
@@ -379,7 +379,7 @@ EL::StatusCode TreeAlgo :: execute ()
     if ( !m_truthParticlesContainerName.empty() ) {
       const xAOD::TruthParticleContainer* inTruthParticles(nullptr);
       RETURN_CHECK("TreeAlgo::execute()", HelperFunctions::retrieve(inTruthParticles, m_truthParticlesContainerName, m_event, m_store, m_verbose), "");
-      helpTree->FillTruth("xAH_truth", inTruthParticles);
+      helpTree->FillTruth(inTruthParticles);
     }
     if ( !m_trackParticlesContainerName.empty() ) {
       const xAOD::TrackParticleContainer* inTrackParticles(nullptr);
