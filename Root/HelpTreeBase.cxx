@@ -621,54 +621,45 @@ void HelpTreeBase::ClearJets(const std::string& jetName)
  *
  ********************/
 
-void HelpTreeBase::AddTruthParts(const std::string& truthName, const std::string& detailStr)
+void HelpTreeBase::AddTruth(const std::string& detailStr, const std::string& truthName)
 {
 
-  if(m_debug) Info("AddTruthParts()", "Adding truth particle %s with variables: %s", truthName.c_str(), detailStr.c_str());
-  m_truth[truthName] = new xAH::TruthContainer(truthName, detailStr, m_units);
+  if(m_debug) Info("AddTruth()", "Adding truth particle %s with variables: %s", truthName.c_str(), detailStr.c_str());
 
-  xAH::TruthContainer* thisTruth = m_truth[truthName];
-  thisTruth->setBranches(m_tree);
-  this->AddTruthUser(truthName);
+  m_truth[truthName] = new xAH::TruthHelpTree(truthName, detailStr, m_units);
+  m_truth[truthName]->m_debug = m_debug;
+  m_truth[truthName]->createBranches(m_tree);
 }
 
-void HelpTreeBase::FillTruth( const std::string& truthName, const xAOD::TruthParticleContainer* truthParts ) {
-
-  this->ClearTruth(truthName);
+void HelpTreeBase::FillTruth(const xAOD::TruthParticleContainer* truthParts,const std::string& truthName) 
+{
+  ClearTruth(truthName);
 
   // We need some basic cuts here to avoid many PseudoRapiditity warnings being thrown ...
   float truthparticle_ptmin  = 2.0;
   float truthparticle_etamax = 8.0;
 
-  for( auto truth_itr : *truthParts ) {
+  for( auto truth_itr : *truthParts ) 
+    {
+      if((truth_itr->pt() / m_units < truthparticle_ptmin) || (fabs(truth_itr->eta()) > truthparticle_etamax) )
+	continue;
 
-    if((truth_itr->pt() / m_units < truthparticle_ptmin) || (fabs(truth_itr->eta()) > truthparticle_etamax) ){
-      continue;
-    }
-
-    this->FillTruth(truth_itr, truthName);
+      this->FillTruth(truth_itr, truthName);
   }
 
 }
 
-void HelpTreeBase::FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName )
+void HelpTreeBase::FillTruth( const xAOD::TruthParticle* truthPart, const std::string& truthName)
 {
-  xAH::TruthContainer* thisTruth = m_truth[truthName];
-
-  thisTruth->FillTruth(truthPart);
-
-  this->FillTruthUser(truthName, truthPart);
-
+  xAH::TruthHelpTree* thisTruth = m_truth[truthName];
+  thisTruth->fillTruth(truthPart);
   return;
 }
 
 void HelpTreeBase::ClearTruth(const std::string& truthName) {
 
-  xAH::TruthContainer* thisTruth = m_truth[truthName];
+  xAH::TruthHelpTree* thisTruth = m_truth[truthName];
   thisTruth->clear();
-
-  this->ClearTruthUser(truthName);
-
 }
 
 /*********************
